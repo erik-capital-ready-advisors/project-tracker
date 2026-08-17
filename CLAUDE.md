@@ -141,3 +141,6 @@ Behavioral rules earned on this project. Append one line per lesson, in the mome
 - Check what the autonomous fleet can actually build before choosing a stack for Erik's own
   tooling. Its specialists cover Next.js, Supabase and Vercel; a Python CLI is unbuildable by it
   no matter how well the choice is argued on other grounds.
+- When a deliverable is superseded, write the replacement to a new path and leave the original
+  file alone until Erik says otherwise. Overwriting a long document with a short pointer destroys
+  work, and a clause at the end of a long message is not notice — ask first.

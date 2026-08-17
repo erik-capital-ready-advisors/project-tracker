@@ -33,6 +33,8 @@ This file is the **build log**. It tracks the live state of development: what's 
 
 **Second, before dispatch:** Q2 — whether any client contract restricts where their project details may be stored. This one does not block the build, but it blocks ingesting any engagement other than this repository's own, because ingest copies client prose out of individual repos into one database.
 
+**Dispatch note for `project-lead`:** `plan.md` at the repo root is the detailed brief for **one** work unit — the pure domain core, `src/lib/ingest/`, covering M1.4 plus the pure rules inside M1.6, M1.7 and M1.8. Dispatch it as a single `integration` unit with that file inlined, and decompose every other milestone from the spec as usual. It needs no database, so it does not wait on B1. Its 13 tasks were executed against the real corpus before they were written down; the counts they assert are measured, not estimated.
+
 ---
 
 ## Current state (one paragraph)
