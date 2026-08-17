@@ -1,0 +1,45 @@
+{
+  "env": {
+    "NEXT_TELEMETRY_DISABLED": "1"
+  },
+  "permissions": {
+    "allow": [
+      "Bash(pnpm install:*)",
+      "Bash(pnpm build)",
+      "Bash(pnpm lint:*)",
+      "Bash(pnpm test:*)",
+      "Bash(npx tsc --noEmit)",
+      "Bash(git status:*)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Bash(git branch:*)",
+      "Bash(git worktree list)",
+      "Bash(git rev-parse:*)",
+      "Bash(grep:*)",
+      "Bash(date:*)",
+      "Bash(curl:*)",
+      "Bash(openssl rand:*)",
+      "Bash(bash ~/.claude/agents/scripts/fleet-preflight.sh:*)",
+      "Bash(bash /Users/erikmeltzer/.claude/agents/scripts/fleet-preflight.sh:*)",
+      "Bash(bash ~/.claude/agents/scripts/security-gate.sh:*)",
+      "Bash(bash /Users/erikmeltzer/.claude/agents/scripts/security-gate.sh:*)",
+      "Bash(bash ~/.claude/agents/scripts/report-gate.sh:*)",
+      "Bash(bash /Users/erikmeltzer/.claude/agents/scripts/report-gate.sh:*)",
+      "Read(//Users/erikmeltzer/Library/Mobile Documents/com~apple~CloudDocs/Obsidian/Erik-Brain/Knowledge/**)",
+      "Write(//Users/erikmeltzer/Library/Mobile Documents/com~apple~CloudDocs/Obsidian/Erik-Brain/Knowledge/**)",
+      "Edit(//Users/erikmeltzer/Library/Mobile Documents/com~apple~CloudDocs/Obsidian/Erik-Brain/Knowledge/**)"
+    ],
+    "deny": [
+      "Read(./.env)",
+      "Read(./.env.local)",
+      "Read(./.env.production)",
+      "Read(./.env.development)",
+      "Read(./**/.env)",
+      "Read(./**/.env.local)",
+      "Read(./**/*.pem)",
+      "Read(./**/*.p12)",
+      "Read(./**/id_rsa*)",
+      "Read(./**/service-account*.json)"
+    ]
+  }
+}
