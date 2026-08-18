@@ -144,3 +144,8 @@ Behavioral rules earned on this project. Append one line per lesson, in the mome
 - When a deliverable is superseded, write the replacement to a new path and leave the original
   file alone until Erik says otherwise. Overwriting a long document with a short pointer destroys
   work, and a clause at the end of a long message is not notice — ask first.
+- When an API reports a resource missing, verify from a second independent vantage before reporting
+  it absent, and run a negative control so you know the check can fail. `get_project` returning 404
+  plus a `list_projects` that omitted it looked conclusive and was wrong: the Vercel project existed
+  and was deployed, and the MCP connector simply could not see it. "The API cannot see it" and "it
+  does not exist" are different claims.
