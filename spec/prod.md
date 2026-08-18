@@ -57,8 +57,8 @@ Erik's scope for this pass was explicit: **provision and wire the three services
 | GitHub repo | **Done.** `erik-capital-ready-advisors/project-tracker`, private, `master` pushed |
 | Vercel project | **Done.** Connected to the GitHub repo and auto-deploying on push - 6 production deployments, all `Ready`, the newest triggered by a push during this session. Production URL `https://project-tracker-mu-livid.vercel.app` (the bare `project-tracker.vercel.app` belongs to someone else) |
 | Vercel <-> local CLI | **Done.** `vercel link` run; `.vercel/` created and gitignored |
-| Vercel env vars | **Partly done.** `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` set on **Production** and **Development**. **Preview failed** - the installed CLI (52.0.0, current is 59.1.3) loops on `git_branch_required` even when passed the exact command its own error names. Two clicks in the dashboard, or upgrade the CLI |
-| `SUPABASE_SERVICE_ROLE_KEY` | **Not set, deliberately.** No session has read it and none should. Erik sets it in Vercel and in `.env.local` |
+| Vercel env vars | **Done.** `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` set on **Production, Preview and Development**. Preview needed a CLI upgrade: 52.0.0 loops on `git_branch_required` and its `next[]` hint suggests the command that produced the loop. Upgraded to 59.1.4 with `npm i -g vercel@latest` and it worked first try |
+| `SUPABASE_SERVICE_ROLE_KEY` | **Set by Erik** on Preview and Production, 2026-08-17. No agent session has read it. **One hardening left:** it is stored `Non-sensitive`, so it can be read back in plaintext from the dashboard or `vercel env pull`. This key bypasses RLS on the database holding every client's contract amounts. Re-add it with `--sensitive` to make it write-only |
 | Supabase project | **Done and inventoried.** `onpvolboecjpdkvurjaf`, empty, correct org |
 | Supabase signup | **Open - B8.** Still `disable_signup: false` |
 | Vercel MCP connector | **Open - B1b.** Sees 1 project; the CLI sees 15. Scope-limited token |
