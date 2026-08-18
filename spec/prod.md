@@ -48,6 +48,26 @@ Spec drafted and gated. No product code exists. `spec/spec-v1.md` carries 62 fun
 
 ---
 
+## Infrastructure wiring, as of 2026-08-17
+
+Erik's scope for this pass was explicit: **provision and wire the three services, do not start the build.**
+
+| Piece | State |
+|---|---|
+| GitHub repo | **Done.** `erik-capital-ready-advisors/project-tracker`, private, `master` pushed |
+| Vercel project | **Done.** Connected to the GitHub repo and auto-deploying on push - 6 production deployments, all `Ready`, the newest triggered by a push during this session. Production URL `https://project-tracker-mu-livid.vercel.app` (the bare `project-tracker.vercel.app` belongs to someone else) |
+| Vercel <-> local CLI | **Done.** `vercel link` run; `.vercel/` created and gitignored |
+| Vercel env vars | **Partly done.** `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` set on **Production** and **Development**. **Preview failed** - the installed CLI (52.0.0, current is 59.1.3) loops on `git_branch_required` even when passed the exact command its own error names. Two clicks in the dashboard, or upgrade the CLI |
+| `SUPABASE_SERVICE_ROLE_KEY` | **Not set, deliberately.** No session has read it and none should. Erik sets it in Vercel and in `.env.local` |
+| Supabase project | **Done and inventoried.** `onpvolboecjpdkvurjaf`, empty, correct org |
+| Supabase signup | **Open - B8.** Still `disable_signup: false` |
+| Vercel MCP connector | **Open - B1b.** Sees 1 project; the CLI sees 15. Scope-limited token |
+| Application code | **None, by design.** The repo holds spec, plan and docs only, so Vercel is currently deploying markdown. A framework scaffold is the first build step and was not taken |
+
+**The two vantage points disagreeing is the lesson worth keeping from this pass.** The MCP connector said the Vercel project did not exist; the CLI listed it among fifteen. Neither tool was broken - they were authenticated with different scopes, and only one of them was asked.
+
+---
+
 ## Milestone tracker
 
 ### Phase 1 — MVP (estimated 8-10 days)
