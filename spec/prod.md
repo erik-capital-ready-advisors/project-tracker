@@ -1,8 +1,8 @@
 # Production Plan: Delivery Ledger
 
 **Project:** Delivery Ledger — single-operator delivery tracker for Capital Ready Advisors
-**Last updated:** 2026-08-17 by the intake session
-**Current phase:** Pre-build — spec drafted, awaiting Erik's approval and one provisioning decision
+**Last updated:** 2026-08-17 — provisioning targets verified against the live APIs
+**Current phase:** Pre-build — spec drafted; Supabase provisioned and inventoried, Vercel project still missing
 **Spec version:** spec-v1.md (not yet approved; promote byte-for-byte to `spec-approved.md` on approval)
 **Active CRs:** none — `spec/change-requests/` does not exist
 **Security posture:** declared — spec §7a, 18 entities classified. `security-gate.sh` **PASS** on spec-v1.md, 2026-08-17.
@@ -25,11 +25,12 @@ This file is the **build log**. It tracks the live state of development: what's 
 
 ## Next session pointer
 
-**Next up: answer Q7, then dispatch.** The spec is written, the security gate passes, and the milestone tracker below maps every FR to a milestone. Exactly one thing blocks dispatch and it is not a build task.
+**Next up: create the Vercel project, turn public signup off, then dispatch.** Q7 was answered on 2026-08-17 and the Supabase half is verified. Two small things stand between here and a dispatch, and neither is a build task.
 
-**Q7 — which Supabase organization and which Vercel account does this get provisioned into.** This is B1 below. It is Erik's decision and no agent may take it. The reference build in this practice provisioned a Supabase project into the wrong organization, discovered six other clients' databases alongside it, and destroyed the project to recover; it also found no Vercel account reachable from the fleet's environment at all (`list_teams` returned `{"teams": []}`, and `VERCEL_TOKEN`, `VERCEL_ORG_ID` and `VERCEL_PROJECT_ID` were all absent). Both facts are why M1.0 exists as a milestone rather than as a step inside M1.1.
+1. **The Vercel project does not exist.** Erik reported creating one at `vercel.com/erik-capital-ready-advisors-projects/project-tracker`, but `get_project` on that slug returns **404** and `list_projects` for team `team_J6J1LAU19znwJenYFKgVArEV` returns exactly one project, `danishjawaid`. The team itself is reachable now, which is the real change from the reference build - `list_teams` used to return `{"teams": []}`. Either the create flow did not complete or the project sits in a different scope than the team the URL names. **B1b below.**
+2. **Public signup is ON.** `GET /auth/v1/settings` on the new project returned `"disable_signup": false` with `"external": {"email": true}` on 2026-08-17. This is FR-1 and it is a dashboard action that **no migration closes**. Authentication -> Sign In / Providers -> "Allow new users to sign up" OFF. **B8 below.**
 
-**Why this next:** every other milestone can be built on fixtures, but M1.0 decides where the client book lives. Getting it wrong is not recoverable by a later migration.
+**Why this order:** the Supabase project is verified empty and correctly located, so M1.4 can be dispatched right now against fixtures with nothing else in place. Everything that touches the database wants signup closed first, because an open signup on a project that is about to hold the studio's whole client book is the one hazard that gets worse the moment there is data.
 
 **Second, before dispatch:** Q2 — whether any client contract restricts where their project details may be stored. This one does not block the build, but it blocks ingesting any engagement other than this repository's own, because ingest copies client prose out of individual repos into one database.
 
@@ -39,7 +40,11 @@ This file is the **build log**. It tracks the live state of development: what's 
 
 ## Current state (one paragraph)
 
-Spec drafted and gated. No code exists. `spec/spec-v1.md` carries 62 functional requirements across 11 Phase 1 milestones, 18 data entities all classified in §7a, and 7 open questions. `security-gate.sh` passes. The repository is empty apart from `spec/` and `CLAUDE.md`. Nothing has been dispatched, and the fleet has not run.
+Spec drafted and gated. No product code exists. `spec/spec-v1.md` carries 62 functional requirements across 11 Phase 1 milestones, 18 data entities all classified in §7a, and 7 open questions. `security-gate.sh` and `fleet-preflight.sh` both pass. Nothing has been dispatched and the fleet has not run.
+
+**As of 2026-08-17 the database exists and has been inventoried.** Supabase project `onpvolboecjpdkvurjaf` (`project-tracker`), org `whneklkrjsulgqzqxsks` — Erik's own and the only org his connector can see — us-east-1, Postgres 17.6.1.155, `ACTIVE_HEALTHY`, created 2026-08-17T21:06Z. **Zero `public` tables, zero migrations, zero users.** Two live findings on it: public signup is on (B8), and an event-trigger function `public.rls_auto_enable()` that this build did not write already forces RLS on every new `public` table. The Vercel team is reachable for the first time, but the `project-tracker` project itself is not there (B1b).
+
+**Connection facts, recorded because they are identifiers rather than secrets.** Project ref `onpvolboecjpdkvurjaf`, API URL `https://onpvolboecjpdkvurjaf.supabase.co`, Vercel team `team_J6J1LAU19znwJenYFKgVArEV`. **No service-role key has been read or stored by any session, and none should be** — it goes in the environment and nowhere else.
 
 ---
 
@@ -49,8 +54,8 @@ Spec drafted and gated. No code exists. `spec/spec-v1.md` carries 62 functional 
 
 | Milestone | Status | Notes |
 |---|---|---|
-| M1.0 Provisioning | **Blocked** | B1 — the account decision is Erik's. Supabase project, `disable_signup` set and verified by observation, Vercel project |
-| M1.1 Foundation | Not Started | Schema for 18 entities, RLS everywhere, pgcrypto per §7a with the key in Vault, append-only audit log. Depends on M1.0 |
+| M1.0 Provisioning | **Part done** | Supabase **done and verified** — `onpvolboecjpdkvurjaf`, correct org, empty, inventoried 2026-08-17. Remaining: `disable_signup` OFF (B8) and the Vercel project (B1b) |
+| M1.1 Foundation | Not Started | Schema for 18 entities, RLS everywhere, pgcrypto per §7a with the key in Vault, append-only audit log. **Unblocked — the database exists.** Note that `rls_auto_enable` already forces RLS on new `public` tables, so verification must assert the **policy**, never the flag |
 | M1.2 Access | Not Started | Operator sign-in, MFA enforced in RLS not only in Next.js, agent tokens hashed and scoped, rate limits. FR-1 to FR-8 |
 | M1.3 Registry | Not Started | Engagements, contract milestones, acceptance criteria. FR-9 to FR-13 |
 | M1.4 Mode 1 ingest | Not Started | Manifest tables, questions normalization, prod.md, requirement ranges, idempotency, the unparsed discipline. FR-14 to FR-23. Buildable on fixtures with no database |
@@ -86,7 +91,9 @@ Spec drafted and gated. No code exists. `spec/spec-v1.md` carries 62 functional 
 
 | ID | Blocker | Owner | Blocks | Resolution path |
 |---|---|---|---|---|
-| **B1** | Which Supabase organization and which Vercel account this is provisioned into. No Vercel account was reachable from the fleet environment during the reference build, and a prior run destroyed a Supabase project after provisioning into the wrong organization | **Erik** | M1.0, and therefore everything except M1.4 | Name both explicitly here before dispatch. Spec Q7 |
+| ~~**B1a**~~ | ~~Which Supabase organization~~ | ~~Erik~~ | ~~everything~~ | **RESOLVED 2026-08-17, verified not assumed.** Project `onpvolboecjpdkvurjaf` (`project-tracker`, us-east-1, Postgres 17.6.1.155, created 2026-08-17T21:06Z) in org `whneklkrjsulgqzqxsks`, "erik-capital-ready-advisors's Org". See the Decisions log for the evidence |
+| **B1b** | **The Vercel project does not exist.** `get_project` on slug `project-tracker` for team `team_J6J1LAU19znwJenYFKgVArEV` returns 404; `list_projects` for that team returns only `danishjawaid`. The team is reachable, which is new | **Erik** | M1.0's deploy half, and any observed-on-a-live-origin evidence. Does **not** block M1.1 to M1.9 | Create it, or say which scope it is in. Then re-run the check |
+| **B8** | **Public signup is enabled** on `onpvolboecjpdkvurjaf`. Observed 2026-08-17: `disable_signup: false`, `external.email: true`. FR-1 says no public signup exists. **No migration closes this** | **Erik** | Nothing mechanically, but it should close before any real data lands | Dashboard: Authentication -> Sign In / Providers -> "Allow new users to sign up" OFF. Then re-probe: both open and closed states answer HTTP 422, so the error **code** discriminates (`signup_disabled` vs `weak_password`), not the status |
 | **B2** | Whether any client contract restricts where that client's project details may be stored. This product copies spec text, defect prose and blocker descriptions out of individual client repos into one database | **Erik** | Ingesting any engagement other than this one | Review live contracts. Spec Q2. Does not block the build |
 | **B3** | Retention on commercial and client-prose data is unstated. The §7a baseline is indefinite with no automatic deletion | **Erik** | Nothing — the baseline ships | Spec Q3. Baseline: 7 years on `contract_milestone`, indefinite elsewhere |
 | **B4** | Session hook install scope — global with an allowlist, or per project. This is the entire Mode 2 capture path and the two options fail in opposite directions | **Erik** | M1.5's install documentation, not its code | Spec Q4. Recommendation: global with an allowlist of studio project roots |
@@ -100,6 +107,10 @@ Spec drafted and gated. No code exists. `spec/spec-v1.md` carries 62 functional 
 
 | Date | Decision | Rationale |
 |---|---|---|
+| 2026-08-17 | **Provisioning target confirmed by observation, not by the URL Erik pasted.** Supabase `onpvolboecjpdkvurjaf` in org `whneklkrjsulgqzqxsks`. Vercel team `team_J6J1LAU19znwJenYFKgVArEV`, slug `erik-capital-ready-advisors-projects` | The account signal was read in the same place it read dirty on run `cd414c`, and it now reads clean: `list_organizations` returns **exactly one** org and it is Erik's; `list_projects` returns exactly two projects, `project-tracker` and `danishjawaid`, both his. On `cd414c` the same call returned six strangers' products. Checking the URL against the API is what separates "Erik says it exists" from "it exists" - and on the Vercel half those two answers disagreed |
+| 2026-08-17 | **Inventoried the database BEFORE anything was applied, and it is empty** | Zero `public` tables, `list_migrations` returns `[]`, `auth.users` 0 rows. The only non-zero counts are Supabase's own bookkeeping (`auth.schema_migrations` 77, `storage.migrations` 62), which every fresh project carries. Replay is therefore safe, and this is recorded now because the same inventory was the thing that made `cd414c`'s replay safe - and skipping it is what made the first attempt unsafe |
+| 2026-08-17 | **`public.rls_auto_enable()` already exists on the project, and it changes the verification instrument** | An event-trigger function, `SECURITY DEFINER`, `SET search_path TO 'pg_catalog'`, that enables RLS on every new table created in `public`. Nobody in this build wrote it. Two consequences. **(1)** It answers the Danish run's open question about forcing RLS by event trigger - here it is already forced, so that is not a decision left to make. **(2) It means "RLS is enabled on this table" is no longer evidence that the migration enabled it.** A test asserting RLS-on would pass even if a migration forgot, because the trigger did it. Any RLS check must assert the **policy**, not the flag. This is the project's signature defect family - a gate that passes in exactly the case it exists to catch |
+| 2026-08-17 | **B13 is live on day zero, and the specific instance is harmless** | `rls_auto_enable`'s ACL reads `=X/postgres | postgres=X/postgres | anon=X/postgres | ...`. The leading `=X` is PUBLIC holding EXECUTE, which is exactly the pattern the reference build documented: `ALTER DEFAULT PRIVILEGES` does not close it and every new `public` function needs a per-name `REVOKE`. **This particular function is not exploitable** - it returns `event_trigger`, so the `/rest/v1/rpc/` path the advisor names cannot actually invoke it. Recorded because the *grant pattern* is real and will apply to every function this build writes, not because this one is dangerous |
 | 2026-08-17 | Next.js + Supabase + Vercel, not a local CLI | Erik requires a product his own fleet can build. The fleet's specialists cover this stack and no other. A first draft of this design proposed a zero-dependency Python CLI on the strength of running in a fresh worktree with no install; that argument was sound and irrelevant, because the fleet cannot build it |
 | 2026-08-17 | Three execution modes converge on one `work_item` table | Separate tables produce three lists Erik merges in his head, which is the state the product exists to fix |
 | 2026-08-17 | `unparsed` is the only default for every classifier | A wrong `done` tells Erik a client requirement is satisfied when nothing checked it. Stated in §9 as the load-bearing decision |
