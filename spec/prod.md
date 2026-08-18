@@ -2,7 +2,7 @@
 
 **Project:** Delivery Ledger — single-operator delivery tracker for Capital Ready Advisors
 **Last updated:** 2026-08-17 — provisioning targets verified against the live APIs
-**Current phase:** Pre-build — spec drafted; Supabase and Vercel both provisioned. One dashboard toggle and one connector-scope fix outstanding, neither blocking
+**Current phase:** Pre-build — spec approved and gated, **M1.0 provisioning complete and verified**. No application code. Nothing blocks a dispatch
 **Spec version:** `spec-approved.md` — promoted byte-for-byte from `spec-v1.md` on 2026-08-17 (`6820ade`), verified identical by `diff`
 **Active CRs:** none — `spec/change-requests/` does not exist
 **Security posture:** declared — spec §7a, 18 entities classified. `security-gate.sh` **PASS on `spec-approved.md`**, and `fleet-preflight.sh` PASS, both 2026-08-17.
@@ -25,7 +25,7 @@ This file is the **build log**. It tracks the live state of development: what's 
 
 ## Next session pointer
 
-**Next up: approve the spec and dispatch.** Q7 was answered on 2026-08-17 and **both** provisioning targets are verified. Nothing blocks a dispatch. Two loose ends remain and neither is a build task, so neither has to be closed first.
+**Next up: the first build dispatch, whenever Erik wants it.** The spec is approved, both gates pass, and **M1.0 is complete and verified by observation rather than by assertion**. Erik's scope on 2026-08-17 was explicitly infrastructure only, so nothing was scaffolded and no run was dispatched.
 
 1. ~~**The Vercel project does not exist.**~~ **CORRECTED 2026-08-17 — it exists and is deployed.** The claim above was wrong and the error is worth keeping: `get_project` on the slug returned 404 and `list_projects` omitted it, and that was read as absence. It is a **visibility limit on the MCP connector**, not absence. Proved by HTTP against a negative control: `project-tracker-erik-capital-ready-advisors-projects.vercel.app` answers **302 to `vercel.com/sso-api`** with a per-request `_vercel_sso_nonce`, identical in shape to the known-good `danishjawaid`, while two invented names under the same wildcard answer **404 with no `location` header**. What remains is **B1b as re-scoped**: the fleet's `devops` specialist drives Vercel through that same connector, so it cannot configure env vars or read deploy state until the connector can see the project.
 2. **Public signup is ON.** `GET /auth/v1/settings` on the new project returned `"disable_signup": false` with `"external": {"email": true}` on 2026-08-17. This is FR-1 and it is a dashboard action that **no migration closes**. Authentication -> Sign In / Providers -> "Allow new users to sign up" OFF. **B8 below.**
@@ -60,7 +60,7 @@ Erik's scope for this pass was explicit: **provision and wire the three services
 | Vercel env vars | **Done.** `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` set on **Production, Preview and Development**. Preview needed a CLI upgrade: 52.0.0 loops on `git_branch_required` and its `next[]` hint suggests the command that produced the loop. Upgraded to 59.1.4 with `npm i -g vercel@latest` and it worked first try |
 | `SUPABASE_SERVICE_ROLE_KEY` | **Set by Erik and hardened by Erik**, 2026-08-17. `Sensitive` (write-only) on **Production**. No agent session has ever read it. **Open question:** the re-add dropped the Preview copy, so preview deployments now have no service-role key. The fleet builds on a branch and therefore deploys to Preview, so any server-side database path will fail there until it is added back - or that is accepted deliberately, on the argument that preview URLs are more exposed and should not carry a key that bypasses RLS |
 | Supabase project | **Done and inventoried.** `onpvolboecjpdkvurjaf`, empty, correct org |
-| Supabase signup | **Open - B8.** Still `disable_signup: false` |
+| Supabase signup | **Done.** Disabled by Erik and verified with the three-part instrument - settings flag, error code, and `auth.users` row count |
 | Vercel MCP connector | **Open - B1b.** Sees 1 project; the CLI sees 15. Scope-limited token |
 | Application code | **None, by design.** The repo holds spec, plan and docs only, so Vercel is currently deploying markdown. A framework scaffold is the first build step and was not taken |
 
@@ -74,7 +74,7 @@ Erik's scope for this pass was explicit: **provision and wire the three services
 
 | Milestone | Status | Notes |
 |---|---|---|
-| M1.0 Provisioning | **Part done** | Supabase **done and verified** — `onpvolboecjpdkvurjaf`, correct org, empty, inventoried 2026-08-17. Vercel project **exists and is deployed**. Remaining: `disable_signup` OFF (B8), and the Vercel MCP connector cannot see the project (B1b) |
+| M1.0 Provisioning | **Done** | Supabase `onpvolboecjpdkvurjaf` in Erik's own org, inventoried empty. Vercel project live and linked, env vars set on all three environments. `disable_signup` **verified true by observation**, not assumed. Residual: the Vercel MCP connector's scope (B1b) and whether Preview carries a service-role key |
 | M1.1 Foundation | Not Started | Schema for 18 entities, RLS everywhere, pgcrypto per §7a with the key in Vault, append-only audit log. **Unblocked — the database exists.** Note that `rls_auto_enable` already forces RLS on new `public` tables, so verification must assert the **policy**, never the flag |
 | M1.2 Access | Not Started | Operator sign-in, MFA enforced in RLS not only in Next.js, agent tokens hashed and scoped, rate limits. FR-1 to FR-8 |
 | M1.3 Registry | Not Started | Engagements, contract milestones, acceptance criteria. FR-9 to FR-13 |
@@ -113,7 +113,7 @@ Erik's scope for this pass was explicit: **provision and wire the three services
 |---|---|---|---|---|
 | ~~**B1a**~~ | ~~Which Supabase organization~~ | ~~Erik~~ | ~~everything~~ | **RESOLVED 2026-08-17, verified not assumed.** Project `onpvolboecjpdkvurjaf` (`project-tracker`, us-east-1, Postgres 17.6.1.155, created 2026-08-17T21:06Z) in org `whneklkrjsulgqzqxsks`, "erik-capital-ready-advisors's Org". See the Decisions log for the evidence |
 | **B1b** | **The Vercel MCP connector cannot see the project.** The project exists and is deployed (verified by HTTP against a negative control, 2026-08-17), but `get_project` 404s and `list_projects` returns only `danishjawaid`. Most likely a project-scoped or stale token | **Erik** | The fleet's `devops` unit only — it drives Vercel through this connector. Does **not** block M1.1 to M1.9 | Reauthorize the Vercel connector via `/mcp`, or reissue its token with access to the whole team. Then re-run `list_projects` and expect two |
-| **B8** | **Public signup is enabled** on `onpvolboecjpdkvurjaf`. Observed 2026-08-17: `disable_signup: false`, `external.email: true`. FR-1 says no public signup exists. **No migration closes this** | **Erik** | Nothing mechanically, but it should close before any real data lands | Dashboard: Authentication -> Sign In / Providers -> "Allow new users to sign up" OFF. Then re-probe: both open and closed states answer HTTP 422, so the error **code** discriminates (`signup_disabled` vs `weak_password`), not the status |
+| ~~**B8**~~ | ~~Public signup enabled~~ | ~~Erik~~ | **RESOLVED 2026-08-17 by Erik, verified by observation.** `disable_signup: true`; a live `POST /auth/v1/signup` answers **422 `signup_disabled`** rather than `weak_password`, which is the code that discriminates; and `auth.users` is still **0 rows**, so it refuses before account creation rather than create-then-reject |
 | **B2** | Whether any client contract restricts where that client's project details may be stored. This product copies spec text, defect prose and blocker descriptions out of individual client repos into one database | **Erik** | Ingesting any engagement other than this one | Review live contracts. Spec Q2. Does not block the build |
 | **B3** | Retention on commercial and client-prose data is unstated. The §7a baseline is indefinite with no automatic deletion | **Erik** | Nothing — the baseline ships | Spec Q3. Baseline: 7 years on `contract_milestone`, indefinite elsewhere |
 | **B4** | Session hook install scope — global with an allowlist, or per project. This is the entire Mode 2 capture path and the two options fail in opposite directions | **Erik** | M1.5's install documentation, not its code | Spec Q4. Recommendation: global with an allowlist of studio project roots |
