@@ -3,9 +3,9 @@
 **Project:** Delivery Ledger — single-operator delivery tracker for Capital Ready Advisors
 **Last updated:** 2026-08-17 — provisioning targets verified against the live APIs
 **Current phase:** Pre-build — spec drafted; Supabase and Vercel both provisioned. One dashboard toggle and one connector-scope fix outstanding, neither blocking
-**Spec version:** spec-v1.md (not yet approved; promote byte-for-byte to `spec-approved.md` on approval)
+**Spec version:** `spec-approved.md` — promoted byte-for-byte from `spec-v1.md` on 2026-08-17 (`6820ade`), verified identical by `diff`
 **Active CRs:** none — `spec/change-requests/` does not exist
-**Security posture:** declared — spec §7a, 18 entities classified. `security-gate.sh` **PASS** on spec-v1.md, 2026-08-17.
+**Security posture:** declared — spec §7a, 18 entities classified. `security-gate.sh` **PASS on `spec-approved.md`**, and `fleet-preflight.sh` PASS, both 2026-08-17.
 
 ---
 

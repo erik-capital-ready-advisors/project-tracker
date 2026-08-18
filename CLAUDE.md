@@ -12,8 +12,8 @@ specialists cover this stack and no other.
 
 At the start of every build session, read these three in order:
 
-1. `spec/spec-approved.md` — what was agreed to build. Source of truth. While approval is
-   pending, that is `spec/spec-v1.md`.
+1. `spec/spec-approved.md` — what was agreed to build. Source of truth. Approved 2026-08-17,
+   byte-identical to `spec-v1.md`.
 2. `spec/change-requests/*.md` in numerical order — approved scope amendments. The
    highest-numbered approved CR wins where one conflicts with the spec.
 3. `spec/prod.md` — build state, active blockers, decisions made along the way.
@@ -93,7 +93,7 @@ working, not as an obstacle to route around.
 
 ## Security is declared in the spec, not invented here
 
-The posture lives in `spec/spec-v1.md` §7a — a class per entity, at-rest treatment, retention,
+The posture lives in `spec/spec-approved.md` §7a — a class per entity, at-rest treatment, retention,
 and who may read it. `~/.claude/agents/security-baseline.md` is the floor beneath it, applying
 wherever §7a is silent, and the build report says which of the two produced each control.
 
