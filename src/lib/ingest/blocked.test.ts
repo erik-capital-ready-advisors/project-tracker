@@ -44,3 +44,35 @@ describe("parseBlocked", () => {
     });
   });
 });
+
+describe("FR-52 blocker ownership defaults to Erik, not to the client", () => {
+  it("FR-52 gives an unattributed blocker to Erik", () => {
+    // Settled by Erik, overriding `plan.md` Task 6's hardcoded `"client"`.
+    // The Blocked screen groups by owner to separate Erik's rows from a
+    // client's; defaulting to `client` sent every provisioning and
+    // infrastructure blocker — which CLAUDE.md says are Erik's — into the
+    // client bucket on the screen that answers "what is Erik the bottleneck
+    // on". i2 flagged this as the highest-value open item in its report.
+    expect(parsed().blockers.length).toBeGreaterThan(0);
+    for (const blocker of parsed().blockers) {
+      expect(blocker.owner).toBe("erik");
+    }
+  });
+
+  it("FR-52 does not infer ownership from the blocker's prose", () => {
+    // A regex hunting for a client's name in the description would be exactly
+    // the widening the unparsed rule forbids. Ownership comes from a field or
+    // from the default; it is never guessed from text.
+    const text = [
+      "## Blocked",
+      "",
+      "| ID | Type | Milestone | Blocker | Status |",
+      "|---|---|---|---|---|",
+      "| b-1 | ui | M1 | B7 waiting on the client to send their vendor key | carried |",
+      "",
+    ].join("\n");
+    const { blockers } = parseBlocked(text, "tracker", "zz10");
+    expect(blockers).toHaveLength(1);
+    expect(blockers[0].owner).toBe("erik");
+  });
+});
