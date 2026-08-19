@@ -61,7 +61,6 @@ export function NextTable({ answer }: { answer: NextAnswer }) {
               className="whitespace-nowrap"
               aria-sort={ordered ? "ascending" : "none"}
             >
-              {/* COPY: the milestone column heading and its ordering marker */}
               nearest milestone
               {ordered ? (
                 <span

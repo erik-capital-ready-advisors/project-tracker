@@ -50,11 +50,10 @@ export type LoadResult<T> =
   | { ok: true; data: T }
   | { ok: false; reason: LoadNoticeReason; detail: string };
 
-/** COPY: shown when a read failed for a reason the operator cannot act on. */
+/** Shown when a read failed for a reason the operator cannot act on. */
 const OPAQUE_FAILURE =
-  "The ledger could not be read. This is a fault in the reading, not a " +
-  "statement about what the ledger holds. Retry; if it persists, check the " +
-  "database connection.";
+  "The ledger could not be read. Retry; if it persists, check that the " +
+  "database is reachable.";
 
 const MISSING_ENV_PREFIX = "Missing required environment variable";
 
@@ -94,10 +93,9 @@ export async function loadForOperator<T>(
       return {
         reason: "sign-in",
         ok: false,
-        // COPY: sign-in notice detail
         detail:
-          "This product has no public surface and no public signup. The " +
-          "operator account is provisioned by hand.",
+          "There is no public signup. The operator account is provisioned by " +
+          "hand.",
       };
     }
 
@@ -106,11 +104,9 @@ export async function loadForOperator<T>(
         ok: false,
         reason: "mfa",
         detail: context.mustEnrolMfa
-          ? // COPY: enrol-a-factor notice detail
-            "Multi-factor authentication is required and no second factor is " +
-            "enrolled on this account. Enrol one to continue."
-          : // COPY: present-your-factor notice detail
-            "Present your second factor to continue.",
+          ? "No second factor is enrolled on this account. Enrol one to " +
+            "continue; enrolment does not need a role."
+          : "Present your second factor to continue.",
       };
     }
 
@@ -118,10 +114,10 @@ export async function loadForOperator<T>(
       return {
         ok: false,
         reason: "no-role",
-        // COPY: no-role notice detail
         detail:
           "Role elevation is a deliberate administrative act. Until a role is " +
-          "granted, this account can read no table.",
+          "granted, this account can read no table. This is not a missing " +
+          "account.",
       };
     }
 

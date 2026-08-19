@@ -108,8 +108,7 @@ export function MfaVerifyForm() {
     if (!supabase.ok || factorId === null) return;
 
     if (!isWellFormedTotp(code)) {
-      // COPY: refusal for a code that is not six digits
-      setError("A code from your authenticator app is six digits.");
+      setError("A code from the authenticator app is six digits.");
       return;
     }
 
@@ -122,7 +121,6 @@ export function MfaVerifyForm() {
     if (challengeError || !challenge) {
       setError(
         challengeError?.message ??
-          // COPY: fallback when a challenge could not be started
           "The second-factor challenge could not be started. Try again.",
       );
       setPending(false);
@@ -147,13 +145,11 @@ export function MfaVerifyForm() {
 
   return (
     <AuthShell
-      // COPY: MFA verify screen title
       title="Second factor"
       description={
-        // COPY: MFA verify screen description
         <>
           Multi-factor authentication is enforced in the database, not just here.
-          Until you present a code, every table refuses to return a row.
+          Until a code is presented, every table refuses to return a row.
         </>
       }
       footer={
@@ -163,7 +159,6 @@ export function MfaVerifyForm() {
           data-verify-unit="auth-sign-out"
           className="hover:text-foreground underline underline-offset-2"
         >
-          {/* COPY: the escape hatch out of a half-authenticated session */}
           Sign out and start again
         </button>
       }
@@ -180,8 +175,7 @@ export function MfaVerifyForm() {
         <Field
           id="mfa-code"
           label="Six-digit code"
-          // COPY: hint for the TOTP code field
-          hint="From the authenticator app you enrolled."
+          hint="From the authenticator app enrolled on this account."
         >
           <Input
             id="mfa-code"
@@ -210,7 +204,6 @@ export function MfaVerifyForm() {
           size="sm"
           disabled={!supabase.ok || loading || pending}
         >
-          {/* COPY: verify button, and its pending label */}
           {pending ? "Verifying…" : "Verify"}
         </Button>
       </form>

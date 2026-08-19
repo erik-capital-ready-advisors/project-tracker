@@ -82,10 +82,13 @@ export default async function UntestedPage({
       {answer === null ? null : answer.engagementUnknown ? (
         <UnknownEngagementNotice slug={query.engagement as string} />
       ) : answer.engagements.length === 0 ? (
-        // COPY: empty-state headline and detail for the untested screen
         <EmptyState
-          headline="No engagement is recorded."
-          detail="Coverage is reported per engagement: the requirement count, the test count, what is uncovered, what is unproven, and which tests were certified by the person who wrote the work."
+          headline={
+            query.filtered
+              ? "No engagement matches these filters."
+              : "No engagement is recorded."
+          }
+          detail="Register an engagement in the Registry. Coverage is then reported per engagement: requirement count, test count, what is uncovered, what is unproven, and which tests were certified by whoever wrote the work."
         />
       ) : (
         <div
@@ -120,11 +123,9 @@ function EvidenceLegend() {
   return (
     <details data-verify-unit="evidence-legend" className="text-sm">
       <summary className="text-muted-foreground hover:text-foreground cursor-pointer text-xs underline underline-offset-2">
-        {/* COPY: the evidence legend expander label */}
         The four evidence scopes, and the two coverage states they produce
       </summary>
       <dl className="text-muted-foreground mt-2 grid gap-x-4 gap-y-2 sm:grid-cols-2">
-        {/* COPY: all eight definitions below. FR-43 and FR-49 in plain language. */}
         <LegendRow state="observed-live">
           Somebody watched this behave correctly in the running deployment.
         </LegendRow>
@@ -144,8 +145,8 @@ function EvidenceLegend() {
           `not-verified`. A test exists. Nobody checked it.
         </LegendRow>
         <LegendRow state="uncovered">
-          FR-49: no passing test names this requirement at all. Distinct from
-          unproven, and it calls for a different thing.
+          FR-49: no passing test names this requirement at all. Unproven needs
+          its test checked; this needs a test written.
         </LegendRow>
       </dl>
     </details>

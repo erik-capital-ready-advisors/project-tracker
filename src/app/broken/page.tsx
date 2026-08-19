@@ -97,10 +97,13 @@ export default async function BrokenPage({
       {answer === null ? null : answer.engagementUnknown ? (
         <UnknownEngagementNotice slug={query.engagement as string} />
       ) : answer.engagements.length === 0 ? (
-        // COPY: empty-state headline and detail for the broken screen
         <EmptyState
-          headline="No engagement is recorded."
-          detail="Open defects appear here grouped by severity, alongside both kinds of regression — a test that used to pass, and a requirement that used to be covered."
+          headline={
+            query.filtered
+              ? "No engagement matches these filters."
+              : "No engagement is recorded."
+          }
+          detail="Defects arrive from a fleet QA report, over the ingest API, or by hand. They appear here grouped by severity, with both kinds of regression: a test that used to pass, and a requirement that used to be covered."
         />
       ) : (
         <div
@@ -131,14 +134,12 @@ function TitleConvention() {
       data-verify-unit="title-convention"
       className="border-border text-muted-foreground rounded-lg border border-dashed px-3 py-2 text-xs"
     >
-      {/* COPY: the defect-title convention. This one is a rule, not a hint —
-          it governs what goes into an unencrypted column. */}
-      A defect title is a <strong className="text-foreground">short label</strong>
-      {" — "}
-      <span className="ident">checkout 500s on submit</span>. It is the only part
-      of a defect stored unencrypted, because it is what this list is made of.
-      Reproduction detail, data samples and anything specific to a client belong
-      in the description, which is encrypted at rest.
+      A defect title is the only part of a defect stored{" "}
+      <strong className="text-foreground">unencrypted</strong>, because it is
+      what this list is made of. Keep it a short label{" — "}
+      <span className="ident">checkout 500s on submit</span>. Reproduction
+      detail, data samples and anything specific to a client belong in the
+      description, which is encrypted at rest.
     </p>
   );
 }

@@ -28,10 +28,9 @@ export default function HomePage() {
   return (
     <Screen
       title="Delivery Ledger"
-      question="Six questions, one screen, under thirty seconds."
+      question="Six questions answered in thirty seconds, without opening a repo or reading a manifest."
       requirements={["FR-52", "FR-58", "FR-71"]}
     >
-      {/* COPY: the one-line framing above the six answers */}
       <section className="flex flex-col gap-3">
         <h2 className="text-muted-foreground text-[11px] font-medium tracking-wider uppercase">
           The six answers

@@ -102,11 +102,10 @@ export default async function NextPage({
           {answer.engagementUnknown ? (
             <UnknownEngagementNotice slug={query.engagement as string} />
           ) : answer.items.length === 0 ? (
-            // COPY: empty-state headline and detail for the next screen
             <EmptyState
               headline={
                 query.filtered
-                  ? "Nothing is startable in this engagement."
+                  ? "Nothing is startable under these filters."
                   : "Nothing is startable."
               }
               detail="Work whose dependencies are all done and which no open blocker or wait holds appears here, nearest dated milestone first. The counts below say what was set aside and why."
@@ -121,7 +120,6 @@ export default async function NextPage({
               numbers tell them apart. */}
           <SetAsideCounts
             counts={[
-              // COPY: the labels for work Next set aside, and why
               { label: "held by a dependency", value: answer.heldByDependency },
               { label: "held by a blocker or wait", value: answer.heldByBlocker },
               {
@@ -137,7 +135,6 @@ export default async function NextPage({
               data-verify-unit="next-truncated"
               className="text-state-carried text-xs"
             >
-              {/* COPY: warning that more startable work exists than is shown */}
               More work qualifies than is shown. Raise the row count to see it.
             </p>
           ) : null}

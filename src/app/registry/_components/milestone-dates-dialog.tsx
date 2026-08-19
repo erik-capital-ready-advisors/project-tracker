@@ -90,7 +90,6 @@ function DateRow({
           {pending ? "Saving…" : "Record"}
         </Button>
         <span className="text-muted-foreground text-xs">
-          {/* COPY: sharpen the clearing hint */}
           Empty clears it.
         </span>
       </div>
@@ -131,7 +130,6 @@ export function MilestoneDatesDialog({
         <DialogHeader>
           <DialogTitle className="text-sm">{milestone.name}</DialogTitle>
           <DialogDescription className="text-xs">
-            {/* COPY: sharpen the FR-11 framing */}
             Submitted and paid are recorded independently, each in one action
             (FR-11).
           </DialogDescription>

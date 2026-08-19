@@ -80,7 +80,6 @@ export function EngagementBroken({ broken }: { broken: Broken }) {
           {broken.clientName}
         </span>
         <span className="text-muted-foreground ident ml-auto text-xs">
-          {/* COPY: the two headline counts in an engagement header */}
           {broken.openDefectCount} open · {regressions} regressed
         </span>
       </header>
@@ -96,14 +95,12 @@ export function EngagementBroken({ broken }: { broken: Broken }) {
           <div className="flex items-center gap-2 px-3 pt-2.5 pb-1.5">
             <DefectSeverityChip severity={group.severity} />
             <span className="text-muted-foreground ident text-xs">
-              {/* COPY: the per-severity count label */}
-              {group.defects.length}
+              {group.defects.length} open
             </span>
           </div>
 
           {group.defects.length === 0 ? (
             <p className="text-muted-foreground/70 px-3 pb-3 text-xs">
-              {/* COPY: shown for a severity bucket that is genuinely empty */}
               None open at this severity.
             </p>
           ) : (
@@ -230,8 +227,8 @@ export function EngagementBroken({ broken }: { broken: Broken }) {
                         data-verify-unit="regression-without-failure"
                         className="text-state-carried text-xs"
                       >
-                        {/* COPY: shown when coverage was lost with no test failing */}
-                        no test is failing — the coverage was lost another way
+                        no test is failing — the coverage was lost without one
+                        going red
                       </span>
                     ) : (
                       <span className="flex flex-col gap-0.5">
@@ -281,7 +278,6 @@ export function EngagementBroken({ broken }: { broken: Broken }) {
 
 /** Why `verified` was withheld, in the operator's language rather than the enum's. */
 const BLOCKED_BY: Record<string, string> = {
-  // COPY: the three reasons a defect cannot be verified
   "no-passing-test": "no passing test names this defect",
   "no-fixing-executor": "no work item is recorded as fixing it",
   "self-certified": "the only passing test was certified by whoever fixed it",
@@ -308,7 +304,6 @@ function DefectRow({ defect }: { defect: BrokenDefect }) {
               className="ident text-muted-foreground/60 text-xs"
               title="No `D-nn` has been allocated to this defect yet, so no test can name it."
             >
-              {/* COPY: shown when a defect has no reference allocated */}
               unallocated
             </span>
           ) : (
@@ -336,7 +331,6 @@ function DefectRow({ defect }: { defect: BrokenDefect }) {
               className="text-muted-foreground text-xs"
               title="FR-66: the derived status is computed from the evidence and the recorded status is what somebody wrote down. They disagree here, so both are shown."
             >
-              {/* COPY: how a derived/recorded status disagreement is phrased */}
               recorded as{" "}
               <span className="ident text-foreground">
                 {defect.recordedStatus}
@@ -439,7 +433,6 @@ function RegressionSection({
             {count}
           </span>
         </h3>
-        {/* COPY: each regression section note states what FR-69 means by that kind */}
         <p className="text-muted-foreground mt-0.5 max-w-3xl text-xs">{note}</p>
       </div>
       {count === 0 ? (

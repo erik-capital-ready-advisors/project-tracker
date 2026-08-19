@@ -41,7 +41,6 @@ export function CommittedTotalsStrip({ totals }: { totals: CommittedTotals }) {
   }
 
   const rows = [
-    // COPY: the four money total labels
     ["committed", totals.committed],
     ["billable", totals.billable],
     ["submitted", totals.submitted],
@@ -85,9 +84,9 @@ function UnreadableNote({ count }: { count: number }) {
       data-verify-count={count}
       className="text-state-blocked ident block text-xs"
     >
-      {/* COPY: note that milestones with unreadable amounts are missing from the totals */}
-      {count} milestone{count === 1 ? "" : "s"} excluded — the amount could not be
-      read. These totals are lower than the real figures by an unknown amount.
+      {count} milestone{count === 1 ? "" : "s"} excluded — the amount is
+      unreadable. These totals are lower than the real figures by an unknown
+      amount.
     </span>
   );
 }

@@ -159,8 +159,7 @@ export default async function EngagementPage({
             {milestones.length === 0 ? (
               <EmptyState
                 headline="No contract milestones."
-                /* COPY: sharpen the milestone empty-state detail */
-                detail="A milestone carries a name, an amount, a due date, and the requirement references that constitute acceptance."
+                detail="A milestone carries a name, an amount, a due date, and the requirement references that constitute acceptance. Those references are what decides whether it becomes billable."
               />
             ) : (
               <MilestoneTable

@@ -39,9 +39,8 @@ export function RejectedFilters({
       data-verify-count={rejected.length}
       className="border-state-carried/40 bg-state-carried/5 block rounded-lg border px-3 py-2.5 text-sm"
     >
-      {/* COPY: headline for filter values the system did not recognise */}
       <p className="text-foreground font-medium">
-        Some filters were not applied.
+        These filter values were not recognised.
       </p>
       <ul className="text-muted-foreground mt-1 space-y-0.5">
         {rejected.map((one) => (
@@ -51,9 +50,9 @@ export function RejectedFilters({
         ))}
       </ul>
       <p className="text-muted-foreground mt-1.5 text-xs">
-        {/* COPY: explanation that an unrecognised filter is reported, not ignored */}
-        The answer below is not narrowed by them. It is showing more than you
-        asked for, which is why this says so rather than quietly dropping them.
+        The answer below is not narrowed by them, so it is showing more rows
+        than the filters name. Dropping them without saying so would present an
+        unfiltered list as a filtered one.
       </p>
     </output>
   );
@@ -96,7 +95,6 @@ export function DegradedOrderNotice({
       />
       <div className="min-w-0">
         <p className="text-foreground font-medium">
-          {/* COPY: headline for a degraded ordering or ranking */}
           {what === "ordering"
             ? "This list is not in the order the requirement specifies."
             : "This list is not ranked the way the requirement specifies."}
@@ -135,7 +133,6 @@ export function AnswerWarnings({ warnings }: { warnings: readonly string[] }) {
       />
       <div className="min-w-0">
         <p className="text-foreground font-medium">
-          {/* COPY: headline for parts of the answer that could not be read */}
           Part of this answer could not be read.
         </p>
         <ul className="text-muted-foreground mt-1 space-y-0.5 text-xs">
@@ -168,13 +165,11 @@ export function UnknownEngagementNotice({ slug }: { slug: string }) {
       <Info aria-hidden className="text-muted-foreground mt-0.5 size-4 shrink-0" />
       <div className="min-w-0">
         <p className="text-foreground font-medium">
-          {/* COPY: headline for an engagement slug that matches no record */}
           No engagement has the slug <span className="ident">{slug}</span>.
         </p>
         <p className="text-muted-foreground mt-0.5">
-          {/* COPY: explanation that this is not the same as an engagement with no rows */}
-          This is empty because nothing matched the name, not because that
-          engagement has nothing in it.
+          Empty because nothing matched the slug, not because that engagement
+          has nothing in it.
         </p>
       </div>
     </output>

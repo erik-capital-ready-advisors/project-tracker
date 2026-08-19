@@ -95,8 +95,7 @@ const MILESTONE_RUNG: Record<MilestoneStateValue, string> = {
  * and the treatment are what they get at a glance.
  */
 const MILESTONE_TITLE: Record<MilestoneStateValue, string> = {
-  // COPY: hover explanations for the three milestone states
-  open: "Not every acceptance requirement is covered. Nothing to send.",
+  open: "FR-50: not every acceptance requirement is covered. Nothing to send.",
   claimed:
     "Covered only by self-certified tests — the certifier executed the work. FR-51: this is a review request and not an invoice.",
   billable:
@@ -168,12 +167,11 @@ const COVERAGE_STATE: Record<CoverageValue, WorkState> = {
 };
 
 const COVERAGE_TITLE: Record<CoverageValue, string> = {
-  // COPY: hover explanations for the three coverage states
   covered:
-    "A passing test names this requirement and its certifier did not execute the work that implements it.",
+    "FR-47: a passing test names this requirement and its certifier did not execute the work that implements it.",
   unproven:
     "FR-49: a passing test names it, but the only covering evidence carries scope `not-verified`. The test exists; nobody checked it against the deployment. Distinct from uncovered.",
-  uncovered: "Nothing passing names this requirement.",
+  uncovered: "No passing test names this requirement at all.",
 };
 
 export function CoverageChip({ value }: { value: CoverageValue }) {
@@ -217,7 +215,6 @@ export function ShippedChip({ environments }: { environments: readonly string[] 
       }
       className={cn(CHIP, shipped ? RUNG.strong : RUNG.faint)}
     >
-      {/* COPY: the shipped / not-shipped label and how environments are listed */}
       {shipped ? environments.join(" · ") : "not shipped"}
     </span>
   );
@@ -377,7 +374,6 @@ export function ExecutorChip({
 /* ---------------------------------------------------------------------- */
 
 const HELD_TITLE: Record<string, string> = {
-  // COPY: hover explanations for the three ways an item is held
   status: "The item's own status is `blocked`.",
   blocker: "An unresolved blocker row names this item.",
   wait: "An unresolved external wait names this item.",

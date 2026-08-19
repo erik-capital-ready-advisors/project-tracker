@@ -100,7 +100,6 @@ export function MfaEnrollForm() {
       if (enrollError || !enrolled) {
         setError(
           enrollError?.message ??
-            // COPY: fallback when enrolment could not be started
             "A second factor could not be created. Try again.",
         );
         setLoading(false);
@@ -130,8 +129,7 @@ export function MfaEnrollForm() {
     if (!supabase.ok || factorId === null) return;
 
     if (!isWellFormedTotp(code)) {
-      // COPY: refusal for a code that is not six digits
-      setError("A code from your authenticator app is six digits.");
+      setError("A code from the authenticator app is six digits.");
       return;
     }
 
@@ -144,7 +142,6 @@ export function MfaEnrollForm() {
     if (challengeError || !challenge) {
       setError(
         challengeError?.message ??
-          // COPY: fallback when a challenge could not be started
           "The enrolment challenge could not be started. Try again.",
       );
       setPending(false);
@@ -173,10 +170,8 @@ export function MfaEnrollForm() {
 
   return (
     <AuthShell
-      // COPY: MFA enrolment screen title
       title="Enrol a second factor"
       description={
-        // COPY: MFA enrolment screen description
         <>
           Multi-factor authentication is required and this account has none yet.
           Scan the code with an authenticator app, then type what it shows.
@@ -189,7 +184,6 @@ export function MfaEnrollForm() {
           data-verify-unit="auth-sign-out"
           className="hover:text-foreground underline underline-offset-2"
         >
-          {/* COPY: the escape hatch out of a half-authenticated session */}
           Sign out and start again
         </button>
       }
@@ -218,7 +212,6 @@ export function MfaEnrollForm() {
             {secret === null ? null : (
               <div className="flex w-full flex-col gap-1">
                 <p className="text-muted-foreground text-xs">
-                  {/* COPY: label for the manual-entry secret */}
                   Or type this into the app by hand:
                 </p>
                 <code
@@ -236,7 +229,6 @@ export function MfaEnrollForm() {
           <Field
             id="enroll-code"
             label="Six-digit code"
-            // COPY: hint for the enrolment confirmation code
             hint="Confirms the app and this account agree before the factor is kept."
           >
             <Input
@@ -263,7 +255,6 @@ export function MfaEnrollForm() {
             size="sm"
             disabled={!supabase.ok || loading || pending || factorId === null}
           >
-            {/* COPY: enrolment confirm button, and its pending label */}
             {pending ? "Confirming…" : "Confirm and finish"}
           </Button>
         </form>

@@ -65,7 +65,6 @@ export function BottleneckTable({ answer }: { answer: BottleneckAnswer }) {
             <TableHead className="whitespace-nowrap">why not automated</TableHead>
             <TableHead className="whitespace-nowrap">status</TableHead>
             <TableHead className="whitespace-nowrap">
-              {/* COPY: the milestone column heading and its ranking marker */}
               milestone at risk
               {ranked ? (
                 <span
@@ -149,7 +148,6 @@ export function BottleneckTable({ answer }: { answer: BottleneckAnswer }) {
                       className="ident border-state-blocked/40 text-state-blocked inline-flex items-center rounded-md border px-1.5 py-0.5 text-xs leading-none"
                       title="An open blocker or external wait also holds this item. Erik being free is not sufficient to start it."
                     >
-                      {/* COPY: marker for an item that is also held by a blocker or wait */}
                       also held
                     </span>
                   ) : null}
@@ -194,7 +192,6 @@ export function BottleneckTable({ answer }: { answer: BottleneckAnswer }) {
                     className="text-muted-foreground/70 text-xs tabular-nums"
                     title="Direct dependency edges, printed so the transitive figure beside it can be checked rather than trusted."
                   >
-                    {/* COPY: the "direct dependents" sub-figure label */}
                     {item.directDependents} direct
                   </span>
                 </span>

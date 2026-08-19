@@ -37,7 +37,6 @@ function OverdueBadge({ days }: { days: number | null }) {
       data-verify-overdue="true"
       className="ident border-state-blocked/40 bg-state-blocked/10 text-state-blocked inline-flex shrink-0 items-center rounded-md border px-1.5 py-0.5 text-xs leading-none font-semibold whitespace-nowrap"
     >
-      {/* COPY: overdue flag, with FR-34's elapsed count */}
       {elapsed === null ? "overdue" : `overdue · ${elapsed} waiting`}
     </span>
   );
@@ -87,7 +86,6 @@ function WaitRow({ wait }: { wait: StoredWait }) {
 
         {wait.blocks.length === 0 ? null : (
           <p className="text-muted-foreground mt-1 text-xs">
-            {/* COPY: label for the work items a wait blocks */}
             blocks{" "}
             <span className="ident text-foreground">
               {wait.blocks.join(" ")}
@@ -97,14 +95,13 @@ function WaitRow({ wait }: { wait: StoredWait }) {
       </div>
 
       <dl className="text-muted-foreground grid shrink-0 grid-cols-[auto_auto] gap-x-2 gap-y-0.5 text-xs">
-        <dt>{/* COPY: started label */}started</dt>
+        <dt>started</dt>
         <dd className="ident text-right">{started ?? "not recorded"}</dd>
 
-        <dt>{/* COPY: expected-by label */}expected</dt>
+        <dt>expected</dt>
         <dd className="ident text-right">
           {expected ?? (
             <span title="Nobody has given a date, so this wait can never be flagged overdue.">
-              {/* COPY: shown when no expected-by date exists */}
               no date given
             </span>
           )}
@@ -112,21 +109,21 @@ function WaitRow({ wait }: { wait: StoredWait }) {
 
         {resolved ? (
           <>
-            <dt>{/* COPY: resolved label */}resolved</dt>
-            <dd className="ident text-right">{resolvedOn ?? "recorded"}</dd>
-            <dt>{/* COPY: resolved-by label */}by</dt>
+            <dt>resolved</dt>
+            <dd className="ident text-right">{resolvedOn ?? "unreadable"}</dd>
+            <dt>by</dt>
             <dd className="ident max-w-40 truncate text-right">
               {wait.resolvedBy ?? "not recorded"}
             </dd>
           </>
         ) : (
           <>
-            <dt>{/* COPY: elapsed label */}waiting</dt>
+            <dt>waiting</dt>
             <dd className="ident text-right">{elapsed ?? "not countable"}</dd>
           </>
         )}
 
-        <dt>{/* COPY: resolution-method label */}method</dt>
+        <dt>method</dt>
         <dd className="ident text-right">
           {wait.resolutionMethod === "probe"
             ? (wait.probeTarget ?? "probe")
@@ -162,7 +159,6 @@ export function WaitList({ groups }: { groups: readonly WaitGroup[] }) {
           <header className="border-border bg-muted/40 flex items-center justify-between gap-3 border-b px-3 py-2">
             <h2 className="text-sm font-medium">{group.owner}</h2>
             <p className="text-muted-foreground ident text-xs">
-              {/* COPY: per-owner counts */}
               <span>{group.waits.length} open</span>
               {group.overdueCount > 0 ? (
                 <span className="text-state-blocked ml-2 font-semibold">

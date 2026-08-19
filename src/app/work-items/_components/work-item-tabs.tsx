@@ -49,7 +49,6 @@ export function WorkItemTabs({
             : "text-muted-foreground hover:text-foreground",
         )}
       >
-        {/* COPY: tab label for the unified work-item list */}
         All work items
       </Link>
       <Link
@@ -64,7 +63,6 @@ export function WorkItemTabs({
             : "text-muted-foreground hover:text-foreground",
         )}
       >
-        {/* COPY: tab label for the unassigned-session queue */}
         Unassigned sessions
         {queueCount === null || queueCount === undefined ? null : (
           <span className="ident text-muted-foreground ml-1.5 text-xs">

@@ -38,8 +38,7 @@ export function useSupabase(): SupabaseState {
         message:
           error instanceof Error
             ? error.message
-            : // COPY: fallback when the Supabase client could not be built
-              "The connection to the ledger is not configured, so signing in is not possible from this deployment.",
+            : "The connection to the ledger is not configured, so signing in is not possible from this deployment. Check the Supabase environment variables.",
       };
     }
   });

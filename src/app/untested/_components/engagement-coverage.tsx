@@ -76,7 +76,6 @@ export function EngagementCoverage({ coverage }: { coverage: Coverage }) {
       </header>
 
       <div className="border-border flex flex-wrap gap-x-6 gap-y-2 border-b px-3 py-2.5">
-        {/* COPY: the six coverage counts and their labels */}
         <Count label="requirements" value={coverage.requirements} />
         <Count label="tests" value={coverage.tests} />
         <Count
@@ -148,7 +147,6 @@ export function EngagementCoverage({ coverage }: { coverage: Coverage }) {
                           data-verify-unit="unimplemented-requirement"
                           className="text-state-blocked text-xs"
                         >
-                          {/* COPY: shown when no work item claims a requirement at all */}
                           no work item claims to implement this
                         </span>
                       ) : (
@@ -265,10 +263,9 @@ export function EngagementCoverage({ coverage }: { coverage: Coverage }) {
           data-verify-unit="coverage-clean"
           className="text-muted-foreground px-3 py-3 text-sm"
         >
-          {/* COPY: shown when an engagement has nothing uncovered, unproven or self-certified */}
-          Every requirement in this engagement is covered by a passing test that
-          somebody other than its builder certified, and every covering test
-          reported what it observed.
+          {coverage.requirements === 0
+            ? "No requirements are recorded for this engagement, so there is nothing to cover. This is not a clean coverage report."
+            : "Every requirement in this engagement is covered by a passing test that somebody other than its builder certified, and every covering test reported what it observed. Whether any of it is deployed is a separate question — see Committed."}
         </p>
       ) : null}
     </section>
@@ -292,7 +289,6 @@ function Section({
         <h3 className="text-foreground text-xs font-semibold tracking-wide uppercase">
           {title}
         </h3>
-        {/* COPY: each section note above states the requirement's distinction */}
         <p className="text-muted-foreground mt-0.5 max-w-3xl text-xs">{note}</p>
       </div>
       {children}

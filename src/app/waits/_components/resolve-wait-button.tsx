@@ -87,14 +87,12 @@ export function ResolveWaitButton({
           data-verify-unit="resolve-wait-trigger"
           data-verify-wait={waitId}
         >
-          {/* COPY: the button that opens the resolve-wait confirmation */}
           Resolve
         </Button>
       </DialogTrigger>
       <DialogContent data-verify-unit="resolve-wait-dialog">
         <DialogHeader>
           <DialogTitle>
-            {/* COPY: resolve-wait dialog title */}
             Resolve this wait
           </DialogTitle>
           <DialogDescription>
@@ -103,17 +101,15 @@ export function ResolveWaitButton({
         </DialogHeader>
 
         <p className="text-muted-foreground text-sm">
-          {/* COPY: what resolving does, including the effect on blocked items */}
           {blockedCount === 0
-            ? "Nothing is currently blocked on this wait, so resolving it releases nothing. It will be recorded as resolved by you, now."
+            ? "Nothing is currently blocked on this wait, so resolving it releases nothing. It is still recorded as resolved, with who and when."
             : `This releases ${blockedCount} work ${blockedCount === 1 ? "item" : "items"} from blocked back to pending, and records who resolved it and when. It cannot be undone from this screen.`}
         </p>
 
         <Field
           id={fieldId}
           label="Resolved by"
-          // COPY: hint for the resolved-by override
-          hint="Leave blank to record yourself."
+          hint="Leave blank to record the signed-in operator."
         >
           <Input
             id={fieldId}
@@ -143,7 +139,6 @@ export function ResolveWaitButton({
             disabled={pending}
             onClick={() => setOpen(false)}
           >
-            {/* COPY: cancel button */}
             Cancel
           </Button>
           <Button
@@ -153,7 +148,6 @@ export function ResolveWaitButton({
             onClick={confirm}
             data-verify-unit="resolve-wait-confirm"
           >
-            {/* COPY: confirm button, and its pending label */}
             {pending ? "Resolving…" : "Resolve"}
           </Button>
         </DialogFooter>

@@ -58,7 +58,6 @@ export function EngagementForm({
 
       <Fieldset
         legend="Engagement"
-        /* COPY: sharpen the one-line framing for the engagement fieldset */
         detail="Who the work is for, and on what terms."
       >
         <Field
@@ -101,8 +100,7 @@ export function EngagementForm({
 
       <Fieldset
         legend="Where the work lives"
-        /* COPY: sharpen the one-line framing for the artifact-paths fieldset */
-        detail="The paths the ingest path reads. Everything derived from this engagement is found through them."
+        detail="The paths ingest reads. Everything derived from this engagement is found through them."
       >
         <Field
           name="repoPath"
@@ -142,7 +140,6 @@ export function EngagementForm({
         legend="Provisioning identifiers"
         detail={
           <>
-            {/* COPY: sharpen the FR-77/FR-78 explanation — the rule it states must survive any rewrite */}
             Which accounts this engagement was actually provisioned into, so the
             wrong-account failure mode is one lookup rather than an incident
             (FR-77).{" "}
@@ -204,8 +201,7 @@ export function EngagementForm({
               : "Register engagement"}
         </Button>
         <p className="text-muted-foreground text-xs">
-          {/* COPY: sharpen the reassurance line under the submit button */}
-          Nothing is written until this succeeds, and a refusal writes nothing.
+          Nothing is saved unless this succeeds.
         </p>
       </div>
     </form>

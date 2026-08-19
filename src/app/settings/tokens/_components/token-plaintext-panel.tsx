@@ -94,14 +94,13 @@ export function TokenPlaintextPanel({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <TriangleAlert aria-hidden className="text-state-carried size-4" />
-            {/* COPY: the once-only reveal title */}
-            {rotated ? "Replacement token" : "New token"} — shown once
+            {rotated ? "Replacement token" : "New token"} — shown once and never
+            again
           </DialogTitle>
           <DialogDescription>
-            {/* COPY: the once-only reveal description */}
-            Copy it now. Only a hash of this value is stored, so nothing — not
-            this screen, not the database, not support — can show it again. If it
-            is lost, rotate the token.
+            Copy it now. Only a hash is stored, so nothing can show this value
+            again — not this screen and not the database. If it is lost, rotate
+            the token to issue a new one.
           </DialogDescription>
         </DialogHeader>
 
@@ -124,7 +123,6 @@ export function TokenPlaintextPanel({
               ) : (
                 <Copy aria-hidden className="size-3.5" />
               )}
-              {/* COPY: copy button, and its copied state */}
               {copied ? "Copied" : "Copy"}
             </Button>
             {copyFailed ? (
@@ -133,7 +131,6 @@ export function TokenPlaintextPanel({
                 data-verify-unit="token-copy-failed"
                 className="text-state-blocked text-xs"
               >
-                {/* COPY: shown when the clipboard write was refused */}
                 The clipboard was not available. Select the value above and copy
                 it by hand.
               </p>
@@ -148,7 +145,6 @@ export function TokenPlaintextPanel({
             onClick={onDismiss}
             data-verify-unit="token-plaintext-dismiss"
           >
-            {/* COPY: the acknowledgement that dismisses the once-only reveal */}
             I have stored it — close
           </Button>
         </DialogFooter>

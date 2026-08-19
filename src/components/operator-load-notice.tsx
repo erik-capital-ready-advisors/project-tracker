@@ -41,13 +41,9 @@ const ICON = {
 } as const;
 
 const HEADLINE: Record<LoadNoticeReason, string> = {
-  // COPY: sign-in notice headline
   "sign-in": "Sign in to read this screen.",
-  // COPY: second-factor notice headline
-  mfa: "A second factor is required.",
-  // COPY: no-role notice headline
+  mfa: "This session needs a second factor.",
   "no-role": "This account holds no role in the ledger.",
-  // COPY: read-failure notice headline
   error: "This screen could not be read.",
 };
 
@@ -96,9 +92,8 @@ export function OperatorLoadNotice({
         <p className="text-foreground font-medium">{HEADLINE[reason]}</p>
         <p className="text-muted-foreground mt-0.5">{detail}</p>
         <p className="text-muted-foreground mt-1.5 text-xs">
-          {/* COPY: the standing clarification that a failed read is not an empty ledger */}
-          Nothing was read, so nothing on this screen is a statement about what
-          the ledger holds.
+          Nothing was read, so nothing here is a statement about what the ledger
+          holds.
         </p>
 
         {/*
@@ -118,7 +113,6 @@ export function OperatorLoadNotice({
             data-verify-unit="load-notice-action"
             className="text-foreground mt-2 inline-block text-xs underline underline-offset-2"
           >
-            {/* COPY: the link out of an authentication refusal */}
             Go to sign-in
           </Link>
         ) : null}

@@ -33,9 +33,8 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Delivery Ledger",
-  // COPY: product description used as the meta description
   description:
-    "What is blocked, what is next, what was committed, what is untested, what is broken, and what Erik is the bottleneck on.",
+    "Six answers for a one-person studio: what's blocked, what's next, what was committed to a client and when, what's untested, what's broken, and what Erik is the bottleneck on.",
 };
 
 /**

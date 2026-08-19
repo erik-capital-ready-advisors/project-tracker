@@ -8,10 +8,9 @@ export default function NotFound() {
       title="Not found"
       question="That route does not exist in this build."
     >
-      {/* COPY: 404 headline and detail */}
       <EmptyState
         headline="No screen at this address."
-        detail="Press ⌘K to jump to one of the six answers, or go back to the index."
+        detail="Nothing was read, so this says nothing about the ledger. Press ⌘K to jump to one of the six answers."
       />
       <div>
         <Link href="/" className="text-primary text-sm underline">

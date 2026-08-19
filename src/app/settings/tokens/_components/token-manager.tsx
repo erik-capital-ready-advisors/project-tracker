@@ -66,7 +66,6 @@ import { TokenPlaintextPanel } from "./token-plaintext-panel";
  */
 
 const CAPABILITY_HINT: Record<WireCapability, string> = {
-  // COPY: what each capability lets an agent do
   [ANSWER_READ]: "read the six answer endpoints",
   [INGEST_WRITE]: "post artifacts, sessions and waits",
 };
@@ -208,10 +207,8 @@ export function TokenManager({
       // saying so beats implying this click did something it did not.
       setNotice(
         result.data.revoked
-          ? // COPY: confirmation that a token was revoked
-            `Revoked “${token.label}”. Any agent still presenting it is refused from now on.`
-          : // COPY: confirmation that a token was already revoked
-            `“${token.label}” was already revoked. Nothing changed.`,
+          ? `Revoked “${token.label}”. Any agent still presenting it is refused from now on.`
+          : `“${token.label}” was already revoked. Nothing changed.`,
       );
       router.refresh();
     });
@@ -225,7 +222,6 @@ export function TokenManager({
           data-verify-unit="token-count"
           data-verify-count={tokens.length}
         >
-          {/* COPY: the token count line */}
           <span className="ident">{tokens.length}</span>
           {tokens.length === 1 ? " token" : " tokens"}
         </p>
@@ -233,20 +229,17 @@ export function TokenManager({
         <Dialog open={issueOpen} onOpenChange={setIssueOpen}>
           <DialogTrigger asChild>
             <Button size="sm" data-verify-unit="issue-token-trigger">
-              {/* COPY: the button that opens the issue-token form */}
               Issue a token
             </Button>
           </DialogTrigger>
           <DialogContent data-verify-unit="issue-token-dialog">
             <DialogHeader>
               <DialogTitle>
-                {/* COPY: issue-token dialog title */}
                 Issue an agent token
               </DialogTitle>
               <DialogDescription>
-                {/* COPY: issue-token dialog description, stating the once-only rule up front */}
                 The token value is shown once, on the next screen, and is stored
-                only as a hash. Have somewhere to put it before you continue.
+                only as a hash. Have a destination for it before continuing.
               </DialogDescription>
             </DialogHeader>
 
@@ -259,8 +252,7 @@ export function TokenManager({
               <Field
                 id="token-label"
                 label="Label"
-                // COPY: hint for the token label field
-                hint="How you will tell this token from the others."
+                hint="What tells this token apart from the others."
               >
                 <Input
                   id="token-label"
@@ -278,7 +270,6 @@ export function TokenManager({
 
               <fieldset className="flex flex-col gap-1.5">
                 <legend className="text-muted-foreground text-xs font-medium">
-                  {/* COPY: capability fieldset legend */}
                   Capabilities
                 </legend>
                 {[ANSWER_READ, INGEST_WRITE].map((capability) => (
@@ -301,7 +292,6 @@ export function TokenManager({
                   </label>
                 ))}
                 <p className="text-muted-foreground text-xs">
-                  {/* COPY: note that neither capability reaches commercial figures */}
                   Neither reaches contract amounts. An agent has no reason to
                   read what a client is charged.
                 </p>
@@ -310,7 +300,6 @@ export function TokenManager({
               <Field
                 id="token-expiry"
                 label="Expires on"
-                // COPY: hint for the token expiry field
                 hint="Tokens expire. Rotate before this date rather than after it."
               >
                 <Input
@@ -342,11 +331,9 @@ export function TokenManager({
                   disabled={pending}
                   onClick={() => setIssueOpen(false)}
                 >
-                  {/* COPY: cancel button */}
                   Cancel
                 </Button>
                 <Button type="submit" size="sm" disabled={pending}>
-                  {/* COPY: issue button, and its pending label */}
                   {pending ? "Issuing…" : "Issue token"}
                 </Button>
               </DialogFooter>
@@ -421,7 +408,6 @@ export function TokenManager({
                         className="text-muted-foreground/60"
                         title="This token has never authenticated a request."
                       >
-                        {/* COPY: shown for a token that has never been used */}
                         never
                       </span>
                     )}
@@ -432,7 +418,6 @@ export function TokenManager({
                   <TableCell className="text-right whitespace-nowrap">
                     {revoked ? (
                       <span className="text-muted-foreground/60 text-xs">
-                        {/* COPY: shown in place of actions on a revoked token */}
                         kept for audit
                       </span>
                     ) : (
@@ -445,7 +430,6 @@ export function TokenManager({
                           data-verify-unit="rotate-token-trigger"
                           data-verify-token-id={token.id}
                         >
-                          {/* COPY: rotate button */}
                           Rotate
                         </Button>
                         <Button
@@ -456,7 +440,6 @@ export function TokenManager({
                           data-verify-unit="revoke-token-trigger"
                           data-verify-token-id={token.id}
                         >
-                          {/* COPY: revoke button */}
                           Revoke
                         </Button>
                       </div>
@@ -479,14 +462,12 @@ export function TokenManager({
         <DialogContent data-verify-unit="rotate-token-dialog">
           <DialogHeader>
             <DialogTitle>
-              {/* COPY: rotate dialog title */}
               Rotate this token
             </DialogTitle>
             <DialogDescription>
-              {/* COPY: rotate dialog description, stating the issue-then-revoke order */}
               A replacement is issued with the same label and capabilities, and
               only then is this one revoked — so a run holding the old token
-              keeps working until you have the new one. The new value is shown
+              keeps working until the new one is in place. The new value is shown
               once.
             </DialogDescription>
           </DialogHeader>
@@ -498,7 +479,6 @@ export function TokenManager({
             <Field
               id="rotate-expiry"
               label="New expiry"
-              // COPY: hint for the rotate expiry field
               hint="The replacement carries its own expiry."
             >
               <Input
@@ -520,7 +500,6 @@ export function TokenManager({
                 disabled={pending}
                 onClick={() => setRotating(null)}
               >
-                {/* COPY: cancel button */}
                 Cancel
               </Button>
               <Button
@@ -529,7 +508,6 @@ export function TokenManager({
                 disabled={pending}
                 data-verify-unit="rotate-token-confirm"
               >
-                {/* COPY: rotate confirm button, and its pending label */}
                 {pending ? "Rotating…" : "Rotate"}
               </Button>
             </DialogFooter>
@@ -547,11 +525,9 @@ export function TokenManager({
         <DialogContent data-verify-unit="revoke-token-dialog">
           <DialogHeader>
             <DialogTitle>
-              {/* COPY: revoke dialog title */}
               Revoke this token
             </DialogTitle>
             <DialogDescription>
-              {/* COPY: revoke dialog description, naming the immediate effect */}
               Any agent still presenting it is refused from the next request. The
               row is kept, revoked, for the audit window — it is not deleted.
             </DialogDescription>
@@ -569,7 +545,6 @@ export function TokenManager({
               disabled={pending}
               onClick={() => setRevoking(null)}
             >
-              {/* COPY: cancel button */}
               Cancel
             </Button>
             <Button
@@ -580,7 +555,6 @@ export function TokenManager({
               onClick={revoke}
               data-verify-unit="revoke-token-confirm"
             >
-              {/* COPY: revoke confirm button, and its pending label */}
               {pending ? "Revoking…" : "Revoke"}
             </Button>
           </DialogFooter>

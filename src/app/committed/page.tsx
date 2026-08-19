@@ -129,14 +129,13 @@ export default async function CommittedPage({
           {answer.engagementUnknown ? (
             <UnknownEngagementNotice slug={query.engagement as string} />
           ) : answer.milestones.length === 0 ? (
-            // COPY: empty-state headline and detail for the committed screen
             <EmptyState
               headline={
                 query.filtered
                   ? "No milestone matches these filters."
                   : "No contract milestones are recorded."
               }
-              detail="Every milestone across every engagement appears here with its amount, due date, acceptance criteria, coverage state, shipped state and invoice state."
+              detail="Enter milestones in the Registry. Each appears here with its amount, due date, acceptance criteria, coverage state, shipped state and invoice state."
             />
           ) : (
             <>
@@ -167,30 +166,27 @@ function CommittedLegend() {
   return (
     <details data-verify-unit="committed-legend" className="text-sm">
       <summary className="text-muted-foreground hover:text-foreground cursor-pointer text-xs underline underline-offset-2">
-        {/* COPY: the legend expander label */}
         What these states mean
       </summary>
       <dl className="text-muted-foreground mt-2 grid gap-x-4 gap-y-2 sm:grid-cols-2">
-        {/* COPY: every definition below. These are the spec's distinctions in
-            plain language and they are the highest-value copy on the screen. */}
         <LegendRow term="open">
-          Not every acceptance requirement is covered. Nothing to send.
+          FR-50: not every acceptance requirement is covered. Nothing to send.
         </LegendRow>
         <LegendRow term="claimed">
           Covered only by tests whose certifier executed the work. FR-51: a
           review request and not an invoice.
         </LegendRow>
         <LegendRow term="billable">
-          Every acceptance requirement is covered by a passing test somebody
-          other than the builder certified.
+          FR-50: every acceptance requirement is covered by a passing test
+          somebody other than the builder certified.
         </LegendRow>
         <LegendRow term="contested">
           Billable, and an open critical defect stands against one of its
           acceptance requirements. FR-79: flagged, and never presented as clean.
         </LegendRow>
         <LegendRow term="covered">
-          A passing test proves the requirement. This says nothing about whether
-          it is deployed.
+          FR-47: a passing test proves the requirement. This says nothing about
+          whether it is deployed.
         </LegendRow>
         <LegendRow term="shipped">
           A release names the requirement, in the environments listed. FR-75:
@@ -207,8 +203,8 @@ function CommittedLegend() {
           <StateBadge state="unparsed" />
           <span className="text-xs">
             A defect against one of the acceptance requirements whose severity
-            the parser could not classify. It cannot contest the milestone, so it
-            is stated rather than dropped.
+            the parser could not classify. It cannot trigger FR-79's contested
+            state, so it is stated here rather than dropped.
           </span>
         </div>
       </dl>

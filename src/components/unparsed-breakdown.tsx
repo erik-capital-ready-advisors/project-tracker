@@ -41,7 +41,6 @@ import { cn } from "@/lib/utils";
  */
 
 const PART_LABELS = [
-  // COPY: names for the three tables the unparsed census counts
   ["workItems", "work items"],
   ["defects", "defects"],
   ["testResults", "test results"],
@@ -80,7 +79,6 @@ export function UnparsedBreakdown({
         {state === "unknown" ? (
           <CircleHelp aria-hidden className="size-3.5" />
         ) : null}
-        {/* COPY: the ledger-wide unparsed total, in its three states */}
         {state === "unknown"
           ? "unparsed count unavailable"
           : `${census.total as number} unparsed in the ledger`}
@@ -106,8 +104,7 @@ export function UnparsedBreakdown({
 
       {state === "unknown" ? (
         <span className="text-muted-foreground basis-full">
-          {/* COPY: the standing clarification that an unknown count is not a clean one */}
-          Nothing was counted, so this is not a statement that everything
+          Nothing was counted, so this is not a claim that everything
           classified.
         </span>
       ) : null}

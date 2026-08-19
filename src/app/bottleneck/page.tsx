@@ -96,11 +96,10 @@ export default async function BottleneckPage({
           {answer.engagementUnknown ? (
             <UnknownEngagementNotice slug={query.engagement as string} />
           ) : answer.items.length === 0 ? (
-            // COPY: empty-state headline and detail for the bottleneck screen
             <EmptyState
               headline={
                 query.filtered
-                  ? "Nothing in this engagement is waiting on Erik."
+                  ? "Nothing under these filters is waiting on Erik."
                   : "Nothing is waiting on Erik."
               }
               detail="Work whose executor is Erik or an Erik-gate appears here, ranked by how much other work it releases and by the nearest milestone at risk."
@@ -111,7 +110,6 @@ export default async function BottleneckPage({
 
           <SetAsideCounts
             counts={[
-              // COPY: the label for Erik-owned work whose status could not be classified
               {
                 label: "Erik-owned items whose status could not be classified",
                 value: answer.unparsedExcluded,
@@ -125,7 +123,6 @@ export default async function BottleneckPage({
               data-verify-unit="bottleneck-truncated"
               className="text-state-carried text-xs"
             >
-              {/* COPY: warning that more Erik-owned work exists than is shown */}
               More is waiting on Erik than is shown. Raise the row count to see
               it.
             </p>

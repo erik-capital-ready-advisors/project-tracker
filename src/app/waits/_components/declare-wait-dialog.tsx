@@ -102,7 +102,6 @@ export function DeclareWaitDialog({
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button size="sm" data-verify-unit="declare-wait-trigger">
-          {/* COPY: the button that opens the wait-declaration form */}
           Declare a wait
         </Button>
       </DialogTrigger>
@@ -112,14 +111,12 @@ export function DeclareWaitDialog({
       >
         <DialogHeader>
           <DialogTitle>
-            {/* COPY: wait-declaration dialog title */}
             Declare an external wait
           </DialogTitle>
           <DialogDescription>
-            {/* COPY: wait-declaration dialog description */}
             Something outside the studio is holding work up. Record who owns it
-            and when it is expected back, so the delay shows up on Blocked
-            instead of living in your head.
+            and when it is expected back, so the delay shows on Blocked and
+            moves the milestone's projected date.
           </DialogDescription>
         </DialogHeader>
 
@@ -137,7 +134,6 @@ export function DeclareWaitDialog({
                 required
                 className="ident"
               >
-                {/* COPY: placeholder option in the engagement picker */}
                 <option value="">choose…</option>
                 {engagements.map((engagement) => (
                   <option key={engagement.slug} value={engagement.slug}>
@@ -150,7 +146,6 @@ export function DeclareWaitDialog({
             <Field
               id="wait-owner"
               label="Owner"
-              // COPY: hint for the wait owner field
               hint="The person or organisation outside the studio."
             >
               <Input
@@ -166,7 +161,6 @@ export function DeclareWaitDialog({
           <Field
             id="wait-label"
             label="Label"
-            // COPY: hint for the wait label field
             hint="Short and stable — re-declaring the same label updates the wait instead of creating a second one."
           >
             <Input
@@ -184,7 +178,6 @@ export function DeclareWaitDialog({
                 id="wait-owner-type"
                 name="ownerType"
                 autoComplete="off"
-                // COPY: placeholder examples for the free-text owner type
                 placeholder="client, vendor, reviewer…"
               />
             </Field>
@@ -203,7 +196,6 @@ export function DeclareWaitDialog({
             <Field
               id="wait-expected"
               label="Expected by"
-              // COPY: hint for the expected-by field
               hint="Leave blank if nobody has given a date."
             >
               <Input
@@ -220,8 +212,7 @@ export function DeclareWaitDialog({
             <Field
               id="wait-method"
               label="Resolution method"
-              // COPY: hint explaining FR-35's two resolution methods
-              hint="`manual` is the honest value where nobody can check it programmatically."
+              hint="`probe` names a check for Phase 2 automation; `manual` is the honest value where nobody can check it programmatically."
             >
               <NativeSelect
                 id="wait-method"
@@ -241,7 +232,6 @@ export function DeclareWaitDialog({
             <Field
               id="wait-probe"
               label="Probe target"
-              // COPY: hint for the probe target field
               hint="Required when the method is a probe."
             >
               <Input
@@ -259,7 +249,6 @@ export function DeclareWaitDialog({
           <Field
             id="wait-blocks"
             label="Blocks"
-            // COPY: hint for the blocked work items field
             hint="Work-item unit keys, separated by commas or spaces. A key naming nothing is reported back rather than dropped."
           >
             <Input
@@ -293,11 +282,9 @@ export function DeclareWaitDialog({
               disabled={pending}
               onClick={() => setOpen(false)}
             >
-              {/* COPY: cancel button */}
               Cancel
             </Button>
             <Button type="submit" size="sm" disabled={pending}>
-              {/* COPY: submit button, and its pending label */}
               {pending ? "Declaring…" : "Declare wait"}
             </Button>
           </DialogFooter>

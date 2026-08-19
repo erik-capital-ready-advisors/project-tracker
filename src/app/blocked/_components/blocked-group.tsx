@@ -80,7 +80,6 @@ export function BlockedGroup({ group }: { group: BlockedGroupData }) {
       <header className="border-border bg-muted/40 flex flex-wrap items-baseline gap-x-3 gap-y-1 border-b px-3 py-2">
         <h2 className="ident text-sm font-semibold">{group.owner}</h2>
         <span className="text-muted-foreground ident text-xs">
-          {/* COPY: the per-owner counts in a group header */}
           {group.items.length} blocked · {group.waits.length} waiting
         </span>
         {group.longestDays === null ? null : (
@@ -88,7 +87,6 @@ export function BlockedGroup({ group }: { group: BlockedGroupData }) {
             className="text-state-blocked ident ml-auto text-xs font-medium"
             title="The longest any one of this owner's rows has been stopped."
           >
-            {/* COPY: the "longest stopped" figure in a group header */}
             longest {elapsedDays(group.longestDays)}
           </span>
         )}
@@ -102,7 +100,6 @@ export function BlockedGroup({ group }: { group: BlockedGroupData }) {
               that has gone wrong, rather than as two. The labels are what make
               them two. */}
           <SubHeading>
-            {/* COPY: label for the blocked work items inside an owner group */}
             Blocked work items
           </SubHeading>
           <Table data-verify-unit="blocked-items">
@@ -188,7 +185,6 @@ export function BlockedGroup({ group }: { group: BlockedGroupData }) {
       {group.waits.length > 0 ? (
         <div className="border-border overflow-x-auto border-t">
           <SubHeading>
-            {/* COPY: label for the open external waits inside an owner group */}
             Open external waits
           </SubHeading>
           <Table data-verify-unit="blocked-waits">

@@ -84,13 +84,11 @@ export default async function WaitsPage({
         >
           {listing === null ? (
             <span>
-              {/* COPY: shown in the summary strip when nothing could be read */}
               counts unavailable
             </span>
           ) : (
             <>
               <span className="ident">
-                {/* COPY: open-wait count */}
                 {listing.waits.length}{" "}
                 {includeResolved ? "listed" : "open"}
               </span>
@@ -102,12 +100,10 @@ export default async function WaitsPage({
                 }
               >
                 <span className="ident">{listing.overdueCount}</span>
-                {/* COPY: overdue count label */}
                 {" overdue"}
               </span>
               {listing.truncated ? (
                 <span className="text-state-carried">
-                  {/* COPY: warning that the wait page filled */}
                   This page is full, so there may be more.
                 </span>
               ) : null}
@@ -122,7 +118,6 @@ export default async function WaitsPage({
               data-verify-unit="toggle-resolved"
               data-verify-including-resolved={includeResolved ? "true" : "false"}
             >
-              {/* COPY: the toggle between open waits and all waits */}
               {includeResolved ? "Open only" : "Include resolved"}
             </Link>
           </Button>
@@ -162,14 +157,12 @@ export default async function WaitsPage({
           data-verify-unit="no-engagements"
           className="text-muted-foreground text-sm"
         >
-          {/* COPY: shown when there is no engagement to declare a wait against */}
           A wait belongs to an engagement, and none is registered yet. Register
           one first.
         </p>
       ) : null}
 
       {listing === null ? null : listing.waits.length === 0 ? (
-        // COPY: empty-state headline and detail for the waits screen
         <EmptyState
           headline={
             includeResolved

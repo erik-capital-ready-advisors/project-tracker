@@ -115,7 +115,6 @@ export default async function BlockedPage({
       {answer === null ? null : answer.engagementUnknown ? (
         <UnknownEngagementNotice slug={query.engagement as string} />
       ) : answer.groups.length === 0 ? (
-        // COPY: empty-state headline and detail for the blocked screen
         <EmptyState
           headline={
             query.filtered
@@ -125,14 +124,13 @@ export default async function BlockedPage({
           detail={
             query.filtered
               ? "The read succeeded and returned nothing. Clear the filters to see every owner."
-              : "Blocked work items and open external waits appear here, grouped by owner, with elapsed time and disposition."
+              : "Blocked work items and open external waits appear here with elapsed time and disposition, grouped by owner so Erik's rows sit apart from a client's or a vendor's."
           }
         />
       ) : (
         <>
           <SetAsideCounts
             counts={[
-              // COPY: the two totals above the owner groups
               { label: "blocked work items", value: answer.itemCount },
               { label: "open waits", value: answer.waitCount },
               { label: "owners", value: answer.groups.length },

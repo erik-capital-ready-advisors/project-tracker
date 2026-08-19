@@ -74,5 +74,4 @@ export function money(
  * printing a blank, for the same reason an unknown `unparsed` count is not `0`.
  */
 export const MIXED_CURRENCY_TOTAL =
-  // COPY: shown in place of a total when the rows carry more than one currency
-  "no single total — these milestones are in more than one currency";
+  "not summed — these milestones are in more than one currency";

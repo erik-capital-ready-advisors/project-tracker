@@ -34,7 +34,6 @@ export function MainNav() {
     <nav aria-label="Primary" className="flex flex-col gap-6">
       <div className="flex flex-col gap-0.5">
         <h2 className="text-muted-foreground px-2.5 pb-1 text-[11px] font-medium tracking-wider uppercase">
-          {/* COPY: section label for the six answer screens */}
           The six answers
         </h2>
         {ANSWER_ROUTES.map((item) => (
@@ -44,7 +43,6 @@ export function MainNav() {
 
       <div className="flex flex-col gap-0.5">
         <h2 className="text-muted-foreground px-2.5 pb-1 text-[11px] font-medium tracking-wider uppercase">
-          {/* COPY: section label for the record-keeping screens */}
           Records
         </h2>
         {OPERATOR_ROUTES.map((item) => (

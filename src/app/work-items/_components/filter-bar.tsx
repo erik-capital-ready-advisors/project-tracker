@@ -60,7 +60,6 @@ export function WorkItemFilterBar({ query }: { query: WorkItemQuery }) {
       <input type="hidden" name={PARAM.sort} value={query.sort} />
       <input type="hidden" name={PARAM.dir} value={query.direction} />
 
-      {/* COPY: filter labels for the work-item list */}
       <Field id="filter-engagement" label="Engagement" className="w-40">
         <Input
           id="filter-engagement"
@@ -186,19 +185,16 @@ export function WorkItemFilterBar({ query }: { query: WorkItemQuery }) {
           defaultChecked={query.blockedOnly}
           className="accent-primary size-3.5"
         />
-        {/* COPY: label for the "waiting on an external wait" filter */}
-        Waiting on a wait
+        Held by an external wait
       </label>
 
       <div className="ml-auto flex items-center gap-2">
         <Button type="submit" size="sm">
-          {/* COPY: apply-filters button */}
           Apply
         </Button>
         {query.filtered ? (
           <Button asChild variant="ghost" size="sm">
             <Link href="/work-items" data-verify-unit="clear-filters">
-              {/* COPY: clear-filters link */}
               Clear
             </Link>
           </Button>

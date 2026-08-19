@@ -49,13 +49,11 @@ export function AnswerFilterBar({
 
       <div className="ml-auto flex items-center gap-2">
         <Button type="submit" size="sm">
-          {/* COPY: apply-filters button */}
           Apply
         </Button>
         {filtered ? (
           <Button asChild variant="ghost" size="sm">
             <Link href={action} data-verify-unit="clear-filters">
-              {/* COPY: clear-filters link */}
               Clear
             </Link>
           </Button>
@@ -148,7 +146,6 @@ export function ChoiceFilter({
         defaultValue={value ?? ""}
         className="ident"
       >
-        {/* COPY: the "no filter" option label */}
         <option value="">any</option>
         {options.map((option) => (
           <option key={option} value={option}>

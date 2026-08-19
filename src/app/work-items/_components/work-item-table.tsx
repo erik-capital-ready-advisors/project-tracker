@@ -204,7 +204,6 @@ export function WorkItemTable({
                           data-verify-unit="blocked-by-wait"
                           className="hover:text-foreground underline underline-offset-2"
                         >
-                          {/* COPY: label for the external wait holding an item up */}
                           external wait
                         </Link>
                       )}
@@ -217,7 +216,6 @@ export function WorkItemTable({
                           data-verify-unit="blocked-by-blocker"
                           className="hover:text-foreground underline underline-offset-2"
                         >
-                          {/* COPY: label for the internal blocker holding an item up */}
                           blocker
                         </Link>
                       )}

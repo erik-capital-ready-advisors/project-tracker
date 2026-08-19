@@ -127,20 +127,17 @@ export function SignInForm() {
 
   return (
     <AuthShell
-      // COPY: sign-in screen title
       title="Sign in"
       description={
-        // COPY: sign-in screen description
         <>
           This ledger has no public surface. The operator account is provisioned
           by hand, and a second factor is required.
         </>
       }
       footer={
-        // COPY: the standing note that there is no self-service account creation
         <>
-          There is no account creation here and no self-service reset. If you
-          cannot get in, the fix is in the Supabase project, not on this screen.
+          There is no account creation here and no self-service reset. Recovery
+          is done in the Supabase project, not on this screen.
         </>
       }
     >
@@ -184,7 +181,6 @@ export function SignInForm() {
         {error === null ? null : <AuthError message={error} />}
 
         <Button type="submit" size="sm" disabled={!supabase.ok || pending}>
-          {/* COPY: sign-in button, and its pending label */}
           {pending ? "Signing in…" : "Sign in"}
         </Button>
       </form>

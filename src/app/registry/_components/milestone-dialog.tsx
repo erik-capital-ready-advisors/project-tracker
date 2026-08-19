@@ -192,7 +192,6 @@ export function MilestoneDialog({
             {editing ? milestone.name : "Add a contract milestone"}
           </DialogTitle>
           <DialogDescription className="text-xs">
-            {/* COPY: sharpen the milestone dialog's one-line framing */}
             A name, an amount, a due date, and the requirement references that
             constitute acceptance (FR-10).
           </DialogDescription>

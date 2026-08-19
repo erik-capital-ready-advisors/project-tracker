@@ -51,7 +51,6 @@ export function AttributeForm({
   function submit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (slug === "") {
-      // COPY: refusal when no engagement was chosen
       setError("Choose the engagement this session belongs to.");
       return;
     }
@@ -75,7 +74,6 @@ export function AttributeForm({
       className="flex flex-wrap items-start gap-2"
     >
       <label htmlFor={selectId} className="sr-only">
-        {/* COPY: accessible label for the engagement picker */}
         Engagement to attribute this session to
       </label>
       <div className="w-52">
@@ -91,7 +89,6 @@ export function AttributeForm({
           }}
           className="ident"
         >
-          {/* COPY: placeholder option in the engagement picker */}
           <option value="">choose an engagement…</option>
           {engagements.map((engagement) => (
             <option key={engagement.slug} value={engagement.slug}>
@@ -102,7 +99,6 @@ export function AttributeForm({
       </div>
 
       <Button type="submit" size="sm" disabled={pending}>
-        {/* COPY: the attribute button, and its pending label */}
         {pending ? "Attributing…" : "Attribute"}
       </Button>
 

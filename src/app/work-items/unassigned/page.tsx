@@ -55,8 +55,7 @@ export default async function UnassignedSessionsPage() {
   return (
     <Screen
       title="Unassigned sessions"
-      // COPY: the question this screen answers
-      question="Which recorded sessions could not be placed against an engagement, and where does each belong?"
+      question="Which sessions could not be placed against an engagement, and where does each belong?"
       requirements={["FR-26"]}
     >
       <WorkItemTabs
@@ -85,14 +84,12 @@ export default async function UnassignedSessionsPage() {
           data-verify-unit="queue-truncated"
           className="text-state-carried text-xs"
         >
-          {/* COPY: warning that the queue page filled */}
           This page of the queue is full, so there are more sessions behind it.
           Attribute these and reload.
         </p>
       ) : null}
 
       {!queue.ok ? null : sessions.length === 0 ? (
-        // COPY: empty-state headline and detail for the unassigned queue
         <EmptyState
           headline="Nothing is waiting to be attributed."
           detail="A session whose working directory matches no engagement lands here instead of being discarded. The queue is empty, which means every recorded session has an engagement."
@@ -128,14 +125,14 @@ export default async function UnassignedSessionsPage() {
                   )}
                   {session.filesChanged === null ? null : (
                     <span className="ident">
-                      {/* COPY: files-changed label */}
-                      {session.filesChanged} files
+                      {session.filesChanged} file
+                      {session.filesChanged === 1 ? "" : "s"}
                     </span>
                   )}
                   {session.commits === null ? null : (
                     <span className="ident">
-                      {/* COPY: commits label */}
-                      {session.commits} commits
+                      {session.commits} commit
+                      {session.commits === 1 ? "" : "s"}
                     </span>
                   )}
                 </div>
@@ -148,7 +145,6 @@ export default async function UnassignedSessionsPage() {
 
                 {session.summary === null ? (
                   <p className="text-muted-foreground/70 mt-2 text-sm italic">
-                    {/* COPY: shown when a session summary is absent or undecryptable */}
                     No summary is available. It was either never recorded or
                     could not be decrypted — those are different facts and the
                     system does not know which this is.

@@ -67,7 +67,6 @@ export default async function AgentTokensPage() {
       {!result.ok ? null : (
         <>
           {result.data.length === 0 ? (
-            // COPY: empty-state headline and detail for the settings/tokens screen
             <EmptyState
               headline="No agent tokens issued."
               detail="Tokens an agent uses to read and write the ledger appear here with their capabilities and last use. A token's plaintext is shown once at creation and never again."

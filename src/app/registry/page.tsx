@@ -58,7 +58,6 @@ export default async function RegistryPage() {
     >
       <div className="flex flex-wrap items-center gap-3">
         <p className="text-muted-foreground max-w-2xl text-sm">
-          {/* COPY: sharpen the framing line — FR-13's claim that this is the only typed data */}
           Engagements and their contract milestones are the only records typed by
           hand. Everything else in the ledger is captured or derived.
         </p>
@@ -74,7 +73,6 @@ export default async function RegistryPage() {
       ) : engagements.length === 0 ? (
         <EmptyState
           headline="No engagements recorded."
-          /* COPY: sharpen the empty-state detail for the registry list */
           detail="Register one to give ingested runs, requirements and contract milestones something to belong to."
         />
       ) : (

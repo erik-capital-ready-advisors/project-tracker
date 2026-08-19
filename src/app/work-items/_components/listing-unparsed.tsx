@@ -51,7 +51,6 @@ export function ListingUnparsed({ count }: { count: number | null }) {
       {state === "unknown" ? (
         <CircleHelp aria-hidden className="size-3.5" />
       ) : null}
-      {/* COPY: the per-page unparsed count, in its three states */}
       {state === "unknown"
         ? "unparsed count unavailable for this page"
         : `${count as number} unparsed on this page`}

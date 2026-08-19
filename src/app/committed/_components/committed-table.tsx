@@ -170,7 +170,6 @@ export function CommittedTable({
                         className="text-state-blocked text-xs"
                         title="This milestone's amount is stored as ciphertext that could not be read back. It is excluded from every total on this screen and counted separately — it is NOT being treated as zero."
                       >
-                        {/* COPY: shown when an amount will not decrypt */}
                         unreadable
                       </span>
                     ) : (
@@ -234,7 +233,6 @@ export function CommittedTable({
                           : "text-muted-foreground"
                       }
                     >
-                      {/* COPY: invoice submitted / not submitted labels */}
                       {isoDay(milestone.submitted) ?? "not submitted"}
                     </span>
                     <span
@@ -244,7 +242,6 @@ export function CommittedTable({
                           : "text-state-verified"
                       }
                     >
-                      {/* COPY: invoice paid / not paid labels */}
                       {isoDay(milestone.paid) ?? "not paid"}
                     </span>
                   </span>
@@ -278,7 +275,6 @@ function MilestoneAcceptance({
   if (milestone.acceptance.length === 0) {
     return (
       <p className="text-state-carried mt-1 text-xs">
-        {/* COPY: warning that a milestone has no acceptance criteria at all */}
         No acceptance criteria are recorded, so nothing can cover or ship it.
       </p>
     );
@@ -295,8 +291,8 @@ function MilestoneAcceptance({
       className="mt-1.5"
     >
       <summary className="text-muted-foreground hover:text-foreground cursor-pointer text-xs underline underline-offset-2">
-        {/* COPY: the expander label for a milestone's acceptance requirements */}
-        {milestone.acceptance.length} acceptance requirements
+        {milestone.acceptance.length} acceptance requirement
+        {milestone.acceptance.length === 1 ? "" : "s"}
       </summary>
       <ul className="mt-1.5 flex flex-col gap-1">
         {milestone.acceptance.map((ref) => (
@@ -321,7 +317,6 @@ function MilestoneAcceptance({
                 className="ident border-state-blocked/50 text-state-blocked inline-flex items-center rounded-md border border-dashed px-1.5 py-0.5 text-xs leading-none"
                 title="FR-70: this acceptance requirement was covered and is not covered now."
               >
-                {/* COPY: the label for an acceptance requirement that lost coverage */}
                 regressed
               </span>
             ) : null}

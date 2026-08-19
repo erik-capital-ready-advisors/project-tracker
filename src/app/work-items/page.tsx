@@ -77,9 +77,8 @@ export default async function WorkItemsPage({
           data-verify-count={query.rejected.length}
           className="border-state-carried/40 bg-state-carried/5 block rounded-lg border px-3 py-2.5 text-sm"
         >
-          {/* COPY: headline for filter values the system did not recognise */}
           <p className="text-foreground font-medium">
-            Some filters were not applied.
+            These filter values were not recognised.
           </p>
           <ul className="text-muted-foreground mt-1 space-y-0.5">
             {query.rejected.map((rejected) => (
@@ -89,10 +88,9 @@ export default async function WorkItemsPage({
             ))}
           </ul>
           <p className="text-muted-foreground mt-1.5 text-xs">
-            {/* COPY: explanation that an unrecognised filter is reported, not ignored */}
-            The list below is not filtered by them. It is showing more rows than
-            you asked for, which is why this says so rather than quietly
-            dropping them.
+            The list below is not narrowed by them, so it is showing more rows
+            than the filters name. Dropping them without saying so would present an
+            unfiltered list as a filtered one.
           </p>
         </output>
       ) : null}
@@ -106,7 +104,6 @@ export default async function WorkItemsPage({
       )}
 
       {listing === null ? null : items.length === 0 ? (
-        // COPY: empty-state headline and detail for the work-items screen
         <EmptyState
           headline={
             query.filtered
@@ -129,7 +126,6 @@ export default async function WorkItemsPage({
             className="text-muted-foreground flex flex-wrap items-center gap-x-4 gap-y-1 text-xs"
           >
             <span className="ident">
-              {/* COPY: row count on this page */}
               {items.length} on this page
             </span>
 
@@ -152,13 +148,11 @@ export default async function WorkItemsPage({
               className="hover:text-foreground underline underline-offset-2"
             >
               <span className="ident">{listing.erikGateCount}</span>
-              {/* COPY: label for the count of items only Erik can perform */}
               {" only Erik can do"}
             </Link>
 
             {listing.truncated ? (
               <span className="text-state-carried">
-                {/* COPY: warning that the page filled and more rows may exist */}
                 This page is full, so there may be more.
               </span>
             ) : null}
@@ -168,7 +162,6 @@ export default async function WorkItemsPage({
 
           <div className="flex items-center justify-between gap-3">
             <div className="text-muted-foreground ident text-xs">
-              {/* COPY: page indicator */}
               page {query.page}
             </div>
             <div className="flex items-center gap-2">
@@ -183,7 +176,6 @@ export default async function WorkItemsPage({
                     href={withParams(query, { page: query.page - 1 })}
                     data-verify-unit="page-previous"
                   >
-                    {/* COPY: previous-page control */}
                     Previous
                   </Link>
                 ) : (
@@ -201,7 +193,6 @@ export default async function WorkItemsPage({
                     href={withParams(query, { page: query.page + 1 })}
                     data-verify-unit="page-next"
                   >
-                    {/* COPY: next-page control */}
                     Next
                   </Link>
                 ) : (

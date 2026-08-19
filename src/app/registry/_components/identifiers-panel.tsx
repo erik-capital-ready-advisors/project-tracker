@@ -95,7 +95,6 @@ export function IdentifiersPanel({
 
       <p className="text-muted-foreground border-border flex items-start gap-2 border-t px-4 py-2.5 text-xs">
         <ShieldCheck aria-hidden className="mt-px size-3.5 shrink-0" />
-        {/* COPY: sharpen this line — the claim it makes (identifiers, never secrets) must survive any rewrite */}
         <span className="max-w-prose">
           Identifiers, never secrets. The database refuses a value shaped like a
           key or a token, which is what keeps these columns classified as
