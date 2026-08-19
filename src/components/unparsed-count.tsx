@@ -3,6 +3,7 @@ import { AlertTriangle, CircleHelp } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   unparsedLabel,
+  unparsedShortLabel,
   unparsedState,
   unparsedVerifyCount,
 } from "@/lib/unparsed-display";
@@ -41,6 +42,7 @@ export function UnparsedCount({
 }) {
   const state = unparsedState(count);
   const label = unparsedLabel(count);
+  const shortLabel = unparsedShortLabel(count);
   const verifyCount = unparsedVerifyCount(count);
 
   return (
@@ -57,7 +59,7 @@ export function UnparsedCount({
       data-verify-state={state}
       {...(verifyCount === null ? {} : { "data-verify-count": verifyCount })}
       className={cn(
-        "ident inline-flex shrink-0 items-center gap-1.5 rounded-md border px-2 py-1 text-xs leading-none whitespace-nowrap transition-colors",
+        "ident inline-flex min-w-0 items-center gap-1.5 rounded-md border px-2 py-1 text-xs leading-none whitespace-nowrap transition-colors",
         state === "zero" &&
           "border-border text-muted-foreground bg-transparent",
         state === "nonzero" &&
@@ -73,7 +75,18 @@ export function UnparsedCount({
       {state === "unknown" ? (
         <CircleHelp aria-hidden className="size-3.5" />
       ) : null}
-      {label}
+      {/*
+        Two spellings of the same statement, one per breakpoint. Only the
+        `unknown` state actually differs between them — the other two are
+        already short — so this costs nothing except at the width where the full
+        sentence does not fit.
+
+        `display: none` is not announced, so a screen reader reads exactly one
+        of them at any width. The `data-verify-*` contract above is unchanged
+        and unconditional, so no assertion depends on which one is showing.
+      */}
+      <span className="sm:hidden">{shortLabel}</span>
+      <span className="hidden sm:inline">{label}</span>
     </output>
   );
 }

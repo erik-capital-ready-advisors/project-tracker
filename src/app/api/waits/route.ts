@@ -15,6 +15,9 @@
 
 import { ANSWER_READ, INGEST_WRITE, apiError, apiOk, withAgentRoute } from "@/lib/api";
 
+import type { CensusDb } from "@/lib/server/answers/db";
+import { currentUnparsedCount } from "@/lib/server/answers/unparsed";
+
 import { parseWaitDeclaration } from "@/lib/server/waits/input";
 import { WAIT_PAGE_LIMIT, declareWait, listWaits } from "@/lib/server/waits/store";
 
@@ -88,6 +91,23 @@ export const GET = withAgentRoute(ANSWER_READ, async ({ request, db }) => {
     limit,
   });
 
+  // FR-58 — the ledger's count, from the one shared definition in
+  // `@/lib/server/answers/unparsed`. It is **global**: it is not narrowed by
+  // this endpoint's filters and it is not scoped to the rows this endpoint
+  // touched.
+  //
+  // This used to be a literal `0`, on the reasoning that nothing on this path
+  // is classified so nothing here could fail to classify. That reasoning
+  // answers a different question than the one FR-58 asks. FR-58 asks what the
+  // *system* could not classify — "a system that cannot classify something says
+  // so on every surface" — so a `0` here states that the whole ledger
+  // classified cleanly, on a request that counted nothing. That is the wrong
+  // `done` this product exists to prevent, reached through an envelope field.
+  //
+  // `null` when any component of the census could not be counted, never a
+  // partial sum, and `apiOk` omits the field entirely rather than sending `0`.
+  const unparsed = await currentUnparsedCount(db as unknown as CensusDb);
+
   return apiOk(
     {
       today,
@@ -97,8 +117,6 @@ export const GET = withAgentRoute(ANSWER_READ, async ({ request, db }) => {
       overdueCount: listing.overdueCount,
       truncated: listing.truncated,
     },
-    // FR-58. A wait is declared, never parsed, so there is no classifier here
-    // that could fail — a real zero rather than an unmeasured one.
-    { unparsed: 0 },
+    unparsed === null ? {} : { unparsed },
   );
 });

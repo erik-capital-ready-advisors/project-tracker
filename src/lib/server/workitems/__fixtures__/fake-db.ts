@@ -30,12 +30,29 @@ export type Row = Record<string, unknown>;
 export interface FakeResult {
   data: unknown;
   error: { message: string; code?: string } | null;
+  /**
+   * Present only when the caller asked for `count: "exact"`.
+   *
+   * `exactCount` in `@/lib/server/answers/db` returns `null` — never `0` —
+   * when this is absent or not a number, which is what makes an uncountable
+   * table report "unavailable" rather than a clean zero. A fake that omitted
+   * it entirely would make every census in a test read `null`, and a test that
+   * cannot tell a real count from an unread one cannot check FR-58 at all.
+   */
+  count?: number | null;
 }
 
 interface Filter {
   kind: "eq" | "in" | "is" | "not-is";
   column: string;
   value: unknown;
+}
+
+/** One term of a PostgREST `or(...)` disjunction, e.g. `severity.eq.unparsed`. */
+interface OrTerm {
+  column: string;
+  operator: string;
+  value: string;
 }
 
 function matches(row: Row, filter: Filter): boolean {
@@ -65,12 +82,23 @@ export interface FakeDbOptions {
   rpc?: Record<string, (args: Row) => unknown>;
   /** Force a failure on the named table's next write, to test the error path. */
   failWriteOn?: string;
+  /**
+   * Force a failure on every READ of the named table.
+   *
+   * Added for FR-58: `unparsedCensus` returns a `null` total — never a partial
+   * sum — when any one of its three counts fails, and `null` must be omitted
+   * from the response envelope rather than sent as `0`. That is the half of the
+   * contract that matters most and it is unreachable without a way to make a
+   * count fail. `failWriteOn` cannot do it, because a census only ever selects.
+   */
+  failReadOn?: string;
 }
 
 interface State {
   tables: Map<string, Row[]>;
   rpc: Record<string, (args: Row) => unknown>;
   failWriteOn: string | null;
+  failReadOn: string | null;
   calls: { table: string; op: string; payload?: unknown; onConflict?: string }[];
   rpcCalls: { name: string; args: Row }[];
   nextId: number;
@@ -85,14 +113,41 @@ class FakeQuery implements PromiseLike<FakeResult> {
   private offsetValue = 0;
   private orderBy: { column: string; ascending: boolean }[] = [];
   private projection: string | null = null;
+  private orFilters: OrTerm[][] = [];
+  private countMode: "exact" | "planned" | "estimated" | null = null;
+  private headOnly = false;
 
   constructor(
     private readonly table: string,
     private readonly state: State,
   ) {}
 
-  select(columns?: string): this {
+  select(
+    columns?: string,
+    options?: { count?: "exact" | "planned" | "estimated"; head?: boolean },
+  ): this {
     if (columns !== undefined) this.projection = columns;
+    if (options?.count !== undefined) this.countMode = options.count;
+    if (options?.head === true) this.headOnly = true;
+    return this;
+  }
+
+  /**
+   * PostgREST's disjunction, as `or("severity.eq.unparsed,status.eq.unparsed")`.
+   *
+   * A row matches the group when ANY term matches, and several `or()` calls are
+   * ANDed together — PostgREST's own semantics. An unrecognised operator
+   * matches nothing rather than everything, so a typo shows up as a missing row
+   * instead of as a silently inflated count. i7's rule, kept identical here so
+   * the two fakes cannot disagree about what a census counts.
+   */
+  or(filter: string): this {
+    this.orFilters.push(
+      filter.split(",").map((term) => {
+        const [column, operator, ...rest] = term.trim().split(".");
+        return { column, operator, value: rest.join(".") };
+      }),
+    );
     return this;
   }
 
@@ -243,6 +298,13 @@ class FakeQuery implements PromiseLike<FakeResult> {
     let rows = this.state.tables.get(this.table) ?? [];
     this.state.tables.set(this.table, rows);
     for (const filter of this.filters) rows = rows.filter((r) => matches(r, filter));
+    for (const group of this.orFilters) {
+      rows = rows.filter((row) =>
+        group.some((term) =>
+          term.operator === "eq" ? (row[term.column] ?? null) === term.value : false,
+        ),
+      );
+    }
     return rows;
   }
 
@@ -265,6 +327,13 @@ class FakeQuery implements PromiseLike<FakeResult> {
       };
     }
 
+    if (this.state.failReadOn === this.table && this.op === "select") {
+      return {
+        data: null,
+        error: { message: `injected failure reading ${this.table}` },
+      };
+    }
+
     const all = this.state.tables.get(this.table) ?? [];
     this.state.tables.set(this.table, all);
 
@@ -280,11 +349,28 @@ class FakeQuery implements PromiseLike<FakeResult> {
           return (x < y ? -1 : 1) * (ascending ? 1 : -1);
         });
       }
+      // The exact count is taken BEFORE the range window, as Postgres does:
+      // `count: "exact"` reports how many rows match the filters, not how many
+      // this page returned. Counting after the slice is how a paged read
+      // reports its page size as the table's size.
+      const exact = rows.length;
+
       rows = rows.slice(
         this.offsetValue,
         this.limitValue === null ? undefined : this.offsetValue + this.limitValue,
       );
-      return { data: rows.map((row) => this.project(row)), error: null };
+
+      if (this.headOnly) {
+        // `head: true` returns no row contents at all — which is what lets the
+        // FR-58 census count two `sensitive` tables without reading either.
+        return { data: null, error: null, count: this.countMode ? exact : null };
+      }
+
+      return {
+        data: rows.map((row) => this.project(row)),
+        error: null,
+        ...(this.countMode === null ? {} : { count: exact }),
+      };
     }
 
     if (this.op === "insert") {
@@ -399,6 +485,7 @@ export function createFakeDb(options: FakeDbOptions = {}): FakeDb {
       ...options.rpc,
     },
     failWriteOn: options.failWriteOn ?? null,
+    failReadOn: options.failReadOn ?? null,
     calls: [],
     rpcCalls: [],
     nextId: 1,

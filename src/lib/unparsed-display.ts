@@ -48,6 +48,33 @@ export function unparsedLabel(count: number | null | undefined): string {
 }
 
 /**
+ * The same statement, short enough for a 375px header.
+ *
+ * ## Why this exists rather than a `truncate` class
+ *
+ * The full label is 222 characters' worth of pixels — 222px measured — and the
+ * app shell mounts it in a header beside a nav trigger and a theme toggle. At
+ * 375px that header overflowed the viewport by 46px **on every route in the
+ * product**, which is a horizontal scrollbar on a dashboard whose whole promise
+ * is a ten-second glance.
+ *
+ * Ellipsis-truncating it was the smaller change and it is the wrong one: the
+ * state that overflows is `unknown`, and `unparsed count unav…` cuts the word
+ * carrying the entire meaning. So the *unknown* state gets a shorter phrasing
+ * and the other two are already short enough to keep verbatim.
+ *
+ * **The three states stay three.** `unknown` renders with a `?` and never with
+ * a number, so it cannot be read as `0` at any width — which is the one thing
+ * this module exists to guarantee.
+ */
+export function unparsedShortLabel(count: number | null | undefined): string {
+  // COPY: the compact form of the unparsed count, shown below the `sm` breakpoint
+  return unparsedState(count) === "unknown"
+    ? "unparsed ?"
+    : unparsedLabel(count);
+}
+
+/**
  * The numeric value to publish in the `data-verify-count` state contract.
  * `null` when the count is unknown, so an assertion can tell "unknown" from
  * "zero" without parsing the label.
