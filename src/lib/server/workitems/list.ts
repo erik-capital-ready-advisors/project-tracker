@@ -87,13 +87,29 @@ export interface ListedWorkItem {
 export interface WorkItemListing {
   items: ListedWorkItem[];
   /**
-   * FR-58 — the count of rows this page could not classify.
+   * The count of rows **on this page** that could not be classified.
    *
    * Reported on every listing, never suppressed. A zero here means "every row
    * on this page classified", which is a claim; the field is always present so
    * that claim is always made explicitly.
+   *
+   * ## Why the name says `OnPage`, and why it must keep saying it
+   *
+   * This is **not** FR-58's count. FR-58's count is the whole ledger's, defined
+   * once in `@/lib/server/answers/unparsed` and rendered by the badge in the app
+   * shell. This one is page-local and narrowed by whatever filters the caller
+   * passed, so the two are different numbers by construction — a filtered page
+   * can read `0` while the ledger holds unclassified records.
+   *
+   * A page-local count is legitimate information: it tells Erik whether the rows
+   * *he is looking at* classified. It was called `unparsed`, and a screen
+   * rendering it beside the shell badge showed two different numbers for what a
+   * reader takes to be the same thing — which is the failure the shared
+   * definition exists to end, arrived at through a field name. Renamed here
+   * rather than reconciled away, because the quantity is fine and only the name
+   * was lying. **Nothing about what it computes has changed.**
    */
-  unparsed: number;
+  unparsedOnPage: number;
   /** FR-40 — how many of these only Erik can do. Feeds the Bottleneck answer. */
   erikGateCount: number;
   truncated: boolean;
@@ -221,7 +237,7 @@ export async function listWorkItems(
 
   return {
     items,
-    unparsed: items.filter((item) => item.status === "unparsed").length,
+    unparsedOnPage: items.filter((item) => item.status === "unparsed").length,
     erikGateCount: items.filter((item) => item.executorKind === "erik_gate").length,
     truncated: items.length === limit,
   };

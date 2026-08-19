@@ -141,7 +141,7 @@ export default async function WorkItemsPage({
                 which is what it is. It renders only when there ARE rows: no
                 listing means nothing to report about one, and the shell's badge
                 already states the ledger-wide count. */}
-            <ListingUnparsed count={listing.unparsed} />
+            <ListingUnparsed count={listing.unparsedOnPage} />
 
             {/* FR-40: an `erik_gate` is a first-class executor kind, so the
                 count of them is stated on the list rather than left to be

@@ -174,14 +174,14 @@ describe("FR-58 every listing reports its unparsed count", () => {
       item({ id: "b", status: "unparsed" }),
       item({ id: "c", status: "unparsed" }),
     ]);
-    expect((await listWorkItems(db(fake))).unparsed).toBe(2);
+    expect((await listWorkItems(db(fake))).unparsedOnPage).toBe(2);
   });
 
   it("FR-58 reports zero explicitly rather than omitting the count", async () => {
     const fake = fixture([item({ id: "a", status: "done" })]);
     const listing = await listWorkItems(db(fake));
-    expect(listing.unparsed).toBe(0);
-    expect("unparsed" in listing).toBe(true);
+    expect(listing.unparsedOnPage).toBe(0);
+    expect("unparsedOnPage" in listing).toBe(true);
   });
 
   it("FR-40 counts the erik_gate rows for the Bottleneck answer", async () => {

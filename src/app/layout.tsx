@@ -5,6 +5,7 @@ import { headers } from "next/headers";
 import { AppShell } from "@/components/app-shell";
 import { ThemeProvider } from "@/components/theme-provider";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { readUnparsedCensus } from "@/lib/unparsed-census";
 
 import "./globals.css";
 
@@ -58,6 +59,27 @@ export default async function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   const nonce = (await headers()).get("x-nonce") ?? undefined;
 
+  /*
+   * FR-58's count, filling the DATA slot u1 left on `AppShell`.
+   *
+   * u1 wrote: "wire to the live unparsed count once the ingest tables exist
+   * (work-unit i1 for schema, i2 for the parsers)". Both have landed and i7 has
+   * since defined the single population, so the precondition is met and the
+   * badge no longer has to read "unavailable" forever.
+   *
+   * Three properties are load-bearing, and all three live in
+   * `@/lib/unparsed-census` rather than here:
+   *
+   *   * it is memoised per request, so this badge and the breakdown each of the
+   *     six answer screens renders cannot show two different numbers;
+   *   * a caller who is not a role-holding operator at aal2 gets an uncounted
+   *     census, so an anonymous visitor on /sign-in learns nothing;
+   *   * **every failure yields `null`, never `0`.** That is why this call cannot
+   *     take the application down and why the badge cannot claim a clean ledger
+   *     it never counted.
+   */
+  const census = await readUnparsedCensus();
+
   return (
     <html
       lang="en"
@@ -67,11 +89,7 @@ export default async function RootLayout({
       <body>
         <ThemeProvider nonce={nonce}>
           <TooltipProvider>
-            {/* DATA: `unparsedCount` is omitted, so the shell renders
-                "unparsed count unavailable". It stays that way until the ingest
-                schema (i1) and parsers (i2) exist. Passing 0 before then would
-                assert that everything classified. */}
-            <AppShell>{children}</AppShell>
+            <AppShell unparsedCount={census.total}>{children}</AppShell>
           </TooltipProvider>
         </ThemeProvider>
       </body>
