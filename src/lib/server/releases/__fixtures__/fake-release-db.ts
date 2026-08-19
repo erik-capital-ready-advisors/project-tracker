@@ -69,6 +69,7 @@ class FakeQuery implements DbQuery {
   private op: "select" | "insert" | "update" = "select";
   private filters: { kind: "eq"; column: string; value: unknown }[] = [];
   private inFilters: { column: string; values: readonly unknown[] }[] = [];
+  private orFilters: { column: string; operator: string; value: string }[][] = [];
   private payload: FakeRow[] = [];
   private wantCount = false;
   private headOnly = false;
@@ -112,6 +113,25 @@ class FakeQuery implements DbQuery {
     return this;
   }
 
+  /**
+   * PostgREST's disjunction, as `or("severity.eq.unparsed,status.eq.unparsed")`.
+   *
+   * Added by i7: the FR-58 census asks `defect` one question spanning two
+   * columns, so that a row unparsed in both is counted once rather than twice.
+   * Only the `eq` operator is understood, which is all the census uses; an
+   * unrecognised term matches nothing rather than everything, so a typo shows up
+   * as a missing row instead of as a silently inflated count.
+   */
+  or(filter: string): DbQuery {
+    this.orFilters.push(
+      filter.split(",").map((term) => {
+        const [column, operator, ...rest] = term.trim().split(".");
+        return { column, operator, value: rest.join(".") };
+      }),
+    );
+    return this;
+  }
+
   order(column: string): DbQuery {
     this.orderColumn = column;
     return this;
@@ -145,7 +165,13 @@ class FakeQuery implements DbQuery {
   private matches(row: FakeRow): boolean {
     return (
       this.filters.every((filter) => row[filter.column] === filter.value) &&
-      this.inFilters.every((filter) => filter.values.includes(row[filter.column]))
+      this.inFilters.every((filter) => filter.values.includes(row[filter.column])) &&
+      // Each `or()` call is one conjunct; its terms are disjoined within it.
+      this.orFilters.every((terms) =>
+        terms.some(
+          (term) => term.operator === "eq" && row[term.column] === term.value,
+        ),
+      )
     );
   }
 

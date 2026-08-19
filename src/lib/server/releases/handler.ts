@@ -3,7 +3,16 @@ import { apiError, apiOk, toErrorResponse } from "@/lib/api";
 import type { ReleaseDb } from "./db";
 import { RELEASE_INPUT_LIMITS, isProblems, parseReleaseBody } from "./input";
 import { isFailure, recordRelease } from "./persist";
-import { currentUnparsedCount } from "./unparsed";
+// FR-58's count has exactly one definition in this tree and it is not here.
+// i8 wrote a local `./unparsed.ts` counting `work_item` alone and flagged it
+// low-confidence for the reason that came true: i5, i6 and i8 were each about
+// to pick their own population, and six endpoints reporting different numbers
+// for the same state discredit each other. i7 owns the definition now; that
+// file was deleted rather than left as a second one. The number this endpoint
+// reports is therefore larger than it was — it now includes unparsed defects
+// (FR-64 requires that in terms) and unparsed test results.
+import type { CensusDb } from "@/lib/server/answers/db";
+import { currentUnparsedCount } from "@/lib/server/answers/unparsed";
 
 /**
  * FR-76: a `devops` unit records the deploy it just made, in one call.
@@ -107,7 +116,7 @@ async function ingest(request: Request, db: ReleaseDb): Promise<Response> {
     );
   }
 
-  const unparsed = await currentUnparsedCount(db);
+  const unparsed = await currentUnparsedCount(db as unknown as CensusDb);
 
   return apiOk(
     {
