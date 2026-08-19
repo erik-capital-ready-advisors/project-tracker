@@ -27,7 +27,11 @@ export function isOverdue(wait: ExternalWait, today: string): boolean {
 export function projectMilestone(
   due: string | null,
   waits: ExternalWait[],
-  today: string,
+  // Deliberately unused, and deliberately still in the signature: the
+  // projection is driven by each wait's own `expectedBy`, not by the clock.
+  // Keeping the parameter holds the shape of the other two functions here and
+  // stops a caller reaching for `new Date()` to fill a gap that does not exist.
+  _today: string,
 ): { projected: string | null; slippedDays: number; drivenBy: string | null } {
   const open = waits.filter(
     (wait) => wait.resolvedAt === null && wait.expectedBy !== null,

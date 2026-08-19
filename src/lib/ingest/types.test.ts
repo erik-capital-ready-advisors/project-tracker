@@ -15,7 +15,7 @@ describe("validateWorkItem", () => {
   });
 
   it("FR-39 rejects a work item with no executor kind", () => {
-    const { executorKind, ...missing } = valid;
+    const { executorKind: _dropped, ...missing } = valid;
     expect(validateWorkItem(missing)).toEqual([
       "work_item tracker:r1:i1: missing executorKind",
     ]);
