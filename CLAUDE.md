@@ -150,6 +150,10 @@ Behavioral rules earned on this project. Append one line per lesson, in the mome
   plus a `list_projects` that omitted it looked conclusive and was wrong: the Vercel project existed
   and was deployed, and the MCP connector simply could not see it. "The API cannot see it" and "it
   does not exist" are different claims.
+- When dispatching a `researcher`, give it an explicit output path under `.fleet/research/<run-id>/`.
+  Handed only a run id and a unit id, it writes its note to
+  `.fleet/specialist-reports/<run-id>/<unit>.md` and silently occupies the report path the
+  dispatching unit still has to write.
 - After `apply_migration`, rename the local file to the version `list_migrations` reports rather
   than a timestamp you picked. Supabase assigns its own version, and a mismatch makes a later
   `supabase db push` read every applied file as pending and re-run it — which fails on
