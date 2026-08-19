@@ -1,0 +1,54 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "react-jsx",
+    "incremental": true,
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ],
+    // TypeScript 7 no longer auto-includes node_modules/@types. Without this, `node:*`
+    // imports fail as ordinary module-resolution errors ("Cannot find module 'node:fs'")
+    // that look nothing like a config problem. Do not remove.
+    "types": [
+      "node"
+    ],
+    // There is deliberately NO "baseUrl" here. TypeScript 7 REMOVED it (hard error TS5102,
+    // not a deprecation) and there is no successor option -- `paths` now resolves relative
+    // to this file on its own. Do not "restore" it. This works only because `next` is
+    // pinned to 16.x: Next 15.5 builds its path aliases THROUGH baseUrl, so that pair does
+    // not resolve at all. Do not downgrade next.
+    "paths": {
+      "@/*": [
+        "./src/*"
+      ]
+    }
+  },
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    ".next/types/**/*.ts",
+    ".next/dev/types/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    ".next",
+    "out"
+  ]
+}

@@ -4,3 +4,17 @@ node_modules/
 .vercel/
 .claude/worktrees/
 .DS_Store
+
+# --- added by the application scaffold (work-unit u1, run b0952e) ---
+# Existing entries above are load-bearing; .claude/worktrees/ and .vercel/ in
+# particular must stay ignored -- see CLAUDE.md "Agent worktrees".
+/out/
+/build/
+*.tsbuildinfo
+next-env.d.ts
+
+# Playwright
+/playwright-report/
+/test-results/
+/blob-report/
+/playwright/.cache/
