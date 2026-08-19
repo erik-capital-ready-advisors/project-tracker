@@ -43,6 +43,16 @@ describe("parseBlocked", () => {
       items: [], blockers: [],
     });
   });
+
+  it("FR-52 a blocker parsed from a manifest is Erik's, not a client's", () => {
+    // The manifest's Blocked table carries no Owner column, so nothing in the
+    // artifact ever states an owner and this default is the owner of every
+    // blocker parsed here. Erik's decision, overriding `plan.md`'s "client":
+    // absent a statement, the owner is Erik.
+    const { blockers } = parsed();
+    expect(blockers.length).toBeGreaterThan(0);
+    expect(blockers.map((b) => b.owner)).toEqual(blockers.map(() => "erik"));
+  });
 });
 
 describe("FR-52 blocker ownership defaults to Erik, not to the client", () => {

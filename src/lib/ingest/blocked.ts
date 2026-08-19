@@ -55,6 +55,16 @@ export function parseBlocked(
       blockers.set(blockerId, {
         id: blockerId,
         engagement,
+        // Erik's decision, which overrides `plan.md`'s hardcoded "client".
+        // The manifest's Blocked table has no Owner column at all, so this
+        // default is the owner of EVERY blocker parsed here — and provisioning
+        // and infrastructure blockers are Erik's per CLAUDE.md. FR-52 groups the
+        // Blocked screen by owner precisely to separate his rows from a
+        // client's, so defaulting to `client` files his own work under someone
+        // else's name. The owner is never inferred from the blocker prose: a
+        // classifier guessing at ownership is the same move as one guessing at
+        // status. `prodMd.ts` reads a stated owner where the artifact has an
+        // Owner column, and falls back to this same default.
         owner: DEFAULT_BLOCKER_OWNER,
         description: blockerCell,
         disposition: "carried",

@@ -5,6 +5,17 @@
 //
 // DO NOT EDIT BY HAND. Regenerate after any migration.
 //
+// ONE DOCUMENTED EXCEPTION, hand-applied by work-unit i5 of run b0952e.
+// Migration 20260819165903_i5_ingest_idempotency_and_gates adds
+// `open_question.source_key` (text) and `fleet_run.gates` (jsonb, NOT NULL
+// default '{}') plus `fleet_run.tests_passed/tests_failed/tests_skipped` (int).
+// Those five columns were added to this file BY HAND rather than by
+// regenerating, because i5, i6 and i8 were building in parallel worktrees and
+// three concurrent regenerations conflict irreconcilably. The next legitimate
+// regeneration supersedes this note and should reproduce all five columns
+// identically — if it does not, the migration did not apply, and that is the
+// finding rather than a types problem.
+//
 // `audit_log.capability` is `string`, not the `agent_capability` enum, and that
 // is deliberate: it stores FR-5's WIRE spelling (`answer:read`) rather than the
 // enum's (`answer_read`), pinned by a check constraint. See the migration.
@@ -422,10 +433,14 @@ export type Database = {
           dispatches_used: number | null
           ended_at: string | null
           engagement_id: string
+          gates: Json
           id: string
           mode: string | null
           run_id: string
           started_at: string | null
+          tests_failed: number | null
+          tests_passed: number | null
+          tests_skipped: number | null
           verdict: string | null
         }
         Insert: {
@@ -434,10 +449,14 @@ export type Database = {
           dispatches_used?: number | null
           ended_at?: string | null
           engagement_id: string
+          gates?: Json
           id?: string
           mode?: string | null
           run_id: string
           started_at?: string | null
+          tests_failed?: number | null
+          tests_passed?: number | null
+          tests_skipped?: number | null
           verdict?: string | null
         }
         Update: {
@@ -446,10 +465,14 @@ export type Database = {
           dispatches_used?: number | null
           ended_at?: string | null
           engagement_id?: string
+          gates?: Json
           id?: string
           mode?: string | null
           run_id?: string
           started_at?: string | null
+          tests_failed?: number | null
+          tests_passed?: number | null
+          tests_skipped?: number | null
           verdict?: string | null
         }
         Relationships: [
@@ -474,6 +497,7 @@ export type Database = {
           question: string | null
           run: string | null
           section: string | null
+          source_key: string | null
           status: Database["public"]["Enums"]["question_status"]
           unit: string | null
         }
@@ -488,6 +512,7 @@ export type Database = {
           question?: string | null
           run?: string | null
           section?: string | null
+          source_key?: string | null
           status?: Database["public"]["Enums"]["question_status"]
           unit?: string | null
         }
@@ -502,6 +527,7 @@ export type Database = {
           question?: string | null
           run?: string | null
           section?: string | null
+          source_key?: string | null
           status?: Database["public"]["Enums"]["question_status"]
           unit?: string | null
         }

@@ -158,3 +158,14 @@ Behavioral rules earned on this project. Append one line per lesson, in the mome
   than a timestamp you picked. Supabase assigns its own version, and a mismatch makes a later
   `supabase db push` read every applied file as pending and re-run it — which fails on
   `create type` and reads like a broken migration instead of a bookkeeping mismatch.
+- When mutation-testing new code, snapshot each file's bytes in the harness and write them back;
+  never revert with `git checkout --`. New files are untracked, `git checkout --` fails on them
+  with `did not match any file(s) known to git`, and if the harness ignores that exit code every
+  mutation stays applied and accumulates — so later mutations run against already-broken code and
+  the per-mutation verdicts are unattributable. Have the harness restore in a `finally` and print
+  the tree state at the end.
+- Upsert conflict targets must be PLAIN unique indexes, never partial ones. PostgREST's
+  `on_conflict` takes column names and cannot carry a `WHERE` predicate, so `supabase-js`
+  `.upsert()` against a partial unique index fails `42P10 there is no unique or exclusion
+  constraint matching the ON CONFLICT specification` — and it fails only on the *second* post,
+  which is exactly the idempotency case nobody exercises before shipping.
