@@ -1,8 +1,9 @@
 # CLAUDE.md — Delivery Ledger
 
-A single-operator delivery tracker for a one-person studio. It answers five questions — what's
-blocked, what's next, what was committed to a client and when, what's untested, and what Erik is
-the bottleneck on — in a browser in under thirty seconds, and over a JSON API for an agent.
+A single-operator delivery tracker for a one-person studio. It answers six questions — what's
+blocked, what's next, what was committed to a client and when, what's untested, what's broken,
+and what Erik is the bottleneck on — in a browser in under thirty seconds, and over a JSON API
+for an agent. (The sixth, Broken, was added by approved CR-001.)
 
 Next.js App Router, Supabase, Vercel, TypeScript strict. This stack is a requirement, not a
 preference: Erik asked for a product his own autonomous fleet can build, and the fleet's

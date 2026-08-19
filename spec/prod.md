@@ -4,8 +4,8 @@
 **Last updated:** 2026-08-17 — provisioning targets verified against the live APIs
 **Current phase:** Pre-build — spec approved and gated, **M1.0 provisioning complete and verified**. No application code. Nothing blocks a dispatch
 **Spec version:** `spec-approved.md` — promoted byte-for-byte from `spec-v1.md` on 2026-08-17 (`6820ade`), verified identical by `diff`
-**Active CRs:** none — `spec/change-requests/` does not exist
-**Security posture:** declared — spec §7a, 18 entities classified. `security-gate.sh` **PASS on `spec-approved.md`**, and `fleet-preflight.sh` PASS, both 2026-08-17.
+**Active CRs:** **CR-001 APPROVED 2026-08-18** — `spec/change-requests/CR-001-defects-regressions-releases.md`: defects, regressions, releases, a sixth answer (Broken), provisioning identifiers on `engagement`. FR-63–FR-79, three new entities (18 → 21). Q8 answered `contested` (FR-79). The effective spec is `spec-approved.md` as amended by CR-001
+**Security posture:** declared — spec §7a as amended by CR-001 §4, **21 entities classified**. `security-gate.sh` **PASS on the merged 21-entity set** 2026-08-18 (and on `spec-approved.md` 2026-08-17); `fleet-preflight.sh` PASS 2026-08-17.
 
 ---
 
@@ -32,6 +32,8 @@ This file is the **build log**. It tracks the live state of development: what's 
 
 **Why this order:** the Supabase project is verified empty and correctly located, so M1.4 can be dispatched right now against fixtures with nothing else in place. Everything that touches the database wants signup closed first, because an open signup on a project that is about to hold the studio's whole client book is the one hazard that gets worse the moment there is data.
 
+**CR-001 is approved (2026-08-18), in time:** M1.1 had not been dispatched, so the fleet builds the 21-entity schema once. Any dispatch brief must name the effective spec as `spec-approved.md` **plus CR-001** — the repo `CLAUDE.md` session protocol already routes readers through `spec/change-requests/` in order.
+
 **Second, before dispatch:** Q2 — whether any client contract restricts where their project details may be stored. This one does not block the build, but it blocks ingesting any engagement other than this repository's own, because ingest copies client prose out of individual repos into one database.
 
 **Dispatch note for `project-lead`:** `plan.md` at the repo root is the detailed brief for **one** work unit — the pure domain core, `src/lib/ingest/`, covering M1.4 plus the pure rules inside M1.6, M1.7 and M1.8. Dispatch it as a single `integration` unit with that file inlined, and decompose every other milestone from the spec as usual. It needs no database, so it does not wait on B1. Its 13 tasks were executed against the real corpus before they were written down; the counts they assert are measured, not estimated.
@@ -40,7 +42,7 @@ This file is the **build log**. It tracks the live state of development: what's 
 
 ## Current state (one paragraph)
 
-Spec drafted and gated. No product code exists. `spec/spec-v1.md` carries 62 functional requirements across 11 Phase 1 milestones, 18 data entities all classified in §7a, and 7 open questions. `security-gate.sh` and `fleet-preflight.sh` both pass. Nothing has been dispatched and the fleet has not run.
+Spec drafted, gated, and amended by approved CR-001. No product code exists. The effective spec — `spec-approved.md` plus CR-001 — carries **79 functional requirements** across 11 Phase 1 milestones, **21 data entities all classified** (§7a plus CR-001 §4), 7 spec questions of which Q8 is answered (`contested`), and **six answers** including Broken. `security-gate.sh` passes on the merged entity set and `fleet-preflight.sh` passed at intake. Nothing has been dispatched and the fleet has not run.
 
 **As of 2026-08-17 the database exists and has been inventoried.** Supabase project `onpvolboecjpdkvurjaf` (`project-tracker`), org `whneklkrjsulgqzqxsks` — Erik's own and the only org his connector can see — us-east-1, Postgres 17.6.1.155, `ACTIVE_HEALTHY`, created 2026-08-17T21:06Z. **Zero `public` tables, zero migrations, zero users.** Two live findings on it: public signup is on (B8), and an event-trigger function `public.rls_auto_enable()` that this build did not write already forces RLS on every new `public` table. **The Vercel project exists and is deployed**, verified by HTTP after the MCP connector reported it absent — see the correction in the Decisions log. The connector still cannot see it, which is the residual B1b.
 
@@ -75,15 +77,15 @@ Erik's scope for this pass was explicit: **provision and wire the three services
 | Milestone | Status | Notes |
 |---|---|---|
 | M1.0 Provisioning | **Done** | Supabase `onpvolboecjpdkvurjaf` in Erik's own org, inventoried empty. Vercel project live and linked, env vars set on all three environments. `disable_signup` **verified true by observation**, not assumed. Residual: the Vercel MCP connector's scope (B1b) and whether Preview carries a service-role key |
-| M1.1 Foundation | Not Started | Schema for 18 entities, RLS everywhere, pgcrypto per §7a with the key in Vault, append-only audit log. **Unblocked — the database exists.** Note that `rls_auto_enable` already forces RLS on new `public` tables, so verification must assert the **policy**, never the flag |
+| M1.1 Foundation | Not Started | Schema for **21 entities (CR-001: + defect, release, release_requirement, and the provisioning-identifier columns on engagement)**, RLS everywhere, pgcrypto per §7a as amended with the key in Vault, append-only audit log. **Unblocked — the database exists.** Note that `rls_auto_enable` already forces RLS on new `public` tables, so verification must assert the **policy**, never the flag |
 | M1.2 Access | Not Started | Operator sign-in, MFA enforced in RLS not only in Next.js, agent tokens hashed and scoped, rate limits. FR-1 to FR-8 |
 | M1.3 Registry | Not Started | Engagements, contract milestones, acceptance criteria. FR-9 to FR-13 |
-| M1.4 Mode 1 ingest | Not Started | Manifest tables, questions normalization, prod.md, requirement ranges, idempotency, the unparsed discipline. FR-14 to FR-23. Buildable on fixtures with no database |
+| M1.4 Mode 1 ingest | Not Started | Manifest tables, questions normalization, prod.md, requirement ranges, idempotency, the unparsed discipline. FR-14 to FR-23, **plus the QA-report findings parser (CR-001 FR-64)**. Buildable on fixtures with no database |
 | M1.5 Mode 2 capture | Not Started | Session hook, ingest endpoint, unassigned queue, reason classes, stack attribution. FR-24 to FR-31. Blocked on Q4 for the hook's install scope |
 | M1.6 Mode 3 waits | Not Started | Declaration, expected-by, overdue, resolution, date contribution. FR-32 to FR-38 |
 | M1.7 Unified model | Not Started | Execution modes, executor kinds, Erik-gates, dependency edges, evidence scopes. FR-39 to FR-44 |
-| M1.8 QA traceability | Not Started | Test-title parsing, the independent-certifier rule, billable derivation. FR-45 to FR-51 |
-| M1.9 The five answers | Not Started | Five screens, five endpoints, unparsed count on every surface. FR-52 to FR-58 |
+| M1.8 QA traceability | Not Started | Test-title parsing, the independent-certifier rule, billable derivation. FR-45 to FR-51, **plus CR-001's pure rules: `D-nn` tags, defect verification (FR-66), regressions (FR-69), shipped state (FR-74), contested (FR-79)** |
+| M1.9 The six answers | Not Started | **Six** screens, **six** endpoints (CR-001 adds Broken — FR-71, FR-72), unparsed count on every surface. FR-52 to FR-58 |
 | M1.10 Export and handover | Not Started | Export through one function, archive and purge, `docs/user-guide.md`. FR-60, FR-61 |
 
 ### Phase 2 — Automation and feedback loops (estimated 4-6 days)
@@ -127,6 +129,8 @@ Erik's scope for this pass was explicit: **provision and wire the three services
 
 | Date | Decision | Rationale |
 |---|---|---|
+| 2026-08-18 | **CR-001 approved: defects, regressions, releases, a sixth answer (Broken), provisioning identifiers.** FR-63–FR-79, entities 18 → 21. `security-gate.sh` PASS on the merged set | An audit against Erik's studio checklist found bug reports and shipped-state untracked and regressions derivable but never derived. Approved before M1.1 so the schema is built once. `spec-approved.md` stays byte-identical; the CR amends by precedence |
+| 2026-08-18 | **Q8 answered `contested` (FR-79):** a billable milestone with an open critical defect naming an acceptance requirement is flagged, never blocked and never presented as clean | Blocking billable on an asserted severity would be an asserted invoice state by another name; hiding the defect would present a disputed milestone as clean. Contested preserves derived-never-asserted in both directions |
 | 2026-08-17 | **CORRECTION — the Vercel project exists; an earlier entry in this file said it did not** | Reported absent on the strength of a 404 from `get_project` plus an omission from `list_projects`. Both readings were accurate about the API and wrong about the world. HTTP settled it: the project's hostname answers 302 into Vercel's SSO with a per-request nonce, exactly as the known-good `danishjawaid` does, while invented names under the same wildcard answer 404 with no redirect. **The check had no negative control, so nothing established that it could distinguish absent from invisible.** Kept rather than deleted: this is the project's signature defect family pointed at its own tooling |
 | 2026-08-17 | **Provisioning target confirmed by observation, not by the URL Erik pasted.** Supabase `onpvolboecjpdkvurjaf` in org `whneklkrjsulgqzqxsks`. Vercel team `team_J6J1LAU19znwJenYFKgVArEV`, slug `erik-capital-ready-advisors-projects` | The account signal was read in the same place it read dirty on run `cd414c`, and it now reads clean: `list_organizations` returns **exactly one** org and it is Erik's; `list_projects` returns exactly two projects, `project-tracker` and `danishjawaid`, both his. On `cd414c` the same call returned six strangers' products. Checking the URL against the API is what separates "Erik says it exists" from "it exists" - and on the Vercel half those two answers disagreed |
 | 2026-08-17 | **Inventoried the database BEFORE anything was applied, and it is empty** | Zero `public` tables, `list_migrations` returns `[]`, `auth.users` 0 rows. The only non-zero counts are Supabase's own bookkeeping (`auth.schema_migrations` 77, `storage.migrations` 62), which every fresh project carries. Replay is therefore safe, and this is recorded now because the same inventory was the thing that made `cd414c`'s replay safe - and skipping it is what made the first attempt unsafe |
@@ -154,6 +158,8 @@ Erik's scope for this pass was explicit: **provision and wire the three services
 | Date | Session | What happened |
 |---|---|---|
 | 2026-08-17 | Intake | Read the reference corpus — both manifests, the checkpoint, `prod.md`, the four gate scripts, the questions files. Drafted `spec-v1.md`: 62 FRs, 18 entities, 11 Phase 1 milestones, 7 open questions. `security-gate.sh` PASS. No code written |
+| 2026-08-18 | Audit + CR-001 draft | Audited spec, repo CLAUDE.md and `plan.md` against Erik's studio checklist. Gaps found: no defect entity, regressions derivable but never derived, built/shipped collapsed, no provisioning identifiers on `engagement`. Drafted CR-001 (FR-63–FR-78, 3 new entities, §7a rows, Q8) — **pending approval, timed before M1.1 so the schema is built once**. Phase-2 gaps (CR ingest, notifications, cost, recurring obligations) routed to §4.3 in the CR, not spec'd. No code written |
+| 2026-08-18 | CR-001 approval | Erik approved CR-001 with Q8 = `contested` (recorded as FR-79). `security-gate.sh` run on a merged 21-entity effective spec: **PASS** — all 21 entities classified. Consequential edits made: repo `CLAUDE.md` now says six questions; this file's header, pointer and milestone notes updated. `spec-approved.md` untouched, still byte-identical to `spec-v1.md`. No code written |
 
 ---
 
