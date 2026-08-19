@@ -169,3 +169,13 @@ Behavioral rules earned on this project. Append one line per lesson, in the mome
   `.upsert()` against a partial unique index fails `42P10 there is no unique or exclusion
   constraint matching the ON CONFLICT specification` — and it fails only on the *second* post,
   which is exactly the idempotency case nobody exercises before shipping.
+- Read security headers off a protected Vercel preview with `vercel curl`, never a plain `curl`.
+  Deployment protection answers first with its own `302` to `vercel.com/sso-api`, and that
+  interstitial carries `strict-transport-security` and `x-frame-options` of its own — so a plain
+  `curl` returns a header block that looks like the app's and came from the edge. The tell here is
+  `preload`, which Vercel's HSTS has and `next.config.ts` deliberately omits; in general, verify a
+  header against the value the repo actually sets rather than against its mere presence.
+- When a scan for secret shapes returns zero on every pattern, assume it is blind until a pattern
+  you know is present also comes back non-zero. A bundle scan pointed at the wrong chunks reported
+  a clean result indistinguishable from a real one; adding a control term (`function`, in any React
+  chunk) exposed it and moved the scan to the chunks the browser Supabase client actually lands in.
