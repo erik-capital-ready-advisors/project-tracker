@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { headers } from "next/headers";
 
 import { AppShell } from "@/components/app-shell";
 import { ThemeProvider } from "@/components/theme-provider";
@@ -36,9 +37,27 @@ export const metadata: Metadata = {
     "What is blocked, what is next, what was committed, what is untested, what is broken, and what Erik is the bottleneck on.",
 };
 
-export default function RootLayout({
+/**
+ * Reading `headers()` is what makes every route dynamic, and that is required
+ * rather than incidental: the Content-Security-Policy set in `proxy.ts` carries
+ * a per-request nonce, and Next can only stamp that nonce onto its script tags
+ * during a server render. A statically prerendered page was built when no
+ * request existed, so its scripts would carry no nonce and the policy would
+ * block them. §7a states this product has no public surface and every screen
+ * reads live per-request data, so nothing here wanted prerendering anyway.
+ *
+ * The nonce is then handed to `next-themes`, whose pre-paint theme script is the
+ * one inline script Next does not stamp itself. Without it that script is
+ * blocked and the operator gets a flash of the wrong theme on every load.
+ *
+ * (Both changes are work-unit i4's, in a UI-owned file. They are mechanical —
+ * no markup, layout or styling was altered.)
+ */
+export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
+  const nonce = (await headers()).get("x-nonce") ?? undefined;
+
   return (
     <html
       lang="en"
@@ -46,7 +65,7 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable}`}
     >
       <body>
-        <ThemeProvider>
+        <ThemeProvider nonce={nonce}>
           <TooltipProvider>
             {/* DATA: `unparsedCount` is omitted, so the shell renders
                 "unparsed count unavailable". It stays that way until the ingest
