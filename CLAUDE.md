@@ -150,3 +150,7 @@ Behavioral rules earned on this project. Append one line per lesson, in the mome
   plus a `list_projects` that omitted it looked conclusive and was wrong: the Vercel project existed
   and was deployed, and the MCP connector simply could not see it. "The API cannot see it" and "it
   does not exist" are different claims.
+- After `apply_migration`, rename the local file to the version `list_migrations` reports rather
+  than a timestamp you picked. Supabase assigns its own version, and a mismatch makes a later
+  `supabase db push` read every applied file as pending and re-run it — which fails on
+  `create type` and reads like a broken migration instead of a bookkeeping mismatch.
