@@ -228,3 +228,13 @@ Behavioral rules earned on this project. Append one line per lesson, in the mome
   machine). The tell: if the branch name changes but the diff does not, do not ask. Dispatching M2.7
   was stopped for a four-option question in which three options built identical code onto different
   refs, which made Erik the bottleneck on a `git checkout -b`.
+- Measure a test baseline in a throwaway `git worktree` at the ref, never with `git stash -u` in
+  the shared checkout. Sessions run concurrently against this repo, and a stash sweeps another
+  agent's uncommitted work out from under it mid-run; the pop restored it here, but nothing about
+  the sequence guaranteed that.
+- Before pruning a worktree, prove the work is safe with `git cherry` plus a file-set comparison
+  (`comm` over `git ls-tree -r --name-only <branch>` against `HEAD`), never with a bare
+  `git diff HEAD <branch>`. On a branch that is *behind* HEAD, that diff reports HEAD's newer content
+  as the branch's "additions" and answers a question you did not ask. Then remove with
+  `git worktree remove` and leave the branch in place — it frees the disk and clears the leak while
+  keeping the per-unit history, which is the reversible half of the operation.

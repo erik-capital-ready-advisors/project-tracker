@@ -6,6 +6,7 @@ import {
   DetailFields,
   DetailSection,
   EntityDetail,
+  NO_IDENTIFIER,
 } from "@/components/entity-detail";
 import { EntityRef } from "@/components/entity-ref";
 import { Button } from "@/components/ui/button";
@@ -89,7 +90,9 @@ export function OpenQuestionView({ detail }: { detail: OpenQuestionDetail }) {
       title={fallbackLabel("open_question", detail.id)}
       question="One question the fleet could not answer for itself: what it asked, what it assumed in the meantime, and what was decided."
       requirements={["FR-18", "FR-81", "FR-83", "FR-85"]}
-      identifier={identifier}
+      // `identityLine` returns null when the row records no run, unit or
+      // section — an open question has no human key of its own.
+      identifier={identifier ?? NO_IDENTIFIER}
       actions={
         engagement === null ? undefined : (
           // Ruling 3: the engagement is not a ninth entity kind. A plain link to

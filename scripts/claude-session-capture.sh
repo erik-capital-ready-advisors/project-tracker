@@ -26,16 +26,28 @@
 # that blocks the end of a session is a hook that gets uninstalled.
 #
 # ---------------------------------------------------------------------------
-# INSTALL SCOPE IS AN OPEN DECISION (blocker B4)
+# INSTALL SCOPE — DECIDED 2026-08-20: GLOBAL, WITH AN ALLOWLIST (blocker B4)
 # ---------------------------------------------------------------------------
 #
-# Whether this is registered globally in `~/.claude/settings.json` with an
-# allowlist of studio project roots, or per project in each repository's
-# `.claude/settings.json`, is **not decided**. Erik's recommendation is global
-# with an allowlist; he has not settled it. The documentation unit writes the
-# install instructions once he does — this script works under either, because
-# it reads the working directory at run time and lets the server resolve the
-# engagement (FR-26).
+# Erik settled spec Q4 / blocker B4: register this once, globally, in
+# `~/.claude/settings.json`, and gate it on an allowlist of studio project
+# roots. Global capture reaches the ad-hoc work that never becomes a
+# repository — the hours FR-31 exists to measure, and the hours a per-project
+# hook is structurally incapable of seeing.
+#
+# The allowlist is what keeps a personal project's session summary out of a
+# database classified for client data, so it is enforced HERE rather than in
+# the settings snippet. A wrapper script would have worked equally well; the
+# reason it lives in this file is that the snippet is the thing people copy,
+# and a snippet that silently captures everything is the recommendation's
+# failure mode rather than the recommendation.
+#
+#     export DELIVERY_LEDGER_ALLOWLIST="$HOME/Projects:$HOME/Work/clients"
+#
+# Colon-separated absolute roots, like `PATH`. **It fails closed**: an unset or
+# empty allowlist captures NOTHING. A denylist was rejected for the opposite
+# reason — it fails open, so a directory nobody thought to exclude gets
+# captured, which on this database is the expensive direction.
 #
 # ---------------------------------------------------------------------------
 # INPUT
@@ -70,6 +82,47 @@ json_field() {
 
 WORKING_DIRECTORY="$(json_field cwd)"
 [ -n "$WORKING_DIRECTORY" ] || WORKING_DIRECTORY="$PWD"
+
+# --- B4's allowlist, enforced before anything is built or sent ---------------
+#
+# Compared on a path boundary, never as a bare prefix: a root of
+# `$HOME/Projects/foo` must not swallow `$HOME/Projects/foobar`. Both sides get
+# a trailing slash so the only match is "equal to the root" or "underneath it".
+#
+# The physical path is resolved first, because a session's `cwd` can arrive as
+# a symlink into an allowlisted root — a Google Drive shared folder pointing at
+# a repository is exactly the shape on this machine — and the allowlist is
+# about where the work IS, not which name reached it. A directory that no
+# longer exists cannot be resolved, so it keeps its literal path and is matched
+# on that; it fails closed like anything else that misses.
+: "${DELIVERY_LEDGER_ALLOWLIST:=}"
+
+if [ -z "$DELIVERY_LEDGER_ALLOWLIST" ]; then
+  exit 0
+fi
+
+RESOLVED="$(cd "$WORKING_DIRECTORY" 2>/dev/null && pwd -P)" || RESOLVED=""
+[ -n "$RESOLVED" ] || RESOLVED="$WORKING_DIRECTORY"
+
+allowed=0
+saved_ifs="$IFS"
+IFS=":"
+for root in $DELIVERY_LEDGER_ALLOWLIST; do
+  [ -n "$root" ] || continue
+  root_resolved="$(cd "$root" 2>/dev/null && pwd -P)" || root_resolved=""
+  [ -n "$root_resolved" ] || root_resolved="$root"
+  case "${RESOLVED%/}/" in
+    "${root_resolved%/}/"*) allowed=1; break ;;
+  esac
+done
+IFS="$saved_ifs"
+
+# Not studio work. Say nothing, change nothing, exit clean — the same silence
+# as an unconfigured machine, because a hook that reports on directories it was
+# told to ignore is a hook that gets uninstalled.
+if [ "$allowed" -eq 0 ]; then
+  exit 0
+fi
 
 # Whole-session window. `SESSION_STARTED_AT` is exported by the SessionStart
 # hook if one is installed; without it the record still carries an end time and

@@ -6,6 +6,7 @@ import {
   DetailFields,
   DetailSection,
   EntityDetail,
+  NO_IDENTIFIER,
 } from "@/components/entity-detail";
 import { EntityRef, EntityRefList } from "@/components/entity-ref";
 import { isoMinute } from "@/lib/display-format";
@@ -199,7 +200,8 @@ export function WorkItemDetailView({ detail }: { detail: WorkItemDetail }) {
       title={title}
       question="Everything recorded about this work item, and everything that references it."
       requirements={["FR-81", "FR-83", "FR-85"]}
-      identifier={detail.unit}
+      // `unit` is null on `hand` and `external` work, which carry none.
+      identifier={detail.unit ?? NO_IDENTIFIER}
       actions={
         <Link
           href="/work-items"

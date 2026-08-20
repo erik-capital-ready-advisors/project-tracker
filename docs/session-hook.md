@@ -8,10 +8,15 @@ that is the whole point of mode 2: FR-25 requires the hook to need no action fro
 
 ## Before you install it, read this
 
-**The install scope is an open decision and it is yours to make.** Global with an allowlist, or per
-project. The two options fail in opposite directions, Erik has a recommendation, and he has not
-chosen. Skip to [The install-scope decision](#the-install-scope-decision-blocker-b4) before you paste
-anything into a settings file.
+**The install scope is decided: global, with an allowlist** (spec Q4 / blocker B4, settled
+2026-08-20). The allowlist is now enforced by the script rather than left to the person pasting the
+snippet, and **it fails closed** — with `DELIVERY_LEDGER_ALLOWLIST` unset, the hook captures nothing.
+See [The install-scope decision](#the-install-scope-decision-blocker-b4).
+
+**It will not record anything yet, and that is not a misconfiguration.** The hook posts over
+`--proto '=https'` and nothing is deployed, so `DELIVERY_LEDGER_URL` has nowhere valid to point.
+Answering B4 was necessary to make the hook installable; a deployment is what makes it *record*.
+Until both exist, `work_session` stays at 0 rows.
 
 ---
 
@@ -60,9 +65,12 @@ security grant, and queued it.
 
 ### 1. Get a token
 
-You need an agent token carrying `ingest:write`. Read [agent-tokens.md](agent-tokens.md), including
-the part where **no token-issuing screen exists at commit `3b2c81d`**, so there is currently no
-supported way to mint one. That is the real blocker on installing this hook today.
+You need an agent token carrying `ingest:write`. Read [agent-tokens.md](agent-tokens.md).
+
+**This document used to say no token-issuing screen existed. That is no longer true** — `/settings/tokens`
+ships, and an `ingest:write` token was minted there and used to post run `b0952e` over HTTP on
+2026-08-20. The remaining obstacle is not the token; it is that nothing is deployed for the hook to
+post *to*.
 
 ### 2. Set the environment variables
 
@@ -71,7 +79,12 @@ In the shell profile Claude Code inherits, which is `~/.zshrc` on Erik's machine
 ```bash
 export DELIVERY_LEDGER_URL="https://project-tracker-mu-livid.vercel.app"
 export DELIVERY_LEDGER_INGEST_TOKEN="dl_..."   # issued once, shown once
+export DELIVERY_LEDGER_ALLOWLIST="$HOME/Projects:$HOME/Work/clients"
 ```
+
+All three are **required**. `DELIVERY_LEDGER_ALLOWLIST` is colon-separated absolute roots, like
+`PATH`, and it fails closed: unset or empty captures nothing at all. See
+[The install-scope decision](#the-install-scope-decision-blocker-b4).
 
 Optional, and each one improves the record without being required:
 
@@ -98,7 +111,9 @@ The different outcomes prove the `--proto` guard did the refusing, not the netwo
 
 ### 3. Register the hook
 
-**This is the step the open decision governs.** Read the next section first.
+Once, globally, in `~/.claude/settings.json` — the scope is decided. The snippet is in
+[The install-scope decision](#the-install-scope-decision-blocker-b4), along with what the allowlist
+does and does not protect you from.
 
 ### 4. Check it works
 
@@ -128,58 +143,62 @@ Both observed on 2026-08-19 against commit `3b2c81d`, with the literal string
 | Neither `DELIVERY_LEDGER_URL` nor `DELIVERY_LEDGER_INGEST_TOKEN` set | exit `0`, no output, no request |
 | `DELIVERY_LEDGER_URL` is `http://` | exit `0`, curl refuses with `Protocol "http" disabled`, nothing sent |
 
-**UNVERIFIED:** a successful post against a live deployment. No `ingest:write` token exists yet and
-no deployment carries the schema. Settled by issuing a token, setting the two variables, ending a
-session, and finding the row.
+Added 2026-08-20, observed by `tests/session-hook-allowlist.test.ts` rather than by hand:
+
+| Condition | Observed |
+|---|---|
+| `DELIVERY_LEDGER_ALLOWLIST` unset or empty | exit `0`, no request — fail-closed |
+| `cwd` outside every allowlisted root | exit `0`, no request |
+| `cwd` is `~/Projects-personal`, root is `~/Projects` | exit `0`, no request — boundary match, not prefix |
+| `cwd` inside an allowlisted root | request attempted |
+| `cwd` is a symlink into an allowlisted root | request attempted |
+
+**UNVERIFIED:** a successful post against a live deployment. A token now exists, but no deployment
+carries the schema. Settled by deploying, setting the three variables, ending a session, and finding
+the row.
 
 ---
 
 ## The install-scope decision (blocker B4)
 
-**Erik owns this and has not decided it.** Spec question Q4 asks it and `spec/prod.md` lists it as an
-active blocker. It blocks these install instructions, not the hook's code: the script works under
-either scope, because it reads the working directory at run time and lets the server resolve the
-engagement.
+**Decided 2026-08-20: global, with an allowlist of studio project roots.** Spec question Q4 asked it;
+Erik answered it; `spec/prod.md` carries it in the Decisions log. This section used to describe two
+options and now describes one.
 
-Whoever installs this hook is making an unresolved choice. Here is what each one costs.
+### Why global
 
-### Option A: global, with an allowlist of studio project roots
+A per-project hook captures only registered engagements. That sounds tighter, and it fails **silently
+in the expensive direction**: it misses exactly the ad-hoc work the fleet-coverage register exists to
+measure — the hour spent on a stack nobody has an agent for, in a directory that never became a
+project. Those are the hours FR-31 needs, and you would never notice they were missing, because
+nothing reports a session that was never captured.
 
-Register it once in `~/.claude/settings.json` and gate it on the working directory.
+### Why an allowlist, and why it is in the script
 
-**Captures:** every Claude Code session under an allowlisted root, including the ad-hoc work that
-never gets a repository of its own.
+Global capture sees personal and non-client sessions too, and every one of them would post a summary
+of what you were doing into a database classified for client data. The allowlist is what stops that.
 
-**Fails toward:** capturing too much. A global hook sees personal and non-client sessions, and every
-one of them posts a summary of what you were doing into a database classified for client data. The
-allowlist is what stops that, and the allowlist is a file you maintain by hand. Forget to narrow it
-and a personal project's session summary lands in a table holding every client's contract data.
+A denylist was rejected. It fails **open**: a directory nobody thought to exclude gets captured, and
+on this database that is the direction that costs something.
 
-### Option B: per project
+The allowlist is enforced inside `claude-session-capture.sh`, not in the settings snippet, for one
+reason: **the snippet is the thing people copy.** An earlier draft of this document shipped a global
+registration with the allowlist described in prose beneath it, and noted that pasting it as-is gave
+you global capture with no allowlist — the recommendation's failure mode wearing the
+recommendation's name. Moving the check into the script makes the safe thing the default thing.
 
-Register it in each repository's `.claude/settings.json`, committed or local.
+### Install
 
-**Captures:** only registered engagements, and nothing else.
+Set the two required variables and the allowlist in the shell profile Claude Code inherits:
 
-**Fails toward:** capturing too little, and **silently**. A per-project hook misses exactly the ad-hoc
-work the fleet-coverage register exists to measure: the hour spent on a stack nobody has an agent
-for, in a directory that never became a project. Those are the hours FR-31 needs, and a per-project
-hook is structurally incapable of seeing them. You will not notice, because nothing reports a
-session that was never captured.
+```bash
+export DELIVERY_LEDGER_URL="https://<the deployment>"
+export DELIVERY_LEDGER_INGEST_TOKEN="dl_..."        # issued once, shown once
+export DELIVERY_LEDGER_ALLOWLIST="$HOME/Projects:$HOME/Work/clients"
+```
 
-### Erik's recommendation
-
-**Global with an allowlist of the studio's project roots.** It captures the ad-hoc work while keeping
-personal sessions out of a database classified for client data.
-
-Spec Q4 also lists a third option, global with a denylist. A denylist fails open: a directory nobody
-thought to exclude gets captured. Given the classification of this database, the allowlist is the
-fail-closed form of the same idea.
-
-### If you choose A (global with an allowlist)
-
-Add to `~/.claude/settings.json`. **This snippet is UNVERIFIED**: no hook was registered by this
-unit, so nothing here was observed running as a real `SessionEnd` hook.
+`DELIVERY_LEDGER_ALLOWLIST` is colon-separated absolute roots, like `PATH`. Then register the hook
+once in `~/.claude/settings.json`:
 
 ```json
 {
@@ -199,29 +218,29 @@ unit, so nothing here was observed running as a real `SessionEnd` hook.
 }
 ```
 
-That registers it everywhere. **The allowlist is not in the snippet, because the hook does not
-implement one.** Under Option A you need one of:
+### What the allowlist does and does not do
 
-- a wrapper script that checks `$PWD` against a list of roots and calls the capture script only on a
-  match, or
-- an allowlist check added to `claude-session-capture.sh` itself, which is a code change and belongs
-  to a build unit rather than to this document.
+- **Unset or empty captures nothing.** Fail-closed, on purpose. If you register the hook and set no
+  allowlist, you get silence rather than global capture.
+- **Matching is on a path boundary**, so a root of `~/Projects` does not swallow `~/Projects-personal`.
+- **A root matches itself**, not only directories beneath it.
+- **Symlinks are resolved** before matching, because a session's `cwd` can arrive as a symlink into an
+  allowlisted root — a Google Drive shared folder pointing at a repository is exactly that shape on
+  this machine — and the allowlist is about where the work *is*, not which name reached it.
+- **A refusal is silent and exits 0**, indistinguishable from an unconfigured machine. A hook that
+  reports on directories it was told to ignore is a hook that gets uninstalled.
 
-Neither exists at commit `3b2c81d`. **Installing the snippet above as-is gives you global capture
-with no allowlist**, which is not the recommendation. It is the recommendation's failure mode.
+`tests/session-hook-allowlist.test.ts` pins all five, with a fake `curl` on `PATH` as the observation
+(the script always exits 0, so the exit code cannot be the assertion) and a positive-control case so
+a broken fake cannot make the refusals pass for the wrong reason. Three mutations were applied to the
+script and each went red: neutering the fail-closed guard, replacing boundary matching with a bare
+prefix, and dropping symlink resolution.
 
-### If you choose B (per project)
+### Still unverified
 
-Add the same `hooks` block to `<repo>/.claude/settings.json` in each engagement's repository, with
-the command path pointing at wherever the script lives on your machine. No allowlist is needed,
-because the registration itself is the allowlist.
-
-`.claude/settings.json` in this repository is committed and currently carries no `hooks` key.
-
-### What settles it
-
-Erik answering Q4. The answer belongs in `spec/prod.md`'s Decisions log, and this section gets
-rewritten to describe one option rather than two.
+**No post has ever succeeded against a live deployment**, because nothing is deployed. The allowlist
+is verified; the round trip is not. Settled by deploying, issuing an `ingest:write` token, setting
+the variables, ending a session, and finding the row.
 
 ---
 

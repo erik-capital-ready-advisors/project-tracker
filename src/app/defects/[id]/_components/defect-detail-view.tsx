@@ -10,6 +10,7 @@ import {
   DetailFields,
   DetailSection,
   EntityDetail,
+  NO_IDENTIFIER,
 } from "@/components/entity-detail";
 import { EntityRef } from "@/components/entity-ref";
 import { isoMinute } from "@/lib/display-format";
@@ -152,7 +153,9 @@ export function DefectDetailView({ detail }: { detail: DefectDetail }) {
       title={detail.title === "" ? fallbackLabel("defect", detail.id) : detail.title}
       question="Everything recorded about this defect, and what it points at."
       requirements={["FR-81", "FR-83", "FR-85"]}
-      identifier={detail.ref}
+      // A defect's `ref` is nullable: the row carries no reference of its own,
+      // which is its fact and not a failed read.
+      identifier={detail.ref ?? NO_IDENTIFIER}
       actions={
         <Link
           href="/broken"

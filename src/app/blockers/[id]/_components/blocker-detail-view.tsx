@@ -6,6 +6,7 @@ import {
   DetailFields,
   DetailSection,
   EntityDetail,
+  NO_IDENTIFIER,
 } from "@/components/entity-detail";
 import { EntityRefList } from "@/components/entity-ref";
 import { isoMinute } from "@/lib/display-format";
@@ -146,7 +147,9 @@ export function BlockerDetailView({ detail }: { detail: BlockerDetail }) {
       title={detail.ref ?? fallbackLabel("blocker", detail.id)}
       question="What this blocker is, who owns it, and what it is holding."
       requirements={["FR-81", "FR-83", "FR-85"]}
-      identifier={detail.ref}
+      // A blocker's `ref` is nullable by design; `title` already falls back to
+      // `fallbackLabel` for exactly the same rows.
+      identifier={detail.ref ?? NO_IDENTIFIER}
       actions={
         <Link
           href="/blocked"

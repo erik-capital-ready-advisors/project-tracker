@@ -6,6 +6,60 @@ import { ENTITY_LABEL, type EntityKind } from "@/lib/entity-routes";
 import { cn } from "@/lib/utils";
 
 /**
+ * The caller stating, in so many words, that this entity carries no reference of
+ * its own: a `hand`-mode work item has no `unit`, a blocker's `ref` is nullable,
+ * an open question has no human key at all.
+ *
+ * It is a sentinel **object** and not the string `"none"` because TypeScript
+ * reduces `string | "none"` to plain `string`. The literal is absorbed the
+ * moment it is written: the union stops discriminating, an editor shows
+ * `string | null`, and a reference that arrives from the database spelled `none`
+ * — labels and milestone names are ingested text — would render as a claim about
+ * the row instead of as the row's own reference. A stored value must never be
+ * able to impersonate a control value; that is the same rule `unparsed` is.
+ */
+export const NO_IDENTIFIER = { reference: "none" } as const;
+
+/**
+ * Three arms, and the prop carrying this type is **required** (B34).
+ *
+ *   * `string` — the entity's own reference (`u4`, `FR-42`, `D-7`), in mono.
+ *   * `NO_IDENTIFIER` — the caller stating the entity carries none. This is the
+ *     ONLY value that produces "carries no reference of its own", so that claim
+ *     can only ever be made on purpose.
+ *   * `null` — a reference is expected here and could not be read or resolved.
+ *
+ * The last two are rendered differently on purpose, and it is the same
+ * distinction `Prose` draws between `absent` and `unreadable` and the same one
+ * `NOT_RECORDED` draws against `UNREADABLE_AMOUNT`: nothing was ever stored is a
+ * different claim from something was stored and cannot be read.
+ *
+ * Before B34 this prop was `identifier?: string | null` and **omitting it
+ * rendered the positive claim** "This <entity> carries no reference of its
+ * own." — a falsehood about the row, produced by a caller who simply forgot,
+ * with a green type-check. Omission is now a compile error.
+ *
+ * A blank or whitespace-only string is the `null` case, not the `NO_IDENTIFIER`
+ * case. It rendered an invisible empty slot before B34, and it is evidence of a
+ * reference that cannot be shown — never evidence that the row has none.
+ *
+ * ## Four views pass the same string as their `title`, and that is CORRECT
+ *
+ * `/releases/[id]`, `/requirements/[id]`, `/milestones/[id]` and `/waits/[id]`
+ * pass `release.identifier`, `detail.ref`, `milestone.name` and `wait.label` —
+ * the same values their titles are drawn from. B34's write-up reads that as a
+ * workaround for the optional prop. It is not: those are the only human
+ * references those four kinds have, and `labelEntities` uses the very same
+ * columns wherever else in the product those rows are named. The row is
+ * redundant with the heading above it; it is not a dodge, and **switching any of
+ * them to `NO_IDENTIFIER` would manufacture the exact falsehood B34 exists to
+ * prevent** — a release plainly labelled `v1.4.0` claiming to carry no
+ * reference. If the duplication is worth removing, it is a display decision
+ * about the identity row, not a change to what these views claim.
+ */
+export type EntityIdentifier = string | null | typeof NO_IDENTIFIER;
+
+/**
  * FR-81's detail views share this shell, so eight of them are one design rather
  * than eight.
  *
@@ -33,6 +87,8 @@ import { cn } from "@/lib/utils";
  * State contract for qa-reviewer:
  *   data-verify-unit="entity-detail"
  *   data-verify-kind   one of FR-81's eight kinds
+ *   data-verify-unit="entity-identifier"
+ *   data-verify-state  "unreadable"  (the one identifier state worth counting)
  */
 export function EntityDetail({
   kind,
@@ -50,10 +106,9 @@ export function EntityDetail({
   question: string;
   requirements?: readonly string[];
   /**
-   * The entity's own human reference (`u4`, `FR-42`, `D-7`), in mono. `null`
-   * when the entity carries none — stated as absent, never rendered blank.
+   * The entity's own human reference. **Required** — see `EntityIdentifier`.
    */
-  identifier?: string | null;
+  identifier: EntityIdentifier;
   /** Back and edit affordances, pushed to the end of the identity row. */
   actions?: ReactNode;
   children: ReactNode;
@@ -65,11 +120,7 @@ export function EntityDetail({
         data-verify-unit="entity-detail"
         data-verify-kind={kind}
       >
-        {identifier === null || identifier === undefined ? (
-          <Absent title={`This ${ENTITY_LABEL[kind]} carries no reference of its own.`} />
-        ) : (
-          <span className="ident text-muted-foreground text-xs">{identifier}</span>
-        )}
+        <Identifier kind={kind} identifier={identifier} />
         <span className="text-muted-foreground text-xs">{ENTITY_LABEL[kind]}</span>
         {actions === undefined ? null : (
           <div className="ml-auto flex gap-2">{actions}</div>
@@ -78,6 +129,43 @@ export function EntityDetail({
 
       <div className="flex flex-col gap-4">{children}</div>
     </Screen>
+  );
+}
+
+/**
+ * The identity row's leading slot, in all three of `EntityIdentifier`'s arms.
+ *
+ * Order matters: the sentinel is checked first, because it is the only input
+ * that licenses the "carries no reference" claim, and a blank string falls
+ * through to `unreadable` rather than borrowing it.
+ */
+function Identifier({
+  kind,
+  identifier,
+}: {
+  kind: EntityKind;
+  identifier: EntityIdentifier;
+}) {
+  if (typeof identifier === "object" && identifier !== null) {
+    return <Absent title={`This ${ENTITY_LABEL[kind]} carries no reference of its own.`} />;
+  }
+
+  if (identifier !== null && identifier.trim() !== "") {
+    return <span className="ident text-muted-foreground text-xs">{identifier}</span>;
+  }
+
+  // `renderProse`'s treatment for the same fact, in the same words: the
+  // `blocked` family, stated, never blank. Reaching this branch with a blank
+  // string is the B34 empty slot — visible now rather than invisible.
+  return (
+    <span
+      data-verify-unit="entity-identifier"
+      data-verify-state="unreadable"
+      className="ident text-state-blocked text-xs font-semibold"
+      title={`A reference is expected for this ${ENTITY_LABEL[kind]} and could not be read. This is a fault, not an absence: nothing here says the row carries no reference.`}
+    >
+      unreadable
+    </span>
   );
 }
 

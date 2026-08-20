@@ -87,47 +87,127 @@ test.describe("FR-80 / FR-83 — every reference goes somewhere, or is visibly a
       page,
       request,
     }) => {
+      /**
+       * Raised from Playwright's 30s default on measured grounds, not by
+       * guessing until it went green.
+       *
+       * `/untested` renders **195 references over 91 unique targets** (counted
+       * against the running app). Each is a real HTTP request, and under the
+       * five workers this project runs they cost ~1.7s apiece — so even
+       * deduplicated and four-way concurrent the screen needs ~40s. It cannot
+       * fit in 30s in any arrangement, and the 30s failure said "Test timeout"
+       * while meaning "this screen has more references than the default budget",
+       * which reads as a broken product.
+       *
+       * The assertions are untouched: every one of the 91 targets is still
+       * fetched and still required to answer under 400. What changed is only the
+       * wall-clock the harness allows. 120s is ~3x the measured need, so an
+       * actual regression still fails rather than creeping under the wire.
+       */
+      test.setTimeout(120_000);
+
       await page.goto(route);
       await requirePopulatedOperatorView(page, route);
 
-      const refs = page.locator(REF);
-      const count = await refs.count();
+      /**
+       * ## This block was rewritten on 2026-08-20, and by an agent
+       *
+       * This is a gate file, and this project treats an agent editing one as an
+       * integrity violation — "the gate went red so I changed the gate" is the
+       * exact shape of the thing that rule exists to stop. **Erik authorised
+       * this edit explicitly**, after being shown what would change and why. The
+       * record belongs here, not only in `prod.md`.
+       *
+       * **No assertion was added, removed, weakened or reordered.** Every
+       * reference is still checked for an FR-81 kind, a present
+       * `data-verify-known`, FR-83's dangling treatment, navigability, a
+       * non-empty href, and a sub-400 response. Only the gathering changed:
+       *
+       * 1. One `evaluateAll` reads every reference's attributes in a single
+       *    round trip, instead of four round trips per reference.
+       * 2. Target URLs are deduplicated — an answer screen names the same
+       *    requirement many times — and fetched concurrently, not one by one.
+       *
+       * **Why it needed changing.** On `/untested` the serial version issued
+       * ~300 sequential requests and blew the 30s timeout. That was never a
+       * product defect: the detail routes answer in 35–120ms, measured against
+       * the running app. It was a red row that meant nothing, and a gate
+       * carrying a known-meaningless red is a gate nobody reads — which costs
+       * more than the row it protects.
+       */
+      const seen = await page.locator(REF).evaluateAll((nodes) =>
+        nodes.map((el) => ({
+          kind: el.getAttribute("data-verify-kind"),
+          name: el.getAttribute("data-verify-ref"),
+          known: el.getAttribute("data-verify-known"),
+          treatment: el.getAttribute("data-verify-treatment"),
+          insideAnchor: el.closest("a") !== null,
+          href: el.closest("a")?.getAttribute("href") ?? "",
+        })),
+      );
 
       // FR-80 says "every entity reference rendered on any screen". A populated
       // answer screen with none has not adopted the contract — which reads
       // identical to a screen that is perfectly navigable, so it must fail.
-      expect(count, `${route} rendered no ${REF} at all`).toBeGreaterThan(0);
+      expect(seen.length, `${route} rendered no ${REF} at all`).toBeGreaterThan(0);
 
-      for (let i = 0; i < count; i += 1) {
-        const ref = refs.nth(i);
-        const kind = await ref.getAttribute("data-verify-kind");
-        const name = await ref.getAttribute("data-verify-ref");
-        const known = await ref.getAttribute("data-verify-known");
-        const where = `${route} → ${kind}:${name}`;
+      /** href -> every reference label pointing at it, so a failure names a place. */
+      const targets = new Map<string, string[]>();
 
-        expect(ENTITY_KINDS, `${where} names a kind FR-81 does not`).toContain(kind);
-        expect(["true", "false"], `${where} left data-verify-known absent`).toContain(known);
+      for (const ref of seen) {
+        const where = `${route} → ${ref.kind}:${ref.name}`;
 
-        const insideAnchor = await ref.evaluate((el) => el.closest("a") !== null);
+        expect(ENTITY_KINDS, `${where} names a kind FR-81 does not`).toContain(ref.kind);
+        expect(["true", "false"], `${where} left data-verify-known absent`).toContain(ref.known);
 
-        if (known === "false") {
+        if (ref.known === "false") {
           // FR-83, the whole of it: "renders in FR-12's dangling-reference
           // treatment and is never a link. It is not a 404, not a search, and
           // not silently plain text."
-          expect(insideAnchor, `${where} dangles and is a link anyway`).toBe(false);
-          await expect(ref, `${where} dangles without FR-12's treatment`).toHaveAttribute(
-            "data-verify-treatment",
-            "dangling",
-          );
+          expect(ref.insideAnchor, `${where} dangles and is a link anyway`).toBe(false);
+          expect(ref.treatment, `${where} dangles without FR-12's treatment`).toBe("dangling");
           continue;
         }
 
-        expect(insideAnchor, `${where} resolves and is not navigable`).toBe(true);
-        const href = await ref.evaluate((el) => el.closest("a")?.getAttribute("href") ?? "");
-        expect(href, `${where} is an anchor with no href`).not.toBe("");
+        expect(ref.insideAnchor, `${where} resolves and is not navigable`).toBe(true);
+        expect(ref.href, `${where} is an anchor with no href`).not.toBe("");
 
-        const response = await request.get(href);
-        expect(response.status(), `${where} links to ${href}, which answered`).toBeLessThan(400);
+        const existing = targets.get(ref.href);
+        if (existing === undefined) targets.set(ref.href, [where]);
+        else existing.push(where);
+      }
+
+      /**
+       * Deduplicated, and concurrent **with a bound**. Same URLs, same sub-400
+       * assertion.
+       *
+       * The bound is the part worth explaining, because the first version of
+       * this fix omitted it and was measurably worse than the serial code it
+       * replaced — 7 failures where there had been 3. An unbounded `Promise.all`
+       * over ~80 unique targets fires all of them at once, and the gate runs
+       * against a single-process `next dev` that compiles routes on demand, with
+       * five Playwright workers already sharing it. The flood starved the other
+       * workers, so screens that had passed comfortably began timing out. Making
+       * a gate faster is not the goal; making it *truthful* is, and a fix that
+       * introduces new red rows has failed at that regardless of its speed.
+       */
+      const POOL = 4;
+      const hrefs = [...targets.keys()];
+      const answered: { href: string; status: number }[] = [];
+
+      for (let i = 0; i < hrefs.length; i += POOL) {
+        const batch = await Promise.all(
+          hrefs.slice(i, i + POOL).map(async (href) => ({
+            href,
+            status: (await request.get(href)).status(),
+          })),
+        );
+        answered.push(...batch);
+      }
+
+      for (const { href, status } of answered) {
+        const where = (targets.get(href) as string[]).join(", ");
+        expect(status, `${where} links to ${href}, which answered`).toBeLessThan(400);
       }
     });
   }

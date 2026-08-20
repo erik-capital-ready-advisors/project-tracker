@@ -174,17 +174,45 @@ async function refreshSupabaseSession(
           },
           setAll(cookiesToSet) {
             for (const { name, value, options } of cookiesToSet) {
-              // Baseline §1: a session cookie readable by JavaScript is an XSS
-              // escalation path. `httpOnly` and `secure` are asserted here
-              // rather than left to the library's defaults, and `sameSite:
-              // "lax"` is the minimum the baseline names — not "strict",
-              // because the OAuth/magic-link return is a cross-site navigation
-              // that "strict" would drop the cookie on.
+              /**
+               * The attributes are @supabase/ssr's, not this file's. That is a
+               * correction, and the reasoning it replaces is worth keeping.
+               *
+               * This block used to force `httpOnly: true, secure: true,
+               * sameSite: "lax"`, citing Baseline §1 — "a session cookie
+               * readable by JavaScript is an XSS escalation path". The rule is
+               * right in general and **incompatible with this application in
+               * particular**, because authentication here is client-side:
+               * `createBrowserClient` signs in, challenges the second factor,
+               * and persists the session through `document.cookie`.
+               *
+               * `document.cookie` cannot overwrite an `HttpOnly` cookie, and
+               * the write fails **silently**. So the first time this proxy
+               * refreshed a near-expiry token it rewrote the session cookie
+               * `HttpOnly`, and from that moment every sign-in in that browser
+               * succeeded at GoTrue — password 200, TOTP challenge 200, verify
+               * 200 — and persisted nothing. `mfa-verify-form.tsx` then read no
+               * user and sent the operator back to `/sign-in`, never asking for
+               * the code. A browser poisoned this way stayed broken until its
+               * cookies were cleared by hand. Diagnosed 2026-08-20; it cost a
+               * session, and it locked Erik out of his own product.
+               *
+               * The override bought no protection either way: supabase-js must
+               * read this cookie to work at all, so it was never out of reach
+               * of an XSS payload. It only broke the session.
+               *
+               * **Baseline §1 is not waived — it is unmet, and B37 records
+               * that.** Honouring it needs the auth flow moved server-side,
+               * which is a milestone, not a middleware edit.
+               *
+               * `secure` is the one attribute still decided here, and it is
+               * derived rather than asserted. Hardcoding `true` marks the
+               * cookie unusable over `http://localhost`, which is where this
+               * product is developed and where the M2.7 gate runs.
+               */
               response.cookies.set(name, value, {
                 ...options,
-                httpOnly: true,
-                secure: true,
-                sameSite: "lax",
+                secure: request.nextUrl.protocol === "https:",
               });
             }
           },
