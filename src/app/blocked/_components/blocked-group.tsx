@@ -127,8 +127,35 @@ export function BlockedGroup({ group }: { group: BlockedGroupData }) {
                   data-verify-disposition={item.disposition ?? "not-recorded"}
                   data-verify-held={item.heldBy.join(",")}
                 >
-                  <TableCell className="ident font-medium whitespace-nowrap">
-                    {item.unit ?? <Absent title="No unit key was recorded." />}
+                  <TableCell className="align-top font-medium">
+                    <span className="ident whitespace-nowrap">
+                      {item.unit ?? <Absent title="No unit key was recorded." />}
+                    </span>
+                    {/*
+                      FR-52 asks what is STOPPED and what is HOLDING it. A unit
+                      key answers neither, and until 2026-08-20 that is all this
+                      screen rendered — the prose was in the database, encrypted,
+                      and nobody read it, so answering "what is c1 waiting on"
+                      meant opening the manifest. That is the silo this product
+                      exists to end.
+                    */}
+                    {item.description === null ? null : (
+                      <p
+                        data-verify-unit="blocked-description"
+                        className="text-muted-foreground mt-1 max-w-[52ch] text-xs font-normal whitespace-normal"
+                      >
+                        {item.description}
+                      </p>
+                    )}
+                    {item.blockerDescription === null ? null : (
+                      <p
+                        data-verify-unit="blocked-blocker-description"
+                        className="text-muted-foreground mt-1 max-w-[52ch] text-xs font-normal whitespace-normal"
+                      >
+                        <span className="text-foreground/70">Held by: </span>
+                        {item.blockerDescription}
+                      </p>
+                    )}
                   </TableCell>
                   <TableCell className="ident text-muted-foreground whitespace-nowrap">
                     {item.engagement}

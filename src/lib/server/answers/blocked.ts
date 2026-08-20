@@ -63,6 +63,13 @@ export interface BlockedItem {
   startedOn: string | null;
   /** FR-52's elapsed time. Null when the item records no start date. */
   daysElapsed: number | null;
+  /**
+   * FR-52 asks what is stopped, not merely which one is. Decrypted at this
+   * screen's edge; §7a permits it to operator and agent alike.
+   */
+  description: string | null;
+  /** What is HOLDING it — the blocker's own prose, which is the actual answer. */
+  blockerDescription: string | null;
 }
 
 export interface BlockedWait {
@@ -173,8 +180,8 @@ export async function blockedAnswer(
   }
 
   const [workItems, blockers, waits] = await Promise.all([
-    loadWorkItems(db, engagements),
-    loadBlockers(db, engagements),
+    loadWorkItems(db, engagements, { withProse: true }),
+    loadBlockers(db, engagements, { withProse: true }),
     loadWaits(db, engagements),
   ]);
 
@@ -235,6 +242,8 @@ export async function blockedAnswer(
       disposition: item.unautomatedDisposition,
       heldBy,
       blockerRef: blocker?.ref ?? null,
+      blockerDescription: blocker?.description ?? null,
+      description: item.description,
       waitLabel: wait?.label ?? null,
       startedOn: item.startedAt === null ? null : toIsoDay(item.startedAt),
       daysElapsed: days,

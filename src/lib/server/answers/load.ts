@@ -24,7 +24,7 @@
  * So every read goes through i8's `fetchAllRows`, which terminates on an exact
  * count rather than on a short page, and every `.in()` list is chunked.
  *
- * ## Nothing here decrypts, and that is a property worth keeping
+ * ## Decryption is opt-in here, and off by default
  *
  * i3 measured that the whole of Broken and Committed can be computed without
  * decrypting anything, because every join runs on `FR-nn`, `D-nn`, `status`,
@@ -210,6 +210,24 @@ export interface LoadedWorkItem extends WorkItem {
   endedAt: string | null;
 }
 
+/**
+ * Prose is opt-in, and the reason is a round trip per value.
+ *
+ * `decrypt_field` is one RPC per field — the honest cost of column encryption on
+ * a hosted Postgres reached over PostgREST, as `workitems/field-crypto.ts`
+ * records. A screen that shows descriptions pays it; one that only needs status
+ * and identifiers must not. So the caller asks, rather than every caller paying
+ * for the one that needed it.
+ *
+ * §7a permits this on both surfaces: `work_item` and `blocker` both read
+ * "operator, agents, **decrypted server-side**", so the screen and the
+ * `answer:read` endpoint behind FR-57 get the same field.
+ */
+export interface ProseOption {
+  /** Decrypt `description`. Costs one RPC per non-null value. */
+  withProse?: boolean;
+}
+
 const WORK_ITEM_COLUMNS =
   "id, engagement_id, fleet_run_id, unit, execution_mode, work_type, phase, " +
   "executor, executor_kind, status, unautomated_reason, disposition, " +
@@ -226,21 +244,33 @@ const WORK_ITEM_COLUMNS =
  * as "nothing is ready to start" rather than as an error. Stated here because
  * it is the kind of thing a later caller assumes rather than checks.
  *
- * `description` and `rawStatus` are `null`: both are pgcrypto columns under §7a
- * and neither is selected.
+ * `rawStatus` is always `null` — a pgcrypto column that nothing has needed yet.
+ * `description` is `null` UNLESS the caller passes `withProse`, in which case it
+ * is selected and decrypted at a cost of one RPC per non-null value. FR-52,
+ * FR-53 and FR-56 each ask what a work item IS, not merely which one it is, so
+ * the three screens answering them pass it.
  */
 export async function loadWorkItems(
   db: AnswerDb,
   engagements: EngagementRef[],
+  options: ProseOption = {},
 ): Promise<LoadedWorkItem[]> {
   const slugOf = new Map(engagements.map((one) => [one.id, one.slug]));
   const rows = await fetchIn(
     db,
     "work_item",
-    WORK_ITEM_COLUMNS,
+    options.withProse ? `${WORK_ITEM_COLUMNS}, description` : WORK_ITEM_COLUMNS,
     "engagement_id",
     engagements.map((one) => one.id),
   );
+
+  // One pass, concurrency-limited, and it THROWS on a value that will not
+  // decrypt rather than yielding null — an empty description is
+  // indistinguishable from one that was never written, and this product does
+  // not render an answer it cannot stand behind.
+  const prose = options.withProse
+    ? await decryptAll(db as never, rows.map((row) => text(row.description)))
+    : null;
 
   const ids = rows.map((row) => requiredText(row.id));
 
@@ -271,7 +301,7 @@ export async function loadWorkItems(
     push(implement, requiredText(row.work_item_id), requiredText(row.requirement_ref));
   }
 
-  return rows.map((row) => {
+  return rows.map((row, index) => {
     const id = requiredText(row.id);
     const engagementId = requiredText(row.engagement_id);
     return {
@@ -283,7 +313,7 @@ export async function loadWorkItems(
       executionMode: fromExecutionMode(row.execution_mode),
       workType: text(row.work_type),
       phase: row.phase === null || row.phase === undefined ? null : String(row.phase),
-      description: null,
+      description: prose === null ? null : prose[index],
       executor: text(row.executor),
       executorKind: fromExecutorKind(row.executor_kind),
       status: fromWorkStatus(row.status),
@@ -483,6 +513,8 @@ export interface LoadedBlocker {
   openedAt: string | null;
   resolvedAt: string | null;
   disposition: "carried" | "closed" | null;
+  /** Decrypted only when the caller asked for prose. Null otherwise. */
+  description: string | null;
 }
 
 /**
@@ -492,17 +524,23 @@ export interface LoadedBlocker {
 export async function loadBlockers(
   db: AnswerDb,
   engagements: EngagementRef[],
+  options: ProseOption = {},
 ): Promise<LoadedBlocker[]> {
   const slugOf = new Map(engagements.map((one) => [one.id, one.slug]));
+  const columns = "id, engagement_id, ref, owner, opened_at, resolved_at, disposition";
   const rows = await fetchIn(
     db,
     "blocker",
-    "id, engagement_id, ref, owner, opened_at, resolved_at, disposition",
+    options.withProse ? `${columns}, description` : columns,
     "engagement_id",
     engagements.map((one) => one.id),
   );
 
-  return rows.map((row) => {
+  const prose = options.withProse
+    ? await decryptAll(db as never, rows.map((row) => text(row.description)))
+    : null;
+
+  return rows.map((row, index) => {
     const engagementId = requiredText(row.engagement_id);
     return {
       id: requiredText(row.id),
@@ -513,6 +551,7 @@ export async function loadBlockers(
       openedAt: text(row.opened_at),
       resolvedAt: text(row.resolved_at),
       disposition: fromDisposition(row.disposition),
+      description: prose === null ? null : prose[index],
     };
   });
 }

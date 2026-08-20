@@ -88,12 +88,27 @@ export function NextTable({ answer }: { answer: NextAnswer }) {
                 item.nearestMilestone === null ? "none" : item.nearestMilestone.id
               }
             >
-              <TableCell className="ident font-medium whitespace-nowrap">
+              <TableCell className="align-top font-medium">
+                <span className="ident whitespace-nowrap">
                 {item.unit ?? <Absent title="No unit key was recorded." />}
                 {item.phase === null ? null : (
                   <span className="text-muted-foreground/70 ml-1.5 text-xs">
                     p{item.phase}
                   </span>
+                )}
+                </span>
+                {/*
+                  FR-53. A unit id and a work type do not tell Erik what he
+                  would be starting, which is the question this screen exists
+                  to answer.
+                */}
+                {item.description === null ? null : (
+                  <p
+                    data-verify-unit="next-description"
+                    className="text-muted-foreground mt-1 max-w-[52ch] text-xs font-normal whitespace-normal"
+                  >
+                    {item.description}
+                  </p>
                 )}
               </TableCell>
 

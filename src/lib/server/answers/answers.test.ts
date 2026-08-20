@@ -309,7 +309,7 @@ describe("§7a refuses agent tokens contract_milestone", () => {
     }
   });
 
-  it("never selects an encrypted column on any answer path", async () => {
+  it("selects an encrypted column ONLY where the requirement needs its prose", async () => {
     const client = fake();
     await Promise.all([
       untestedAnswer(client as unknown as AnswerDb, NO_FILTER),
@@ -333,11 +333,40 @@ describe("§7a refuses agent tokens contract_milestone", () => {
       "best_guess",
       "summary",
     ];
+
+    /**
+     * This guard used to read "never selects an encrypted column on ANY answer
+     * path", and it was correct until 2026-08-20 — at which point it was also
+     * why Blocked could tell Erik that `c1` was blocked and not what was
+     * blocking it. FR-52, FR-53 and FR-56 ask what a work item IS.
+     *
+     * So the rule is narrowed rather than dropped: `work_item.description` and
+     * `blocker.description` may be selected by the three screens that need
+     * prose, and §7a permits it — both rows read "operator, agents, decrypted
+     * server-side". Every other encrypted column stays unselected on every
+     * path, and the two that are now allowed must still reach a caller
+     * DECRYPTED, which the tests below assert separately.
+     *
+     * `contract_milestone` was already exempt: its amounts are decrypted to be
+     * totalled.
+     */
+    const proseAllowed = new Set(["work_item", "blocker"]);
     for (const read of client.projections) {
       if (read.table === "contract_milestone") continue;
       for (const column of forbidden) {
+        if (column === "description" && proseAllowed.has(read.table)) continue;
         expect(`${read.table}: ${read.columns}`).not.toContain(column);
       }
+    }
+
+    // The narrowing is bounded: nothing else gained a description selection.
+    const describers = new Set(
+      client.projections
+        .filter((one) => one.columns.includes("description"))
+        .map((one) => one.table),
+    );
+    for (const table of describers) {
+      expect([...proseAllowed, "contract_milestone"]).toContain(table);
     }
   });
 });
@@ -1102,5 +1131,45 @@ describe("FR-45 covers is read from the title by one rule", () => {
       );
       expect(coversInTitle(title)).toEqual(viaSource[0].covers);
     }
+  });
+});
+
+/**
+ * FR-52, FR-53 and FR-56 each ask what a work item IS, not merely which one it
+ * is. Until 2026-08-20 all three screens rendered a unit key and no prose: the
+ * descriptions were in the database, encrypted, and no read path asked for
+ * them. Answering "what is `c1` waiting on" meant opening the manifest, which
+ * is the silo this product exists to end.
+ *
+ * These assert the value arrived THROUGH `decrypt_field` — the fixture holds
+ * ciphertext, so a screen reading a clear column would fail here.
+ */
+describe("the three screens that ask what a work item is now say so", () => {
+  const blockedFilters = { engagement: null, owner: null, disposition: null };
+
+  it("FR-52 blocked carries the work item's description and the blocker's", async () => {
+    const answer = await blockedAnswer(db(), blockedFilters, { today: TODAY });
+    const w5 = answer.groups.flatMap((one) => one.items).find((one) => one.id === "w5");
+
+    expect(w5?.description).toBe("Migrate the legacy export to the new schema.");
+    // The blocker's own prose is the actual answer to "what is holding it".
+    expect(w5?.blockerDescription).toBe("Client has not returned the signed change order.");
+  });
+
+  it("FR-53 next carries the description of what would be started", async () => {
+    const answer = await nextAnswer(db(), { engagement: null, limit: 50 }, { milestones: true, today: TODAY });
+    const w4 = answer.items.find((one) => one.id === "w4");
+
+    expect(w4?.description).toBe("Wire the token issue form to the server action.");
+  });
+
+  it("refuses the whole answer when a description will not decrypt, rather than blanking it", async () => {
+    // The alternative — rendering null — is indistinguishable from a work item
+    // that never had a description, which is the "wrong done" failure in the
+    // prose dimension. i6 chose to throw and this asserts that choice reaches
+    // the screen path rather than only the ingest one.
+    await expect(
+      blockedAnswer(db({}, { decrypt: () => null }), blockedFilters, { today: TODAY }),
+    ).rejects.toThrow(/could not be decrypted/);
   });
 });

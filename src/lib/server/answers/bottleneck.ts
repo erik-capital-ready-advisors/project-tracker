@@ -74,6 +74,8 @@ export interface BottleneckItem {
   alsoHeld: boolean;
   /** Null when milestones are not readable by this caller. */
   nearestMilestone: NearestMilestone | null;
+  /** FR-56. What Erik is the bottleneck ON, not merely which unit it is. */
+  description: string | null;
 }
 
 export interface BottleneckAnswer {
@@ -120,7 +122,7 @@ export async function bottleneckAnswer(
   }
 
   const [workItems, blockers, waits] = await Promise.all([
-    loadWorkItems(db, engagements),
+    loadWorkItems(db, engagements, { withProse: true }),
     loadBlockers(db, engagements),
     loadWaits(db, engagements),
   ]);
@@ -154,6 +156,7 @@ export async function bottleneckAnswer(
       engagement: item.engagement,
       unit: item.unit,
       workType: item.workType,
+      description: item.description,
       status: item.status,
       executor: item.executor,
       executorKind: item.executorKind,

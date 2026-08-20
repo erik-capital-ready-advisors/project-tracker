@@ -96,8 +96,22 @@ export function BottleneckTable({ answer }: { answer: BottleneckAnswer }) {
               data-verify-also-held={item.alsoHeld ? "true" : "false"}
               data-verify-disposition={item.disposition ?? "not-recorded"}
             >
-              <TableCell className="ident font-medium whitespace-nowrap">
-                {item.unit ?? <Absent title="No unit key was recorded." />}
+              <TableCell className="align-top font-medium">
+                <span className="ident whitespace-nowrap">
+                  {item.unit ?? <Absent title="No unit key was recorded." />}
+                </span>
+                {/*
+                  FR-56. What Erik is the bottleneck ON, not merely which unit
+                  carries his name.
+                */}
+                {item.description === null ? null : (
+                  <p
+                    data-verify-unit="bottleneck-description"
+                    className="text-muted-foreground mt-1 max-w-[52ch] text-xs font-normal whitespace-normal"
+                  >
+                    {item.description}
+                  </p>
+                )}
               </TableCell>
 
               <TableCell className="ident text-muted-foreground whitespace-nowrap">

@@ -65,6 +65,8 @@ export interface NextItem {
   unblocks: number;
   /** The nearest dated milestone this item serves, when milestones are readable. */
   nearestMilestone: NearestMilestone | null;
+  /** FR-53. A unit id and a work type do not tell Erik what he would be starting. */
+  description: string | null;
 }
 
 export interface NextAnswer {
@@ -119,7 +121,7 @@ export async function nextAnswer(
   }
 
   const [workItems, blockers, waits] = await Promise.all([
-    loadWorkItems(db, engagements),
+    loadWorkItems(db, engagements, { withProse: true }),
     loadBlockers(db, engagements),
     loadWaits(db, engagements),
   ]);
@@ -186,6 +188,7 @@ export async function nextAnswer(
     engagement: item.engagement,
     unit: item.unit,
     workType: item.workType,
+    description: item.description,
     phase: item.phase,
     status: item.status,
     executor: item.executor,

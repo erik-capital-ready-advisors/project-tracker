@@ -95,13 +95,19 @@ export function ledger(): Ledger {
       row("w2", { executor: CERTIFIER, status: "done" }),
       row("w3", { executor: BUILDER, status: "done" }),
       // FR-4's implementer, still to do, and the one thing `next` should offer.
-      row("w4", { executor: BUILDER, status: "pending", started_at: "2026-08-10T09:00:00Z" }),
+      row("w4", {
+        executor: BUILDER,
+        status: "pending",
+        started_at: "2026-08-10T09:00:00Z",
+        description: "enc:Wire the token issue form to the server action.",
+      }),
       // Held by an unresolved blocker: FR-52's `blocker` reason.
       row("w5", {
         executor: BUILDER,
         status: "pending",
         blocker_id: "blk-1",
         started_at: "2026-08-01T09:00:00Z",
+        description: "enc:Migrate the legacy export to the new schema.",
       }),
       // Held by an unresolved wait: FR-52's `wait` reason.
       row("w6", {
@@ -152,6 +158,7 @@ export function ledger(): Ledger {
         opened_at: "2026-08-01T09:00:00Z",
         resolved_at: null,
         disposition: "carried",
+        description: "enc:Client has not returned the signed change order.",
       },
       {
         id: "blk-2",
@@ -276,6 +283,10 @@ function row(id: string, overrides: FakeRow): FakeRow {
     execution_mode: "fleet",
     work_type: "integration",
     phase: 1,
+    // `enc:` is the fake decrypt's convention. A row carrying ciphertext here
+    // proves the prose reached the screen THROUGH `decrypt_field` rather than
+    // being read out of a clear column.
+    description: null,
     executor: null,
     executor_kind: "agent",
     status: "pending",
