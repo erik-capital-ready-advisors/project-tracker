@@ -56,11 +56,59 @@ function asOptionalText(value: unknown, field: string): string | null {
   return value;
 }
 
+/**
+ * How the name field of a file list is constrained.
+ *
+ * `bare` — a filename and nothing else. `manifests` and `questionFiles` derive a
+ * run id and an `open_question.source_key` from their names, so a separator
+ * there makes a key ambiguous across directories.
+ *
+ * `relativePath` — a repo-relative path, directories kept. A test file's path is
+ * stored as DATA (`test_result.file`) and `harnessFor` classifies a case by
+ * looking for an `e2e` or `playwright` SEGMENT in it. Under the bare rule those
+ * two requirements contradicted each other and `harness: "playwright"` was
+ * unreachable, so every Playwright spec ingested as a unit test. Neither rule
+ * relaxes FR-23: the payload still carries contents, and nothing here opens
+ * anything.
+ */
+type NameRule = "bare" | "relativePath";
+
+function checkName(name: string, field: string, rule: NameRule): void {
+  if (rule === "bare") {
+    if (name.includes("/") || name.includes("\\") || name.includes("\0")) {
+      throw bad(
+        `\`${field}\` must be a bare filename. Ingest takes ` +
+          `artifact CONTENTS, never paths — it does not open anything (FR-23).`,
+      );
+    }
+    return;
+  }
+
+  // Rejected: absolute paths, Windows separators, NUL, and any segment that is
+  // empty, `.` or `..`. What survives cannot name anything outside the tree it
+  // was collected from — which matters for what the value MEANS, since nothing
+  // downstream resolves it against a filesystem.
+  const invalid =
+    name.startsWith("/") ||
+    name.includes("\\") ||
+    name.includes("\0") ||
+    name.split("/").some((segment) => segment === "" || segment === "." || segment === "..");
+
+  if (invalid) {
+    throw bad(
+      `\`${field}\` must be a repo-relative path with no \`..\`, no leading ` +
+        `slash and no backslash. Ingest takes artifact CONTENTS, never paths — ` +
+        `it does not open anything (FR-23).`,
+    );
+  }
+}
+
 function asFileList(
   value: unknown,
   field: string,
   nameKey: "name" | "path",
   textKey: "text" | "source",
+  rule: NameRule = "bare",
 ): { name: string; text: string }[] {
   if (value === undefined || value === null) return [];
   if (!Array.isArray(value)) throw bad(`\`${field}\` must be an array.`);
@@ -81,14 +129,7 @@ function asFileList(
     if (text.length > LIMITS.fileBytes) {
       throw bad(`\`${field}[${index}].${textKey}\` exceeds ${LIMITS.fileBytes} bytes.`);
     }
-    // A name is used to derive a run id and an `open_question.source_key`, so a
-    // path separator in it would make the key ambiguous across directories.
-    if (name.includes("/") || name.includes("\\") || name.includes("\0")) {
-      throw bad(
-        `\`${field}[${index}].${nameKey}\` must be a bare filename. Ingest takes ` +
-          `artifact CONTENTS, never paths — it does not open anything (FR-23).`,
-      );
-    }
+    checkName(name, `${field}[${index}].${nameKey}`, rule);
     return { name, text };
   });
 }
@@ -159,7 +200,13 @@ export function parseRunPayload(body: unknown): RunArtifacts {
     }
   }
   const questionFiles = asFileList(record.questionFiles, "questionFiles", "name", "text");
-  const testFileEntries = asFileList(record.testFiles, "testFiles", "path", "source");
+  const testFileEntries = asFileList(
+    record.testFiles,
+    "testFiles",
+    "path",
+    "source",
+    "relativePath",
+  );
 
   const specText = asOptionalText(record.specText, "specText");
   const prodMdText = asOptionalText(record.prodMd, "prodMd");

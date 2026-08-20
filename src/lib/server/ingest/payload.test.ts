@@ -1,5 +1,7 @@
 import { describe, it, expect } from "vitest";
 
+import { parseTestTags } from "@/lib/ingest/testTags";
+
 import { LIMITS, parseRunPayload } from "./payload";
 
 const VALID = {
@@ -92,6 +94,72 @@ describe("parseRunPayload", () => {
     expect(() => parseRunPayload({ engagement: "widget", run: "zz01" })).toThrow(
       /carries no artifacts/,
     );
+  });
+
+
+  // A test file's `path` is DATA, not a key. `harnessFor` classifies a case by
+  // looking for an `e2e` or `playwright` segment in it, so a bare-filename rule
+  // on this field made `harness: "playwright"` unreachable — the endpoint could
+  // not represent a Playwright test at all, and the whole e2e corpus would have
+  // been recorded as unit tests. `manifests` and `questionFiles` keep the bare
+  // rule, because their names DO derive a run id and an `open_question.source_key`.
+  it("keeps the directories in a testFiles path, so the harness stays classifiable", () => {
+    const parsed = parseRunPayload({
+      ...VALID,
+      testFiles: [{ path: "e2e/tokens.spec.ts", source: "it('FR-1', () => {})" }],
+    });
+    expect(parsed.testFiles).toEqual([
+      { path: "e2e/tokens.spec.ts", source: "it('FR-1', () => {})" },
+    ]);
+    // The invariant the two rules jointly have to satisfy, asserted end to end
+    // rather than inferred from either half.
+    expect(parseTestTags(parsed.testFiles, "widget")[0].harness).toBe("playwright");
+  });
+
+  it("still classifies a unit test as vitest once directories are allowed", () => {
+    const parsed = parseRunPayload({
+      ...VALID,
+      testFiles: [{ path: "tests/unit/plan.test.ts", source: "it('FR-2', () => {})" }],
+    });
+    expect(parseTestTags(parsed.testFiles, "widget")[0].harness).toBe("vitest");
+  });
+
+  it("FR-23 refuses an absolute testFiles path", () => {
+    expect(() =>
+      parseRunPayload({
+        ...VALID,
+        testFiles: [{ path: "/etc/passwd", source: "x" }],
+      }),
+    ).toThrow(/relative path/);
+  });
+
+  it("FR-23 refuses a testFiles path that climbs out of the tree", () => {
+    expect(() =>
+      parseRunPayload({
+        ...VALID,
+        testFiles: [{ path: "../../etc/passwd", source: "x" }],
+      }),
+    ).toThrow(/relative path/);
+    expect(() =>
+      parseRunPayload({
+        ...VALID,
+        testFiles: [{ path: "e2e/../../secrets.ts", source: "x" }],
+      }),
+    ).toThrow(/relative path/);
+  });
+
+  it("FR-23 refuses a backslash, an empty segment and a NUL in a testFiles path", () => {
+    for (const path of ["e2e\\tokens.spec.ts", "e2e//tokens.spec.ts", "e2e/tok\u0000ens.ts"]) {
+      expect(() =>
+        parseRunPayload({ ...VALID, testFiles: [{ path, source: "x" }] }),
+      ).toThrow(/relative path/);
+    }
+  });
+
+  it("manifests and questionFiles keep the bare-filename rule", () => {
+    expect(() =>
+      parseRunPayload({ ...VALID, questionFiles: [{ name: "q/u1.jsonl", text: "{}" }] }),
+    ).toThrow(/bare filename/);
   });
 
   it("maps testFiles from path/source onto the parser's shape", () => {
