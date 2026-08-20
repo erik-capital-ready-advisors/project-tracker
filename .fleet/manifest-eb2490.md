@@ -43,12 +43,12 @@ wave merges to the branch before the next is cut from it.
 |----|------|------|-------------|---------------|-----------|--------|
 | u1 | ui | A | The one seam: `src/lib/entity-routes.ts`, `<EntityRef>`, `<EntityDetail>`; delete the gate exclusion from `vitest.config.ts` | ui-designer | — | **done** — `report-gate.sh` PASS. Merged as `b9ffe5d`. gate:m27 4/5 pass; test 2 left red pending Wave C's routes. `pnpm test` 1099 passed / 1 failed / 6 skipped. 2 questions queued |
 | i1 | integration | B | Detail read layer: reference resolution + eight loaders + FR-82's four relationships, opt-in prose decryption | api-integrator | u1 | **done** — `report-gate.sh` PASS. Merged as `41d0221`. 37 tests, 6 mutations applied and one SURVIVED (vacuous engagement-scoping test, fixed). 11 new decrypt edges and 10 new `service_role` read surfaces, each named. No migration, no JSON route, no `security_invoker` view. 6 questions queued |
-| f1 | ui | C | Detail routes: work_item, defect, blocker | ui-designer | u1, i1 | in_progress (dispatched 2026-08-20T14:00Z) |
-| f2 | ui | C | Detail routes: requirement (FR-82) and open_question | ui-designer | u1, i1 | in_progress (dispatched 2026-08-20T14:00Z) |
-| f3 | ui | C | Detail routes: external_wait, release, contract_milestone | ui-designer | u1, i1 | in_progress (dispatched 2026-08-20T14:00Z) |
-| f4 | ui | C | Reference adoption on the six answer screens; FR-55's hyperlink on /untested | ui-designer | u1, i1 | in_progress (dispatched 2026-08-20T14:00Z) |
-| f5 | ui | C | Reference adoption on /work-items, /registry, /waits; FR-84; nav + e2e shell count | ui-designer | u1, i1 | in_progress (dispatched 2026-08-20T14:00Z) |
-| qa1 | qa | D | Independent review of the merged branch | qa-reviewer | f1–f5 | pending |
+| f1 | ui | C | Detail routes: work_item, defect, blocker | ui-designer | u1, i1 | **done** — gate PASS. Merged `38ba1f3` (worktree `df91bae`). 50 tests, 14 mutations/14 killed. Found the `observed-elsewhere` vs `observed_elsewhere` split that renders as "no scope recorded" |
+| f2 | ui | C | Detail routes: requirement (FR-82) and open_question | ui-designer | u1, i1 | **done** — gate PASS. Merged `d41cb80` (worktree `61c6ca0`). 39 tests, 7 mutations/7 killed. All four FR-82 sections render even when every relationship is empty |
+| f3 | ui | C | Detail routes: external_wait, release, contract_milestone | ui-designer | u1, i1 | **done** — gate PASS. Merged `8f08a25` (worktree `40996f0`). 61 tests. First lint negative control was BLIND; second one fired. Found the `isoDay` timezone defect in M1.x code |
+| f4 | ui | C | Reference adoption on the six answer screens; FR-55's hyperlink on /untested | ui-designer | u1, i1 | **done** — gate **FAILED first** (`missing mandated section(s): ## Questions Queued`), returned to the unit, repaired in `3cc71fe`, re-gated PASS. Merged `c3b0044`. 14 mutations/14 killed. Census: 37 entity-refs across the six screens, no silent zero |
+| f5 | ui | C | Reference adoption on /work-items, /registry, /waits; FR-84; nav + e2e shell count | ui-designer | u1, i1 | **done** — gate PASS. Merged `9ca3626` (worktree `67e80be`). Found 8 of 28 filter option values rejected by the screen's own parser — a live defect the FR-84 gate would not have caught |
+| qa1 | qa | D | Independent review of the merged branch | qa-reviewer | f1–f5 | in_progress (dispatched 2026-08-20T14:25Z) |
 
 ## Defer list
 
@@ -79,3 +79,30 @@ wave merges to the branch before the next is cut from it.
 
 One per unit: `.fleet/questions-<unit-id>-eb2490.jsonl`, concatenated at fan-in into
 `.fleet/questions-eb2490.jsonl`.
+
+## Questions collected at fan-in — per-unit line counts
+
+| unit | lines |
+|---|---|
+| u1 | 2 |
+| i1 | 6 |
+| f1 | 4 |
+| f2 | 5 |
+| f3 | 3 |
+| f4 | 6 |
+| f5 | 4 |
+| **total** | **30** — concatenated into `.fleet/questions-eb2490.jsonl` |
+
+## Gates at the merged tip, run by project-lead
+
+| gate | before | after |
+|---|---|---|
+| `pnpm gate:m27` | **5 failed / 5** | **5 passed / 5 — GREEN** |
+| `pnpm typecheck` | 0 | 0 |
+| `pnpm lint` | 0 | 0 |
+| `pnpm test` | 1061 passed / 6 skipped | **1343 passed / 6 skipped / 0 failed** |
+| `pnpm build` | 0 errors, 33 routes | **0 errors, 41 routes** |
+| `pnpm e2e` | 207 passed / 7 skipped | **207 passed / 7 skipped** |
+| `pnpm gate:m27:e2e` | red | **NOT VERIFIED — needs `M27_BASE_URL` + `M27_STORAGE_STATE`, an operator session at `aal2` no agent holds** |
+
+Neither gate file was edited: `git diff 6210318 HEAD -- tests/m27-gate.test.ts e2e/m27-navigation.spec.ts` is empty.
