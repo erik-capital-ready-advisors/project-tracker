@@ -101,9 +101,36 @@ export function MfaEnrollForm() {
         return;
       }
 
-      // No `friendlyName`. GoTrue refuses a second factor carrying a name that
-      // is already taken, so a fixed one turns a retried enrolment into an
-      // error about naming rather than a working second attempt.
+      /**
+       * Clear any stale UNVERIFIED factor before enrolling.
+       *
+       * Omitting `friendlyName` does not dodge GoTrue's uniqueness check, which
+       * is what the previous comment here assumed. GoTrue stores the absent name
+       * as `""` and then refuses a second factor carrying `""`, so the first
+       * load of this screen leaves an unverified factor behind and every load
+       * after it dies with `A factor with the friendly name "" for this user
+       * already exists`. Observed on run b0952e.
+       *
+       * `listFactors().totp` cannot see the leftover - it carries verified
+       * factors only - so the check has to read `.all`. Removing an unverified
+       * factor loses nothing: its secret was shown once and never stored, so it
+       * can never be completed. A VERIFIED factor is never touched; finding one
+       * means this screen is the wrong step and the answer is to go present it.
+       */
+      const { data: existing } = await supabase.client.auth.mfa.listFactors();
+      const all = existing?.all ?? [];
+
+      if (all.some((f) => f.factor_type === "totp" && f.status === "verified")) {
+        router.replace(STEP_PATH.verify);
+        return;
+      }
+
+      for (const stale of all.filter(
+        (f) => f.factor_type === "totp" && f.status === "unverified",
+      )) {
+        await supabase.client.auth.mfa.unenroll({ factorId: stale.id });
+      }
+
       const { data: enrolled, error: enrollError } =
         await supabase.client.auth.mfa.enroll({ factorType: "totp" });
 

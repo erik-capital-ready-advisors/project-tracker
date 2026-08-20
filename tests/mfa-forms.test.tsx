@@ -33,6 +33,7 @@ const api = vi.hoisted(() => ({
   getAuthenticatorAssuranceLevel: vi.fn(),
   listFactors: vi.fn(),
   enroll: vi.fn(),
+  unenroll: vi.fn(),
   challenge: vi.fn(),
   verify: vi.fn(),
   signOut: vi.fn(),
@@ -47,6 +48,7 @@ vi.mock("@/lib/supabase/client", () => ({
         getAuthenticatorAssuranceLevel: api.getAuthenticatorAssuranceLevel,
         listFactors: api.listFactors,
         enroll: api.enroll,
+        unenroll: api.unenroll,
         challenge: api.challenge,
         verify: api.verify,
       },
@@ -61,7 +63,9 @@ beforeEach(() => {
   api.getAuthenticatorAssuranceLevel
     .mockReset()
     .mockResolvedValue({ data: { currentLevel: "aal1", nextLevel: "aal1" } });
-  api.listFactors.mockReset().mockResolvedValue({ data: { totp: [] }, error: null });
+  api.listFactors
+    .mockReset()
+    .mockResolvedValue({ data: { all: [], totp: [] }, error: null });
   api.enroll.mockReset().mockResolvedValue({
     data: {
       id: "factor-1",
@@ -69,6 +73,7 @@ beforeEach(() => {
     },
     error: null,
   });
+  api.unenroll.mockReset().mockResolvedValue({ data: {}, error: null });
   api.challenge.mockReset().mockResolvedValue({ data: { id: "chal-1" }, error: null });
   api.verify.mockReset().mockResolvedValue({ data: {}, error: null });
   api.signOut.mockReset().mockResolvedValue({ error: null });
@@ -313,5 +318,86 @@ describe("the auth screens under StrictMode, as development actually mounts them
 
     await waitFor(() => expect(api.listFactors).toHaveBeenCalled());
     expect(replace).not.toHaveBeenCalled();
+  });
+});
+
+/**
+ * The second reload. `enroll()` sent without a `friendlyName` does not avoid
+ * GoTrue's uniqueness check - GoTrue stores the absent name as `""` and then
+ * refuses a second factor carrying `""`. So the first page load leaves an
+ * unverified factor and every load after it fails with
+ * `A factor with the friendly name "" for this user already exists`, which is
+ * what Erik saw. `listFactors().totp` cannot see the stale factor because it
+ * carries verified factors only; `listFactors().all` can.
+ */
+describe("MfaEnrollForm when a stale unverified factor is already present", () => {
+  beforeEach(() => {
+    api.listFactors.mockResolvedValue({
+      data: {
+        all: [{ id: "stale-factor", factor_type: "totp", status: "unverified" }],
+        totp: [],
+      },
+      error: null,
+    });
+    // GoTrue's real behaviour: enrolling collides until the stale one is gone.
+    api.enroll.mockImplementation(async () => {
+      if (api.unenroll.mock.calls.length === 0) {
+        return {
+          data: null,
+          error: {
+            message:
+              'A factor with the friendly name "" for this user already exists',
+          },
+        };
+      }
+      return {
+        data: {
+          id: "factor-2",
+          totp: { qr_code: FAKE_QR, secret: FAKE_TOTP_SECRET, uri: "otpauth://" },
+        },
+        error: null,
+      };
+    });
+  });
+
+  it("clears the stale factor and still shows a QR", async () => {
+    render(
+      <StrictMode>
+        <MfaEnrollForm />
+      </StrictMode>,
+    );
+
+    await waitFor(() =>
+      expect(api.unenroll).toHaveBeenCalledWith({ factorId: "stale-factor" }),
+    );
+    await waitFor(() =>
+      expect(
+        document.querySelector("[data-verify-unit='mfa-enroll'] img"),
+      ).not.toBeNull(),
+    );
+    expect(screen.queryByText(/already exists/i)).toBeNull();
+  });
+
+  it("removes only unverified factors, never a verified one", async () => {
+    api.listFactors.mockResolvedValue({
+      data: {
+        all: [
+          { id: "stale-factor", factor_type: "totp", status: "unverified" },
+          { id: "good-factor", factor_type: "totp", status: "verified" },
+        ],
+        totp: [{ id: "good-factor" }],
+      },
+      error: null,
+    });
+
+    render(
+      <StrictMode>
+        <MfaEnrollForm />
+      </StrictMode>,
+    );
+
+    // A verified factor means this screen is not the right step at all.
+    await waitFor(() => expect(replace).toHaveBeenCalled());
+    expect(api.unenroll).not.toHaveBeenCalledWith({ factorId: "good-factor" });
   });
 });
