@@ -84,7 +84,8 @@
 
   /* -- semantic state scale (light) ------------------------------------- */
   /* The five named in spec 5a */
-  --state-verified: #047857;         /* emerald 700  -- solid  */
+  --state-verified: #046c4e;         /* emerald 800  -- solid. Darkened from 700 so it clears
+                                        `carried` in greyscale; see tests/state-scale.test.ts */
   --state-carried: #b45309;          /* amber 700    -- solid  */
   --state-blocked: #b91c1c;          /* red 700      -- solid  */
   --state-decided-against: #52525b;  /* zinc 600     -- outline, deliberately drained */
@@ -95,7 +96,7 @@
 
   /* CR-001 FR-63/FR-67: defect status */
   --state-open: #b91c1c;             /* red 700      -- outline */
-  --state-fixed: #0e7490;            /* cyan 700     -- solid  */
+  --state-fixed: #0f7c9a;            /* cyan 700+    -- solid. Lifted so it clears `contested` */
   --state-wont-fix: #52525b;         /* zinc 600     -- dashed outline */
 
   /* CR-001 FR-79: billable but disputed. Never presented as clean. */
@@ -103,7 +104,8 @@
 
   /* FR-43: four evidence scopes, never collapsed into each other */
   --state-observed-live: #047857;      /* emerald 700 -- solid  */
-  --state-observed-elsewhere: #0f766e; /* teal 700    -- solid  */
+  --state-observed-elsewhere: #0c615a; /* teal 800    -- solid. Darkened so FR-43's four scopes
+                                          stay distinct in greyscale */
   --state-asserted: #b45309;           /* amber 700   -- outline */
   --state-not-verified: #52525b;       /* zinc 600    -- dashed outline */
 
@@ -172,7 +174,7 @@
   --state-contested: #fb923c;
 
   --state-observed-live: #34d399;
-  --state-observed-elsewhere: #2dd4bf;
+  --state-observed-elsewhere: #27c0ad; /* darkened so it clears `observed-live` in greyscale */
   --state-asserted: #fbbf24;
   --state-not-verified: #a1a1aa;
 
@@ -321,4 +323,29 @@
   font-family: var(--font-mono);
   font-variant-numeric: tabular-nums;
   letter-spacing: -0.01em;
+}
+
+/* `unparsed` is the one state that must never be mistaken for anything else,
+ * and the thing it was closest to was not another state - it was the primary
+ * action. Measured 2026-08-20: `--state-unparsed` and `--primary` sit 0.3 apart
+ * in greyscale in light and 0.9 in dark, out of 255. Desaturated, a fuchsia
+ * "unparsed" pill and a violet "Apply" button are the same value, which is
+ * exactly what spec 5a's "violet appears nowhere in the state scale and fuchsia
+ * nowhere in the chrome" was written to prevent.
+ *
+ * Hue could not fix it: inside the work-item scale `unparsed` must also clear
+ * `verified`, `carried` and `blocked`, and solving for all four inside the
+ * contrast floor has no room. So the separator is TEXTURE. No other chip and no
+ * button in this product is hatched, a hatch survives desaturation and every
+ * form of colour blindness because it is not a colour, and nothing that looks
+ * like this is clickable.
+ *
+ * `tests/state-scale.test.ts` reads the treatment off the component: revert this
+ * to a solid fill and the greyscale assertion comes back automatically. */
+@utility state-hatch {
+  background-image: repeating-linear-gradient(
+    135deg,
+    color-mix(in oklab, var(--state-unparsed) 34%, transparent) 0 2px,
+    transparent 2px 6px
+  );
 }

@@ -26,6 +26,10 @@ import { cn } from "@/lib/utils";
  * The treatment channel is what keeps the four evidence scopes distinguishable
  * in greyscale and to a colour-blind reader, which is the actual reason FR-43
  * cannot be satisfied by hue alone.
+ *
+ * `tests/state-scale.test.ts` asserts that claim against the actual token
+ * values rather than trusting this comment. It reads `STATE_TREATMENT` below,
+ * so changing a treatment here changes what that test requires of the colours.
  */
 
 export type WorkState =
@@ -52,14 +56,25 @@ export type WorkState =
   | "unproven"
   | "uncovered";
 
-type Treatment = "solid" | "outline" | "dashed";
+/**
+ * `hatched` belongs to `unparsed` alone.
+ *
+ * The other three carry confidence. This one carries *incomparability*: an
+ * unparsed row is not a weaker version of a classified one, it is a row nothing
+ * could classify. It is a separate treatment rather than a fourth colour
+ * because the collision measured on 2026-08-20 was with `--primary`, not with
+ * another state - 0.3 apart in greyscale in light, 0.9 in dark - and hue had no
+ * room left to fix it. Texture is not a colour, so it survives desaturation and
+ * colour blindness outright.
+ */
+type Treatment = "solid" | "outline" | "dashed" | "hatched";
 
 const STATE_STYLE: Record<WorkState, { color: string; treatment: Treatment }> = {
   verified: { color: "state-verified", treatment: "solid" },
   carried: { color: "state-carried", treatment: "solid" },
   blocked: { color: "state-blocked", treatment: "solid" },
   "decided-against": { color: "state-decided-against", treatment: "outline" },
-  unparsed: { color: "state-unparsed", treatment: "solid" },
+  unparsed: { color: "state-unparsed", treatment: "hatched" },
 
   closed: { color: "state-closed", treatment: "outline" },
 
@@ -92,7 +107,8 @@ const CLASS_BY_STATE: Record<WorkState, string> = {
   blocked: "border-state-blocked/40 bg-state-blocked/10 text-state-blocked",
   "decided-against":
     "border-state-decided-against/40 text-state-decided-against bg-transparent",
-  unparsed: "border-state-unparsed/40 bg-state-unparsed/10 text-state-unparsed",
+  unparsed:
+    "border-state-unparsed/60 text-state-unparsed bg-transparent state-hatch",
 
   closed: "border-state-closed/40 text-state-closed bg-transparent",
 
@@ -148,3 +164,11 @@ export function StateBadge({
 
 /** Exported so a later unit can enumerate the scale without re-deriving it. */
 export const ALL_WORK_STATES = Object.keys(STATE_STYLE) as WorkState[];
+
+/**
+ * The treatment each state renders with, exported so the greyscale test reads
+ * the real mapping instead of keeping a copy that can drift out of date.
+ */
+export const STATE_TREATMENT = Object.fromEntries(
+  Object.entries(STATE_STYLE).map(([state, style]) => [state, style.treatment]),
+) as Record<WorkState, Treatment>;
