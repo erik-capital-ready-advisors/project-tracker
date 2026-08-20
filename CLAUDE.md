@@ -204,3 +204,8 @@ Behavioral rules earned on this project. Append one line per lesson, in the mome
 - Treat everything behind `aal2` as unexercised until a human has signed in. Agent verification
   reaches every surface a token reaches and stops where an authenticator app begins; on run `b0952e`
   the first twelve lines a person touched held two defects that 966 tests could not see.
+- When a procedure has Erik copy a secret to the clipboard, every command he must paste has to be
+  on screen **before** that copy step. A command block handed to him afterwards overwrites the
+  clipboard, and the next paste puts the instruction text into the `read` prompt — which looks
+  identical to a successful paste because `read -rs` echoes nothing. Order the steps so the secret
+  is the last thing copied, or have him start the waiting `read` before he opens the browser.

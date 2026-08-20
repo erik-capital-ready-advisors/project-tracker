@@ -15,6 +15,27 @@ RUN=b0952e
 REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 : "${DELIVERY_LEDGER_INGEST_TOKEN:?set DELIVERY_LEDGER_INGEST_TOKEN first (mint one in the UI)}"
 
+# A paste that went wrong is otherwise indistinguishable from a good one until
+# the endpoint answers 401 after a 500 KB upload - `read -rs` echoes nothing, so
+# a clipboard holding the wrong thing looks exactly like success. Checked here,
+# where it costs a regex. The report is shape only: no byte of the value is
+# printed, on the same rule as `describeTokenForLog` - a truncated credential in
+# a transcript is still a credential in a transcript.
+if ! python3 - <<'PY'
+import os, re, sys
+raw = os.environ["DELIVERY_LEDGER_INGEST_TOKEN"].strip()
+if re.fullmatch(r"dl_[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}_[0-9a-f]{64}", raw):
+    sys.exit(0)
+print("DELIVERY_LEDGER_INGEST_TOKEN is not an agent token. Nothing was sent.", file=sys.stderr)
+print("  length %d (want 104), %d segment(s) on '_' (want 3), dl_ prefix: %s"
+      % (len(raw), len(raw.split("_")), raw.startswith("dl_")), file=sys.stderr)
+if raw.split(" ")[0] in ("read", "export", "bash", "cd", "curl"):
+    print("  It starts with a shell command, so the clipboard held an instruction", file=sys.stderr)
+    print("  rather than the credential. Re-copy from the token panel.", file=sys.stderr)
+sys.exit(1)
+PY
+then exit 1; fi
+
 BODY="$(mktemp -t ledger-ingest)"
 trap 'rm -f "$BODY"' EXIT
 
