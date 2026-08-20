@@ -201,7 +201,7 @@ async function upsertTestCases(
 ): Promise<{ count: number } | PersistFailure> {
   const byKey = new Map<string, WireTestResult>();
   for (const result of results) {
-    const key = `${result.file} ${result.title}`;
+    const key = `${result.file}\0${result.title}`;
     const existing = byKey.get(key);
     // Later entries win only where they add an actor the earlier one lacked.
     if (existing === undefined) {
@@ -278,13 +278,13 @@ async function recordResults(
     );
     if (read.error) return { failed: "test_case (read back)" };
     for (const row of read.rows) {
-      idByKey.set(`${String(row.file)} ${String(row.title)}`, String(row.id));
+      idByKey.set(`${String(row.file)}\0${String(row.title)}`, String(row.id));
     }
   }
 
   const rows: Record<string, unknown>[] = [];
   for (const result of results) {
-    const id = idByKey.get(`${result.file} ${result.title}`);
+    const id = idByKey.get(`${result.file}\0${result.title}`);
     if (id === undefined) {
       // Unreachable: the upsert above wrote this exact key in this transaction's
       // sequence. Refused loudly rather than skipped, because a silently dropped

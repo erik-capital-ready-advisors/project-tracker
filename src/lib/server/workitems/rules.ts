@@ -234,7 +234,7 @@ export function resolveDependencyEdges(
   const seen = new Set<string>();
 
   for (const edge of edges) {
-    const key = `${edge.from} ${edge.to}`;
+    const key = `${edge.from}\0${edge.to}`;
 
     if (edge.from === edge.to) {
       // `work_item_dependency_no_self` would refuse this too. Reported rather

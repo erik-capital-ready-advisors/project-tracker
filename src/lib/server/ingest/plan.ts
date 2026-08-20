@@ -315,7 +315,7 @@ export function planRun(artifacts: RunArtifacts): RunPlan {
     // `unique (engagement_id, file, title)` — two tests in one file sharing a
     // title collide, so the duplicate is counted rather than sent to a
     // guaranteed constraint violation.
-    const key = `${test.file} ${test.title}`;
+    const key = `${test.file}\0${test.title}`;
     if (seenTests.has(key)) {
       note("test_case (duplicate file+title)", `${test.file}: ${test.title}`);
       continue;
