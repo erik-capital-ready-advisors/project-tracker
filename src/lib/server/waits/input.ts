@@ -13,6 +13,8 @@
  * spec wrote the set down, not whether one could be guessed.
  */
 
+import { unknownKeyProblems } from "@/lib/api/unknown-keys";
+
 import { RESOLUTION_METHOD } from "@/lib/server/workitems/rules";
 import type { StoredResolutionMethod } from "@/lib/server/workitems/rules";
 
@@ -125,6 +127,41 @@ function readDay(
   return day;
 }
 
+/**
+ * Every field a wait declaration reads, in wire spelling.
+ *
+ * ## Why an unrecognised key here is worse than on the other ingest endpoints
+ *
+ * `expectedBy` is optional, and FR-34 computes the overdue flag from precisely
+ * that field. So a caller sending `expected_by` — the snake_case spelling, which
+ * is exactly the slip `/api/ingest/release`'s `deployed_at` case exists to catch
+ * — used to get a `201` and a wait with **no expected-by date**: a wait that can
+ * never go overdue, showing as fine forever on the Blocked screen. That is a
+ * wrong `done` in the blocked dimension, which is the single failure this
+ * project's central rule exists to prevent.
+ *
+ * There is **no server-owned field here** to exempt, unlike `source` on the
+ * release endpoint. Every name below is read and used. `resolvedAt` might look
+ * like a candidate — FR-36's "when" is the server's clock — but it has never
+ * been accepted on this endpoint, so there is no caller to keep working and it
+ * is refused like any other unrecognised key.
+ */
+const WAIT_DECLARATION_FIELDS = [
+  "engagement",
+  "label",
+  "owner",
+  "ownerType",
+  "reason",
+  "startedAt",
+  "expectedBy",
+  "probeTarget",
+  "resolutionMethod",
+  "blocks",
+] as const;
+
+/** FR-36. Both fields are required, so nothing here can go silently missing. */
+const WAIT_RESOLUTION_FIELDS = ["id", "resolvedBy"] as const;
+
 /** FR-32, FR-33, FR-35. */
 export function parseWaitDeclaration(body: unknown): ParseResult<WaitDeclaration> {
   const errors: string[] = [];
@@ -208,6 +245,8 @@ export function parseWaitDeclaration(body: unknown): ParseResult<WaitDeclaration
     }
   }
 
+  errors.push(...unknownKeyProblems(body, WAIT_DECLARATION_FIELDS));
+
   if (errors.length > 0) return { ok: false, errors };
 
   return {
@@ -246,6 +285,8 @@ export function parseWaitResolution(body: unknown): ParseResult<WaitResolution> 
   // clock; the `who` cannot be, so it is required rather than defaulted to
   // something like "system" that would record nothing.
   const resolvedBy = readString(body, "resolvedBy", WAIT_LIMITS.resolvedBy, errors, true);
+
+  errors.push(...unknownKeyProblems(body, WAIT_RESOLUTION_FIELDS));
 
   if (errors.length > 0) return { ok: false, errors };
   return { ok: true, value: { waitId: waitId as string, resolvedBy: resolvedBy as string } };

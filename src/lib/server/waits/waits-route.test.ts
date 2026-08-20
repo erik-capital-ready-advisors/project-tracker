@@ -262,3 +262,83 @@ describe("POST /api/waits/resolve — FR-36", () => {
     expect([401, 403]).toContain(response.status);
   });
 });
+
+/**
+ * qa1 re-verification finding, run b0952e — the C1/I2/I3 defect class, one
+ * endpoint short.
+ *
+ * `/api/waits` had no unknown-key check at all. `expectedBy` is optional and
+ * FR-34 computes the overdue flag from precisely that field, so a caller sending
+ * the snake_case `expected_by` got a 201 and a wait with NO expected-by date: a
+ * wait that can never go overdue, showing as fine forever on the Blocked screen.
+ * A wrong `done` in the blocked dimension.
+ *
+ * The positive control is the half that matters. A 201 is not evidence the date
+ * survived — a 201 with a null date IS the bug.
+ */
+describe("POST /api/waits — unrecognised body fields are refused", () => {
+  it("POSITIVE CONTROL: the documented `expectedBy` is stored, not merely accepted", async () => {
+    const token = build(["ingest_write"]);
+    const response = await POST(request("/api/waits", "POST", token, DECLARATION));
+
+    expect(response.status).toBe(201);
+    const stored = fake.rowsIn("external_wait")[0];
+    // The assertion that would have caught this: the DATE, not the status code.
+    expect(stored.expected_by).toBe("2026-08-18");
+  });
+
+  it("refuses `expected_by` and names `expectedBy`", async () => {
+    const token = build(["ingest_write"]);
+    const { expectedBy: _dropped, ...withoutCamel } = DECLARATION;
+    const response = await POST(
+      request("/api/waits", "POST", token, {
+        ...withoutCamel,
+        expected_by: "2026-08-18",
+      }),
+    );
+
+    expect(response.status).toBe(400);
+    const message = (await response.json()).error.message;
+    expect(message).toContain("expected_by");
+    expect(message).toContain("expectedBy");
+    // and nothing was written
+    expect(fake.rowsIn("external_wait")).toHaveLength(0);
+  });
+
+  it("refuses a wholly invented field rather than dropping it", async () => {
+    const token = build(["ingest_write"]);
+    const response = await POST(
+      request("/api/waits", "POST", token, { ...DECLARATION, bogusKey: 1 }),
+    );
+    expect(response.status).toBe(400);
+    expect((await response.json()).error.message).toContain("bogusKey");
+    expect(fake.rowsIn("external_wait")).toHaveLength(0);
+  });
+
+  it("still accepts the documented shape unchanged", async () => {
+    const token = build(["ingest_write"]);
+    const response = await POST(request("/api/waits", "POST", token, DECLARATION));
+    expect(response.status).toBe(201);
+  });
+});
+
+describe("POST /api/waits/resolve — unrecognised body fields are refused", () => {
+  it("refuses an unrecognised field", async () => {
+    const token = build(["ingest_write"], {
+      external_wait: [
+        { id: "11111111-2222-3333-4444-555555555555", engagement_id: "eng-acme", resolved_at: null },
+      ],
+    });
+    const response = await RESOLVE(
+      request("/api/waits/resolve", "POST", token, {
+        id: "11111111-2222-3333-4444-555555555555",
+        resolvedBy: "erik",
+        resolvedAt: "2026-08-19",
+      }),
+    );
+    expect(response.status).toBe(400);
+    // FR-36's "when" is the server's clock. Sending it is a caller assertion
+    // that would have been dropped, so it is refused rather than ignored.
+    expect((await response.json()).error.message).toContain("resolvedAt");
+  });
+});
