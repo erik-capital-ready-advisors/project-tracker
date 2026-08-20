@@ -26,6 +26,42 @@ This file is the **build log**. It tracks the live state of development: what's 
 
 ## Next session pointer
 
+> ### Read this first — the state of play on 2026-08-20 (late)
+>
+> **Waiting on Erik, all small, none blocking each other:**
+>
+> 1. **`pnpm gate:m27:e2e`** with a signed-in `aal2` session. **M2.7 is NOT Complete until this
+>    runs** and must not be marked so — nothing in the milestone has met a real row. If it errors
+>    `Project(s) "m27-gate" not found`, that is an unset `M27_BASE_URL`, not a deleted gate.
+>    Capture the session with:
+>    `mkdir -p .playwright-auth && pnpm exec playwright codegen --save-storage=.playwright-auth/operator.json http://localhost:3000/sign-in`
+>    then `M27_BASE_URL=http://localhost:3000 M27_STORAGE_STATE=.playwright-auth/operator.json pnpm gate:m27:e2e`
+> 2. **§5a** — approve or redirect, against the populated screens. Gates the user guide and the merge.
+> 3. **B4** — session-hook install scope. Recommendation on file: global with an allowlist. Until
+>    it is answered `work_session` stays at 0 rows and every hand session is invisible.
+> 4. **B30** — confirm or redirect the decrypted export.
+> 5. **The purge probe** — authorise it. Both engagements are unarchived so it hits the
+>    archive-first refusal and destroys nothing. Closes M1.10's one NOT VERIFIED.
+>
+> **Owed by the next session, carried honestly rather than done:**
+>
+> - **Route the 5 fleet learnings** from `.fleet/learnings-eb2490.md` into
+>   `Erik-Brain/Knowledge/`. Grep before writing; the vault reconciles, it does not accumulate rivals.
+> - **Re-run `pnpm e2e` and `pnpm build`.** 255 passed / 7 skipped and 41 routes are the
+>   orchestrator's numbers; this session did not confirm them.
+> - **`qa1`'s 5 questions never reached the fan-in file** (`RUN AUDIT eb2490: FAIL`). 5 in
+>   `questions-qa1-eb2490.jsonl`, 0 collected — decisions Erik never got to make. Deliberately not
+>   reconciled: the audit reports on the record and fixing it is diagnosis, not tidying.
+> - **8 leaked worktrees** under `.claude/worktrees/` (P23). Prune owed.
+> - **Top defects from QA (0 critical, 3 important):** the money-formatter split — `/committed`
+>   renders `111.00 USD` and `/milestones/[id]` renders `$111.00` for the same row, an adjacency
+>   this run created (**B32**); and `<EntityDetail identifier>` being optional, so omitting it
+>   renders a positive falsehood with a green typecheck (**B34**).
+>
+> **Nothing is deployed. `master` is untouched at `c835cf9`. PR #1 is unmerged; the M2.7 branch
+> `agent-build/2026-08-20-eb2490` stacks on it and rebases cleanly afterwards.**
+
+
 **Next up, and it is now two things at a browser rather than one.**
 
 **1. Run `pnpm gate:m27:e2e` with your own signed-in session.** This is M2.7's other half and the single highest-value action available. Sign in, save the storage state, set `M27_BASE_URL` and `M27_STORAGE_STATE`, run it. It fails closed with exit 1 today rather than skipping — correct — but its message reads `Project(s) "m27-gate" not found`, which looks like a deleted gate rather than an unset variable, so do not be misled by it. **Until this runs, nothing in M2.7 has met a real row**, and on run `b0952e` the first twelve lines a human touched held two defects that 966 tests could not see. **B31.**
@@ -81,8 +117,11 @@ The critical — the `service_role` grant that killed Mode-1 ingest — reads `f
 the report says and what `i10` actually did. **`test_result` is now the only one of the six answers
 with a parser and no production data path.**
 
-**M2.7 now has an acceptance gate, and it is red.** Written before dispatch, it is the criterion a
-specialist report can fail against: `pnpm gate:m27` (5 structural, no credential) and
+**M2.7's acceptance gate was written red before dispatch and the fleet turned it GREEN without
+touching it** — `git log --all -- tests/m27-gate.test.ts e2e/m27-navigation.spec.ts` returns exactly
+one commit, `6210318`, the one that wrote them. Re-run by the dispatching session rather than taken
+from the report: **`pnpm gate:m27` 5/5 passed**, typecheck 0, lint 0, `pnpm test` 1346 passed / 6
+skipped. **The other half has still never run.** The two commands are: `pnpm gate:m27` (5 structural, no credential) and
 `pnpm gate:m27:e2e` (10 crawl tests over populated screens, needs `M27_BASE_URL` and a saved
 operator session). Neither runs in `pnpm test` or `pnpm e2e`. **Whoever builds M2.7 — fleet or
 hand — builds against these**, and the first step of the milestone is deleting the exclusion line in
