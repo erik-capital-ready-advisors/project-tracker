@@ -94,7 +94,12 @@ This file is the **build log**. It tracks the live state of development: what's 
 > below `aal2`, which the old `playwright codegen` ritual would happily do.
 
 
-### Resume here (2026-08-21)
+### Background — what the 2026-08-20 sessions established
+
+> **This is not the resume point.** It was titled "Resume here (2026-08-21)" until 2026-08-20 night,
+> which left two sections competing to be where the next session starts — on the very date it named.
+> **The Next session pointer above is the one to read.** What follows is the evidence behind it: how
+> M1.10 was verified, how the ledger came to hold real rows, and why §5a is still open.
 
 **M1.10 is built, and Phase 1 has no unbuilt code left in it.** Migration
 `20260820153021_m110_export_and_purge` is **applied to `onpvolboecjpdkvurjaf`** and was verified by
