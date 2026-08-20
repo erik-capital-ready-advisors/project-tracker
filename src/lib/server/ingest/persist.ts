@@ -61,6 +61,7 @@ export interface PersistResult {
     workItemRequirements: number;
     questions: number;
     testCases: number;
+    defects: number;
   };
   /**
    * FR-42. A `depends-on` naming a unit that does not exist in this run. Both
@@ -350,6 +351,61 @@ export async function persistPlan(db: Db, plan: RunPlan): Promise<PersistResult>
     if (error) fail("test_case");
   }
 
+  // --- defect (FR-63, FR-64) ------------------------------------------------
+  // `ref` is NOT NULL and FR-63 fixes it as a per-engagement sequence, so the
+  // writer allocates it — and allocating naively is how a second post of one
+  // report produces a second set of defects. Existing refs are read first and
+  // matched on `source_key`, which is the identity the ARTIFACT gives a finding;
+  // only genuinely new findings draw a number, and they draw it above the
+  // engagement's current high-water mark rather than above the count.
+  let defectCount = 0;
+  if (plan.defects.length > 0) {
+    const { data: existingDefects, error: readError } = await db
+      .from("defect")
+      .select("ref, source_key")
+      .eq("engagement_id", engagementId);
+    if (readError) fail("defect (read)");
+
+    const rows = (existingDefects ?? []) as { ref: string; source_key: string | null }[];
+    const refBySourceKey = new Map(
+      rows
+        .filter((row): row is { ref: string; source_key: string } => row.source_key !== null)
+        .map((row) => [row.source_key, row.ref]),
+    );
+    // Parse every existing ref, not just the ones ingest wrote: an operator- or
+    // client-reported defect holds a D-nn too, and reusing its number would
+    // collide on (engagement_id, ref).
+    const highWater = rows.reduce((max, row) => {
+      const n = /^D-(\d+)$/.exec(row.ref ?? "");
+      return n === null ? max : Math.max(max, Number(n[1]));
+    }, 0);
+
+    let next = highWater;
+    const descriptions = await encryptAll(db, plan.defects.map((d) => d.description));
+
+    const { error } = await db.from("defect").upsert(
+      plan.defects.map((defect, index) => {
+        const existing = refBySourceKey.get(defect.source_key);
+        if (existing === undefined) next += 1;
+        return {
+          engagement_id: engagementId,
+          ref: existing ?? `D-${next}`,
+          source_key: defect.source_key,
+          source: "qa_agent",
+          severity: defect.severity,
+          raw_severity: defect.raw_severity,
+          title: defect.title,
+          description: descriptions[index],
+          status: defect.status,
+          requirement_ref: defect.requirement_ref,
+        };
+      }),
+      { onConflict: "engagement_id,source_key" },
+    );
+    if (error) fail("defect");
+    defectCount = plan.defects.length;
+  }
+
   return {
     engagementId,
     fleetRunId,
@@ -361,6 +417,7 @@ export async function persistPlan(db: Db, plan: RunPlan): Promise<PersistResult>
       workItemRequirements: links.length,
       questions: plan.questions.length,
       testCases: plan.testCases.length,
+      defects: defectCount,
     },
     unresolvedDependencies,
     unresolvedBlockers,

@@ -79,6 +79,9 @@ export const POST = withAgentRoute(INGEST_WRITE, async ({ db, request }) => {
       validationErrors: plan.summary.validationErrors,
       unparsedDetail: {
         workItems: plan.summary.unparsedWorkItems,
+        // FR-64. A finding whose severity heading this product does not know is
+        // reported at its own count rather than graded into the nearest bucket.
+        defects: plan.summary.unparsedDefects,
         trackerMilestones: plan.summary.unparsedTrackerMilestones,
         gates: plan.summary.unparsedGates,
       },

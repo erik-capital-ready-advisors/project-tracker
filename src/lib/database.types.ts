@@ -247,12 +247,14 @@ export type Database = {
           engagement_id: string
           fixing_work_item_id: string | null
           id: string
+          raw_severity: string | null
           ref: string
           reported_at: string
           reported_by: string | null
           requirement_ref: string | null
           severity: Database["public"]["Enums"]["defect_severity"]
           source: Database["public"]["Enums"]["defect_source"]
+          source_key: string | null
           status: Database["public"]["Enums"]["defect_status"]
           title: string
           verified_at: string | null
@@ -263,12 +265,14 @@ export type Database = {
           engagement_id: string
           fixing_work_item_id?: string | null
           id?: string
+          raw_severity?: string | null
           ref: string
           reported_at?: string
           reported_by?: string | null
           requirement_ref?: string | null
           severity?: Database["public"]["Enums"]["defect_severity"]
           source: Database["public"]["Enums"]["defect_source"]
+          source_key?: string | null
           status?: Database["public"]["Enums"]["defect_status"]
           title: string
           verified_at?: string | null
@@ -279,12 +283,14 @@ export type Database = {
           engagement_id?: string
           fixing_work_item_id?: string | null
           id?: string
+          raw_severity?: string | null
           ref?: string
           reported_at?: string
           reported_by?: string | null
           requirement_ref?: string | null
           severity?: Database["public"]["Enums"]["defect_severity"]
           source?: Database["public"]["Enums"]["defect_source"]
+          source_key?: string | null
           status?: Database["public"]["Enums"]["defect_status"]
           title?: string
           verified_at?: string | null

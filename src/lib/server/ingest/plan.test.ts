@@ -3,6 +3,11 @@ import { describe, it, expect } from "vitest";
 import { MANIFEST } from "@/lib/ingest/__fixtures__/manifest";
 import { QUESTION_FILES } from "@/lib/ingest/__fixtures__/questions";
 import {
+  QA_REPORT,
+  QA_REPORT_CLEAN,
+  QA_REPORT_UNKNOWN_SHAPES,
+} from "@/lib/ingest/__fixtures__/qaReport";
+import {
   CHECKPOINT,
   PROD_MD,
   QA_REPORT_WITH_GATES,
@@ -211,5 +216,39 @@ describe("planRun", () => {
       ...ARTIFACTS.questionFiles.map((q) => q.text),
     ];
     expect(values.every((value) => typeof value === "string")).toBe(true);
+  });
+
+  // --- B27: FR-64, the QA report's findings ---------------------------------
+
+  it("FR-64 plans a defect for every finding in the QA report", () => {
+    const built = planRun({ ...ARTIFACTS, qaReportText: QA_REPORT });
+    expect(built.defects.length).toBeGreaterThan(0);
+    // The identity is the artifact's, not a generated one, so a second post of
+    // the same report updates rather than allocating a second set of refs.
+    expect(built.defects[0].source_key).toMatch(/^qa-report#\d+$/);
+    expect(built.defects.every((d) => d.status === "open")).toBe(true);
+  });
+
+  it("FR-64 keeps the artifact's own severity word beside the mapped enum", () => {
+    const built = planRun({ ...ARTIFACTS, qaReportText: QA_REPORT });
+    // The fixture grades a finding `Important` where FR-63's enum says `major`.
+    // Both facts survive: one is what was written, the other is the classification.
+    const major = built.defects.find((d) => d.severity === "major");
+    expect(major?.raw_severity).toBe("Important");
+  });
+
+  it("FR-64 grades an unrecognised severity heading `unparsed` rather than guessing", () => {
+    const built = planRun({ ...ARTIFACTS, qaReportText: QA_REPORT_UNKNOWN_SHAPES });
+    expect(built.defects.every((d) => d.severity === "unparsed")).toBe(true);
+    expect(built.summary.unparsedDefects).toBe(built.defects.length);
+    // And the heading it could not map is still readable, so the screen can say
+    // what the artifact claimed instead of only that nothing classified it.
+    expect(built.defects.some((d) => d.raw_severity !== null)).toBe(true);
+  });
+
+  it("plans no defects from a report with no Issues section", () => {
+    const built = planRun({ ...ARTIFACTS, qaReportText: QA_REPORT_CLEAN });
+    expect(built.defects).toEqual([]);
+    expect(built.summary.unparsedDefects).toBe(0);
   });
 });

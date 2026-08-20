@@ -2,6 +2,7 @@ import { describe, it, expect, beforeEach } from "vitest";
 
 import { MANIFEST } from "@/lib/ingest/__fixtures__/manifest";
 import { QUESTION_FILES } from "@/lib/ingest/__fixtures__/questions";
+import { QA_REPORT } from "@/lib/ingest/__fixtures__/qaReport";
 import { CHECKPOINT, PROD_MD, QA_REPORT_WITH_GATES } from "@/lib/ingest/__fixtures__/runState";
 
 import { createFakeDb, isFakeCiphertext, type FakeDb } from "./__fixtures__/fakeDb";
@@ -196,5 +197,53 @@ describe("persistPlan", () => {
   it("§7a never touches contract_milestone from the ingest path", async () => {
     await run();
     expect(fake.calls.map((call) => call.table)).not.toContain("contract_milestone");
+  });
+
+  // --- B27: FR-64 defects ---------------------------------------------------
+
+  it("FR-22 upserts defects against (engagement_id, source_key), never a generated ref", async () => {
+    await persistPlan(fake.client as never, planRun({ ...ARTIFACTS, qaReportText: QA_REPORT }));
+    const call = fake.calls.find((c) => c.table === "defect" && c.op === "upsert");
+    expect(call?.onConflict).toBe("engagement_id,source_key");
+  });
+
+  it("FR-63 allocates D-nn continuing from the engagement's existing high-water mark", async () => {
+    // Two defects already exist, so a fresh finding must not reuse D-1.
+    fake.seed("defect", [
+      { ref: "D-1", source_key: "other#0" },
+      { ref: "D-2", source_key: "other#1" },
+    ]);
+    await persistPlan(fake.client as never, planRun({ ...ARTIFACTS, qaReportText: QA_REPORT }));
+    const rows = fake.calls.find((c) => c.table === "defect" && c.op === "upsert")
+      ?.rows as { ref: string; source_key: string }[];
+    const fresh = rows.filter((r) => r.source_key.startsWith("qa-report#"));
+    expect(fresh.map((r) => r.ref)).toEqual(
+      fresh.map((_, index) => `D-${index + 3}`),
+    );
+  });
+
+  it("FR-22 reuses the ref a finding already has, so a second post does not duplicate it", async () => {
+    // The idempotency case, and the one that only ever fails on the SECOND post.
+    fake.seed("defect", [{ ref: "D-7", source_key: "qa-report#0" }]);
+    await persistPlan(fake.client as never, planRun({ ...ARTIFACTS, qaReportText: QA_REPORT }));
+    const rows = fake.calls.find((c) => c.table === "defect" && c.op === "upsert")
+      ?.rows as { ref: string; source_key: string }[];
+    expect(rows.find((r) => r.source_key === "qa-report#0")?.ref).toBe("D-7");
+  });
+
+  it("§7a encrypts a defect description and leaves the title clear", async () => {
+    await persistPlan(fake.client as never, planRun({ ...ARTIFACTS, qaReportText: QA_REPORT }));
+    const rows = fake.calls.find((c) => c.table === "defect" && c.op === "upsert")
+      ?.rows as { title: string; description: unknown }[];
+    const withBody = rows.filter((r) => r.description !== null);
+    expect(withBody.length).toBeGreaterThan(0);
+    expect(withBody.every((r) => isFakeCiphertext(r.description))).toBe(true);
+    // CR-001 section 4's stated exception: the title is what the list is made of.
+    expect(rows.every((r) => typeof r.title === "string" && !isFakeCiphertext(r.title))).toBe(true);
+  });
+
+  it("writes no defect row at all when the report carries no findings", async () => {
+    await persistPlan(fake.client as never, planRun(ARTIFACTS));
+    expect(fake.calls.find((c) => c.table === "defect")).toBeUndefined();
   });
 });

@@ -1,5 +1,6 @@
 import { ingestRun } from "@/lib/ingest/ingestRun";
 import { parseProdMd, type TrackerMilestone } from "@/lib/ingest/prodMd";
+import { parseQaFindings } from "@/lib/ingest/defects";
 import { normalizeQuestions } from "@/lib/ingest/questions";
 import {
   parseCheckpoint,
@@ -106,6 +107,26 @@ export interface PlannedFleetRun {
   tests_skipped: number | null;
 }
 
+/**
+ * FR-64. One QA finding, in column shape.
+ *
+ * `ref` is absent on purpose: `D-nn` is a per-engagement sequence and a pure
+ * function cannot know the high-water mark, so the writer allocates it. What
+ * this carries instead is `source_key` — `<report name>#<ordinal>` — which is
+ * the identity the ARTIFACT gives the finding, and is what makes re-posting the
+ * same report update its defects rather than allocate a second set of refs.
+ */
+export interface PlannedDefect {
+  source_key: string;
+  severity: Database["public"]["Enums"]["defect_severity"];
+  /** The artifact's own grading word. Never overwritten by the mapped value. */
+  raw_severity: string | null;
+  title: string;
+  description: string | null;
+  status: Database["public"]["Enums"]["defect_status"];
+  requirement_ref: string | null;
+}
+
 export interface RunPlan {
   engagementSlug: string;
   runId: string;
@@ -118,6 +139,8 @@ export interface RunPlan {
   workItemRequirements: { unit: string; requirement_ref: string }[];
   questions: PlannedQuestion[];
   testCases: PlannedTestCase[];
+  /** FR-64. Findings graded out of the QA report's `## Issues` section. */
+  defects: PlannedDefect[];
   /**
    * FR-20. Parsed and REPORTED, not persisted — see `notPersisted` below.
    */
@@ -125,6 +148,8 @@ export interface RunPlan {
   /** FR-58 and the honesty budget. */
   summary: {
     unparsedWorkItems: number;
+    /** FR-58. Findings the grader refused to classify. */
+    unparsedDefects: number;
     unparsedTrackerMilestones: number;
     unparsedGates: number;
     validationErrors: string[];
@@ -167,6 +192,13 @@ export function planRun(artifacts: RunArtifacts): RunPlan {
   const checkpoint =
     artifacts.checkpointText === null ? null : parseCheckpoint(artifacts.checkpointText);
   const qa = artifacts.qaReportText === null ? null : parseQaGates(artifacts.qaReportText);
+  // FR-64. The same report, read for its findings as well as its gates. The
+  // report name is the source-key namespace, so it must be stable across posts
+  // — `qa-report` rather than a filename the caller might vary.
+  const findings =
+    artifacts.qaReportText === null
+      ? null
+      : parseQaFindings(artifacts.qaReportText, engagement, "qa-report");
 
   const unmappable: Unmappable[] = [];
   const note = (field: string, value: string) => unmappable.push({ field, value });
@@ -352,9 +384,19 @@ export function planRun(artifacts: RunArtifacts): RunPlan {
     workItemRequirements,
     questions,
     testCases,
+    defects: (findings?.defects ?? []).map((defect, index) => ({
+      source_key: `qa-report#${index}`,
+      severity: defect.severity,
+      raw_severity: defect.rawSeverity,
+      title: defect.title,
+      description: defect.description,
+      status: defect.status,
+      requirement_ref: defect.requirementRef,
+    })),
     trackerMilestones: prod?.milestones ?? [],
     summary: {
       unparsedWorkItems: parsed.unparsed,
+      unparsedDefects: findings?.unparsed ?? 0,
       unparsedTrackerMilestones: prod?.unparsed ?? 0,
       unparsedGates: qa?.unparsed ?? 0,
       validationErrors: parsed.errors,
