@@ -117,6 +117,15 @@ inferred:
 - **Every new function in schema `public` needs an explicit per-name `REVOKE` from `PUBLIC`.**
   `ALTER DEFAULT PRIVILEGES` does not close it; that was measured, and it is a rule here rather
   than a discovery to repeat.
+- **Every per-name `REVOKE ... FROM public` needs a matching `GRANT ... TO service_role` whenever
+  the function is reached in the caller's role.** The revoke does not merely withhold — it removes
+  the EXECUTE that `service_role` inherited through `PUBLIC`, and `service_role` is not a member of
+  `authenticated`, so listing `anon, authenticated` beside `public` hides that. A CHECK constraint,
+  a generated column and an RLS policy expression all evaluate in the **caller's** role, so a
+  function used by one of them becomes unexecutable by the application and the table silently
+  unwritable — the migration succeeds and the first `INSERT` fails `42501` naming the function, not
+  the table. A `SECURITY DEFINER` trigger is the case that does not need the grant. Measured on run
+  `b0952e`: this killed Mode-1 ingest completely and the whole suite stayed green.
 
 ## Provisioning is Erik's decision
 
