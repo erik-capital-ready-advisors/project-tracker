@@ -58,7 +58,13 @@ export default defineConfig({
         ]
       : []),
   ],
-  webServer: process.env.PLAYWRIGHT_BASE_URL
+  // No webServer when a base URL is supplied — for `pnpm e2e` against a preview,
+  // and for the M2.7 gate, which runs against an instance carrying real rows.
+  // Without the second condition the gate would still trigger `pnpm build &&
+  // pnpm start`, spending a build it never uses and aborting the run if that
+  // build cannot find its environment.
+  webServer:
+    process.env.PLAYWRIGHT_BASE_URL || M27_BASE_URL
     ? undefined
     : {
         command: `pnpm build && pnpm start --port ${PORT}`,
