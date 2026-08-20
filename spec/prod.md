@@ -26,54 +26,72 @@ This file is the **build log**. It tracks the live state of development: what's 
 
 ## Next session pointer
 
-> ### Read this first — the state of play on 2026-08-20 (night, after the sign-in lockout)
+> ### Read this first — resume note for 2026-08-21
 >
-> **`pnpm gate:m27:e2e` HAS NOW RUN. 8 passed / 2 failed.** B31 is no longer "never run". The two
-> failures are `/next` and `/bottleneck`, and **neither is a defect** — see B39. So M2.7's
-> navigation contract is proven on `/blocked`, `/committed`, `/broken` and all four cross-cutting
-> tests, against real rows, in a real browser, at `aal2`.
+> **Launch Claude from inside the repo or the fleet cannot run at all:**
 >
-> **M2.7 is still NOT Complete**, and now for a stated reason rather than an absent one: two of ten
-> gate rows cannot pass on this dataset, and whether that should count as passing is B39.
+> ```
+> cd ~/Projects/project-tracker && claude
+> ```
 >
-> **Waiting on Erik:**
+> This is not a style preference. `fleet-preflight.sh` was **run both ways on 2026-08-20**:
+> from the repo it reports **PREFLIGHT PASS — safe to dispatch**; from the Google Drive folder it
+> reports **PREFLIGHT FAIL**, because worktree isolation keys off the session's launch cwd and
+> nothing else, so every `isolation: "worktree"` dispatch dies with *"Cannot create agent worktree:
+> not in a git repository"*. The 2026-08-20 session ran from the Drive folder and **could not have
+> dispatched the fleet even if the work had been suitable.** All eight other preflight checks pass.
 >
-> 1. **§5a** — still the only thing blocking the merge and `docs/user-guide.md`. Erik confirmed he
->    has not yet looked at the screens. They now carry a contract milestone and an external wait as
->    well as the ingested run, so there is more to look at than before. **Also gates B32.**
-> 2. **B39** — should a correctly-empty screen be allowed to pass the gate, and how would the gate
->    know? Deferred deliberately rather than decided tired.
-> 3. **The purge's destruction path** — the refusal probe is done; observing a real cascade needs a
->    throwaway engagement archived and destroyed on purpose.
-> 4. **Revoke session `da15fe8b-3a1f-4029-8799-9ac6d6e5613f`** if not already done — B38 leaked it.
+> **Everything is committed (`9ffc857`), the tree is clean, nothing is deployed, `master` is
+> untouched at `c835cf9`, PR #1 is unmerged.**
 >
-> **Owed by the next session:**
+> #### The one thing that unblocks four others: §5a
 >
-> - **`rm -rf .claude/worktrees/agent-af9a7210a66a86493`** — orphan dir, no gitdir, no branch.
-> - **B36** `/questions/[id]` unreachable — needs a decision about where to link from, behind §5a.
-> - **B33** the prose renderer in five copies — its own work-unit owning `src/components/`.
-> - **B32** the money-formatter split — §5a-gated. Note `/committed`'s one milestone has a **null
->   amount**, so no live row exercises either formatter yet.
-> - **B38** decide whether to redact the cookie from gate output or just never paste it raw.
+> **§5a is unstarted — Erik has not looked at the screens.** It is a human at a browser and no agent
+> can do it. It gates the merge, `docs/user-guide.md`, **B32** and **B36**. Sign in
+> (`pnpm dev`, then `/sign-in`), walk the six answers and two or three detail views, then approve or
+> redirect. Everything below marked *"behind §5a"* is waiting on this and nothing else.
 >
-> **Closed or advanced this session:**
+> #### What the fleet can take tomorrow, and what it cannot
 >
-> - **B31** ran: 8/10. **B4** answered and built (allowlist, 9 tests, 3 mutations red). **B30**
->   confirmed. **B35** ruled, **CR-004** written and approved. **B34** fixed — not as prescribed,
->   because `string | null | "none"` does not discriminate in TypeScript.
-> - **B37 the sign-in lockout, fixed.** `proxy.ts` no longer forces `httpOnly`/`secure`. Baseline §1
->   is now recorded as **unmet, not waived** — client-side auth and an HttpOnly session cookie are
->   mutually exclusive, and honouring §1 means moving auth server-side in Phase 2.
-> - **The purge refusal probe** — both branches observed, every count unchanged.
-> - **5 fleet learnings** routed to the vault. **7 of 8 worktrees** pruned, branches retained.
-> - **`qa1`'s 5 uncollected questions** read — all five had already reached Erik as B31–B35.
+> | Item | Fleet? | Why |
+> |---|---|---|
+> | **§5a approval** | **No** | A human looking at a screen. There is no agent form of this |
+> | **B33** — prose renderer in five copies | **Yes — dispatch it** | Already scoped by `qa1` as one work-unit with **sole ownership of `src/components/`**, which is exactly the shape that avoids the three-way merge that blocked all five Wave C units. Best fleet candidate on the board |
+> | **B36** — `/questions/[id]` unreachable | **Yes, after §5a** | The route works; what is missing is a decision about *where an open question should be linked from*, which is design. Once §5a settles, it is an ordinary `ui` work-unit |
+> | **B32** — money-formatter split | **Yes, after §5a** | Small, but `qa1` ruled it touches §5a. Note **no live row exercises it**: the one contract milestone has a null amount |
+> | **`docs/user-guide.md`** | **Yes, after §5a** | `docs-writer` exists for exactly this. Held deliberately so it does not photograph a design about to change. §7b is not waived, so M1.10 stays incomplete until it is written |
+> | **B37 follow-up** — auth server-side | **Yes, but write a CR first** | It changes the authentication architecture to honour Baseline §1, so it is a Phase 2 milestone with a CR, not a ticket. **Security-critical**: §7a records that a prior build in this practice shipped MFA enforced only in the app layer and a review classified it critical. Mandatory `qa-reviewer` |
+> | **B39** — gate conflates empty with broken | **No, then maybe** | The *decision* is Erik's. Its implementation edits a gate file, which needs explicit authorisation each time and is better done in a reviewed session than dispatched |
+> | **B38** — gate leaks the session cookie | **No** | Touches gate and Playwright config. Small enough to do by hand, and the integrity rule makes agent edits there expensive |
+> | **Purge destruction path** | **No** | Deliberately destroying a live engagement. Needs Erik's hands and his go-ahead, not an agent's |
+> | **Merging PR #1** | **No** | Erik's call, behind §5a |
+> | `rm -rf .claude/worktrees/agent-af9a7210a66a86493` | **No** | Ten seconds by hand. Orphan dir, no gitdir, no branch. Two agents were blocked from running it |
 >
-> **Numbers, all measured by this session:** `pnpm test` **1359 passed / 6 skipped**,
-> `pnpm gate:m27` **5/5**, `pnpm gate:m27:e2e` **8 passed / 2 failed**, `pnpm e2e` **255 passed /
-> 7 skipped**, typecheck **0**, lint **0**, build exit 0 with **41 routes**.
+> **So: one clean dispatch is available immediately (B33), three more unlock the moment §5a is
+> answered, and one wants a CR before anyone builds it.**
 >
-> **Nothing is deployed. `master` is untouched at `c835cf9`. PR #1 is unmerged; the M2.7 branch
-> `agent-build/2026-08-20-eb2490` stacks on it and rebases cleanly afterwards.**
+> #### Where M2.7 and M1.10 actually stand
+>
+> - **M2.7 — code complete, NOT Complete.** `pnpm gate:m27:e2e` **8 passed / 2 failed**. The two
+>   failures are `/next` and `/bottleneck`, and **neither is a defect**: no work item is `pending`
+>   and **zero** are `erik`/`erik_gate`, so those answers are genuinely empty and cannot be populated
+>   through the product. Whether that should count as passing is **B39**.
+> - **M1.10 — code complete, NOT Complete.** The purge's refusal path is observed; its **destruction
+>   path is not**, and `docs/user-guide.md` is unwritten behind §5a.
+>
+> #### Numbers, all measured on 2026-08-20 rather than quoted
+>
+> `pnpm test` **1359 passed / 6 skipped** · `pnpm gate:m27` **5/5** · `pnpm gate:m27:e2e`
+> **8 passed / 2 failed** · `pnpm e2e` **255 passed / 7 skipped** · typecheck **0** · lint **0** ·
+> build **0**, 41 routes.
+>
+> #### One trap worth knowing before you touch the gate
+>
+> **B38: a failing `gate:m27:e2e` prints the live operator session cookie — access and refresh
+> token — into its output.** It leaked twice on 2026-08-20; both sessions were revoked by hand.
+> Assume any gate failure exposes a live session, and revoke afterwards. Use
+> `node scripts/save-operator-session.mjs` to mint the storage state: it refuses to save anything
+> below `aal2`, which the old `playwright codegen` ritual would happily do.
 
 
 ### Resume here (2026-08-21)
