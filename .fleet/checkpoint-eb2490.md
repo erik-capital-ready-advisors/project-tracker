@@ -31,3 +31,18 @@ landing on an unexpected SHA silently is how a wave gets built against the wrong
 
 pnpm gate:m27: 5 passed / 5 — GREEN. Baseline 2026-08-20 12:52 was 5 failed / 5.
 Neither gate file edited: `git diff 6210318 HEAD -- tests/m27-gate.test.ts e2e/m27-navigation.spec.ts` is empty.
+
+## Final
+
+phase_complete: final
+completed: 2026-08-20T14:45:00-04:00
+qa: BLOCKED — 0 critical, 3 important, 9 minor. `.fleet/qa-report-eb2490.md`, report-gate PASS.
+gate_m27: 5 passed / 5 (baseline 5 failed / 5)
+gate_m27_e2e: NOT VERIFIED — no `aal2` session exists for any agent. Fails closed with exit 1.
+build: PASS — 0 errors, 41 routes (was 33)
+test: 1346 passed / 6 skipped / 0 failed (was 1061 / 6)
+e2e: 255 passed / 7 skipped (was 207 / 7)
+typecheck: 0 · lint: 0
+writeback: spec/prod.md UPDATED
+learnings: .fleet/learnings-eb2490.md — 5 routed, 1 held back (over cap)
+end_user_manual: NOT WRITTEN — QA returned BLOCKED, not PASS; and the caller's brief scoped this run to M2.7 only. §7b is not waived. Carried, not deferred silently.

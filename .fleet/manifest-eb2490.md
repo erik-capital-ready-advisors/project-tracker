@@ -48,7 +48,7 @@ wave merges to the branch before the next is cut from it.
 | f3 | ui | C | Detail routes: external_wait, release, contract_milestone | ui-designer | u1, i1 | **done** — gate PASS. Merged `8f08a25` (worktree `40996f0`). 61 tests. First lint negative control was BLIND; second one fired. Found the `isoDay` timezone defect in M1.x code |
 | f4 | ui | C | Reference adoption on the six answer screens; FR-55's hyperlink on /untested | ui-designer | u1, i1 | **done** — gate **FAILED first** (`missing mandated section(s): ## Questions Queued`), returned to the unit, repaired in `3cc71fe`, re-gated PASS. Merged `c3b0044`. 14 mutations/14 killed. Census: 37 entity-refs across the six screens, no silent zero |
 | f5 | ui | C | Reference adoption on /work-items, /registry, /waits; FR-84; nav + e2e shell count | ui-designer | u1, i1 | **done** — gate PASS. Merged `9ca3626` (worktree `67e80be`). Found 8 of 28 filter option values rejected by the screen's own parser — a live defect the FR-84 gate would not have caught |
-| qa1 | qa | D | Independent review of the merged branch | qa-reviewer | f1–f5 | in_progress (dispatched 2026-08-20T14:25Z) |
+| qa1 | qa | D | Independent review of the merged branch | qa-reviewer | f1–f5 | **done** — `report-gate.sh` PASS (after adding a missing `**Run:**` header line). **BLOCKED, 0 critical / 3 important / 9 minor.** All 7 units SOUND, no fabricated claim found. Added 2 credential-free gates that stay in the branch. Merged `5a8cdde` |
 
 ## Defer list
 
