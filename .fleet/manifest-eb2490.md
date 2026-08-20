@@ -41,8 +41,8 @@ wave merges to the branch before the next is cut from it.
 
 | ID | Type | Wave | Description | Dispatched-to | Depends-on | Status |
 |----|------|------|-------------|---------------|-----------|--------|
-| u1 | ui | A | The one seam: `src/lib/entity-routes.ts`, `<EntityRef>`, `<EntityDetail>`; delete the gate exclusion from `vitest.config.ts` | ui-designer | — | pending |
-| i1 | integration | B | Detail read layer: reference resolution + eight loaders + FR-82's four relationships, opt-in prose decryption | api-integrator | u1 | pending |
+| u1 | ui | A | The one seam: `src/lib/entity-routes.ts`, `<EntityRef>`, `<EntityDetail>`; delete the gate exclusion from `vitest.config.ts` | ui-designer | — | **done** — `report-gate.sh` PASS. Merged as `b9ffe5d`. gate:m27 4/5 pass; test 2 left red pending Wave C's routes. `pnpm test` 1099 passed / 1 failed / 6 skipped. 2 questions queued |
+| i1 | integration | B | Detail read layer: reference resolution + eight loaders + FR-82's four relationships, opt-in prose decryption | api-integrator | u1 | in_progress (dispatched 2026-08-20T13:20Z) |
 | f1 | ui | C | Detail routes: work_item, defect, blocker | ui-designer | u1, i1 | pending |
 | f2 | ui | C | Detail routes: requirement (FR-82) and open_question | ui-designer | u1, i1 | pending |
 | f3 | ui | C | Detail routes: external_wait, release, contract_milestone | ui-designer | u1, i1 | pending |
