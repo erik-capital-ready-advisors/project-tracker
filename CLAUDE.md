@@ -197,3 +197,10 @@ Behavioral rules earned on this project. Append one line per lesson, in the mome
   that agent's own completion notification or its `description` before sending — dispatch order is not
   a reliable index into the ids, and a misdirected brief assigns the work to nobody while looking sent.
   `u2` caught one addressed to `u4` and reported it; nothing else would have.
+- Test a React screen the way `next.config.ts` mounts it. `reactStrictMode: true` double-invokes
+  effects, and a bare `render(<X />)` cannot reproduce that — an effect guarded by a `useRef` plus a
+  cleanup-set cancel flag fires its request, discards the response and renders an empty frame, with
+  the whole suite green. Mount under `<StrictMode>` for anything that fetches in an effect.
+- Treat everything behind `aal2` as unexercised until a human has signed in. Agent verification
+  reaches every surface a token reaches and stops where an authenticator app begins; on run `b0952e`
+  the first twelve lines a person touched held two defects that 966 tests could not see.
