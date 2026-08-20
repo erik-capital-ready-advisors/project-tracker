@@ -2,7 +2,7 @@
 
 **Project:** Delivery Ledger — single-operator delivery tracker for Capital Ready Advisors
 **Last updated:** 2026-08-19 by `project-lead` run `b0952e` — **run complete; Phase 1 and Phase 2 merged, QA verdict ISSUES**
-**Current phase:** Build, **Phase 1 milestones M1.1–M1.9 complete** on `agent-build/2026-08-19-b0952e` (tip `b980e1a`, 43 commits, 355 files). M1.10 is **unblocked** (CR-002 approved 2026-08-19) and **not yet built**. The branch is **not pushed and not deployed** — it is local, and review is the next action
+**Current phase:** Build, **Phase 1 milestones M1.1–M1.9 complete** on `agent-build/2026-08-19-b0952e` (tip `b654279`, **46 commits**, 355 files). M1.10 is **unblocked** (CR-002 approved 2026-08-19) and **not yet built**. **The branch is pushed and open as [PR #1](https://github.com/erik-capital-ready-advisors/project-tracker/pull/1); `master` is untouched at `c835cf9`.** Nothing is deployed. Review is the next action, and the PR says plainly that it must not be merged yet
 **Spec version:** `spec-approved.md` — promoted byte-for-byte from `spec-v1.md` on 2026-08-17 (`6820ade`), verified identical by `diff`
 **Active CRs:** **CR-002 APPROVED 2026-08-19** — `spec/change-requests/CR-002-deletion-vs-append-only.md`, resolves FR-61 against §7a's append-only rule: append-only wins absolutely, deletion stops at the audit boundary, and an unresolvable identifier in `audit_log`/`test_result` is the intended state rather than a defect. **The effective spec is now `spec-approved.md` as amended by CR-001 and CR-002.** No entity-count change, so the 21-entity `security-gate.sh` PASS still holds. M1.10 is unblocked and **not yet built**. · **CR-001 APPROVED 2026-08-18** — `spec/change-requests/CR-001-defects-regressions-releases.md`: defects, regressions, releases, a sixth answer (Broken), provisioning identifiers on `engagement`. FR-63–FR-79, three new entities (18 → 21). Q8 answered `contested` (FR-79). The effective spec is `spec-approved.md` as amended by CR-001
 **Security posture:** declared — spec §7a as amended by CR-001 §4, **21 entities classified**. `security-gate.sh` **PASS on the merged 21-entity set** 2026-08-18 (and on `spec-approved.md` 2026-08-17); `fleet-preflight.sh` PASS 2026-08-17.
@@ -31,7 +31,7 @@ This file is the **build log**. It tracks the live state of development: what's 
 git log --oneline master..agent-build/2026-08-19-b0952e
 ```
 
-The branch is **local only** — it was never pushed, per the standing rule that pushing is Erik's call. Nothing is deployed either: the sole live change this run made is one applied migration (the `service_role` grant below).
+The branch was pushed on 2026-08-19 at Erik's direction and is open as **PR #1** against `master`; `master` itself is untouched at `c835cf9` and nothing was merged. Nothing is deployed either: the sole live change this run made is one applied migration (the `service_role` grant below). The head is now `b654279` rather than `b980e1a` — one commit was added after the run to carry the run's own record (`.fleet/`), the approved CR-002, and the `prod.md`/`CLAUDE.md` writeback, none of which existed on the branch.
 
 **Four decisions, in the order they unblock things:**
 
