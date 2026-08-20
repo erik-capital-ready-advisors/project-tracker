@@ -25,3 +25,4 @@ next-env.d.ts
 # be stored) is open. Real client prose must never enter this repository; the
 # corpus suite skips when this directory is absent.
 fixtures-local/
+.playwright-mcp/

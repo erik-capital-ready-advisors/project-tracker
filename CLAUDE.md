@@ -188,3 +188,12 @@ Behavioral rules earned on this project. Append one line per lesson, in the mome
   you know is present also comes back non-zero. A bundle scan pointed at the wrong chunks reported
   a clean result indistinguishable from a real one; adding a control term (`function`, in any React
   chunk) exposed it and moved the scan to the chunks the browser Supabase client actually lands in.
+- When running `fleet-preflight.sh`, pass the session's **launch** cwd as argument 2 explicitly —
+  never `$PWD` after a `cd` earlier in the same Bash call. The harness resets the Bash cwd per
+  call, so the `cd` makes the cwd check pass against a repo the session was never launched from,
+  and worktree isolation keys off the launch cwd regardless. A green preflight obtained this way
+  is the same false-green as a subagent editing its own gate.
+- When sending a mid-flight `SendMessage` to a background agent, confirm the target `agentId` against
+  that agent's own completion notification or its `description` before sending — dispatch order is not
+  a reliable index into the ids, and a misdirected brief assigns the work to nobody while looking sent.
+  `u2` caught one addressed to `u4` and reported it; nothing else would have.
