@@ -58,18 +58,28 @@ export function SignInForm() {
     if (started.current) return;
     started.current = true;
 
-    let cancelled = false;
-
+    /**
+     * No cancel-flag here, deliberately.
+     *
+     * `reactStrictMode` is on, so in development React mounts, unmounts and
+     * remounts this component before the first async continuation resolves. A
+     * flag set in cleanup is therefore already true by the time the response
+     * lands, while `started` - a ref, which survives the simulated remount -
+     * makes the second mount return early. Together they mean the request
+     * fires, the response is discarded, and no state is ever set: the screen
+     * renders its frame and nothing inside it. Measured on run b0952e, which
+     * left an unverified TOTP factor in GoTrue and a blank enrol screen.
+     * Setting state after a real unmount is a no-op in React 18+, so the flag
+     * was protecting against nothing.
+     */
     void (async () => {
       const { data } = await supabase.client.auth.getUser();
       if (data.user === null) {
-        if (!cancelled) setChecking(false);
+        setChecking(false);
         return;
       }
       const { data: assurance } =
         await supabase.client.auth.mfa.getAuthenticatorAssuranceLevel();
-      if (cancelled) return;
-
       const step = nextAuthStep({
         signedIn: true,
         currentLevel: assurance?.currentLevel,
@@ -82,9 +92,6 @@ export function SignInForm() {
       router.replace(STEP_PATH[step]);
     })();
 
-    return () => {
-      cancelled = true;
-    };
   }, [router, supabase]);
 
   async function submit(event: React.FormEvent<HTMLFormElement>) {

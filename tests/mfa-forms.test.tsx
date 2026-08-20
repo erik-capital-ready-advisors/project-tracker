@@ -1,4 +1,5 @@
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { StrictMode } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { MfaEnrollForm } from "@/app/sign-in/_components/mfa-enroll-form";
@@ -245,5 +246,72 @@ describe("MfaVerifyForm", () => {
     );
     await waitFor(() => expect(api.signOut).toHaveBeenCalled());
     await waitFor(() => expect(replace).toHaveBeenCalledWith("/sign-in"));
+  });
+});
+
+/**
+ * Every test above mounts bare. `next.config.ts` sets `reactStrictMode: true`,
+ * so development mounts, unmounts and remounts each of these components before
+ * the first async continuation resolves - and a bare mount cannot reproduce
+ * that. The whole suite was green at 966 passing while the enrol screen
+ * rendered its heading and no QR code on the real dev server, because the
+ * request fired, the response was discarded by a cancel-flag, and the ref guard
+ * made the second mount return early. Run b0952e.
+ *
+ * These mount under StrictMode for exactly that reason. The pairing is the
+ * point: the QR must appear AND `enroll` must still be called once, because the
+ * naive fix - dropping the ref guard - buys the render back by creating a
+ * second unverified factor and putting a fresh secret on screen.
+ */
+describe("the auth screens under StrictMode, as development actually mounts them", () => {
+  it("MfaEnrollForm renders the QR, and still enrols exactly once", async () => {
+    render(
+      <StrictMode>
+        <MfaEnrollForm />
+      </StrictMode>,
+    );
+
+    await waitFor(() =>
+      expect(
+        document.querySelector("[data-verify-unit='mfa-enroll'] img"),
+      ).not.toBeNull(),
+    );
+    expect(api.enroll).toHaveBeenCalledTimes(1);
+    expect(replace).not.toHaveBeenCalled();
+  });
+
+  it("MfaEnrollForm leaves loading false, so the frame is not stuck", async () => {
+    render(
+      <StrictMode>
+        <MfaEnrollForm />
+      </StrictMode>,
+    );
+
+    await waitFor(() =>
+      expect(
+        document
+          .querySelector("[data-verify-unit='mfa-enroll']")
+          ?.getAttribute("data-verify-loading"),
+      ).toBe("false"),
+    );
+  });
+
+  it("MfaVerifyForm resolves its factor rather than hanging", async () => {
+    api.listFactors.mockResolvedValue({
+      data: { totp: [{ id: "factor-verified" }] },
+      error: null,
+    });
+    api.getAuthenticatorAssuranceLevel.mockResolvedValue({
+      data: { currentLevel: "aal1", nextLevel: "aal2" },
+    });
+
+    render(
+      <StrictMode>
+        <MfaVerifyForm />
+      </StrictMode>,
+    );
+
+    await waitFor(() => expect(api.listFactors).toHaveBeenCalled());
+    expect(replace).not.toHaveBeenCalled();
   });
 });

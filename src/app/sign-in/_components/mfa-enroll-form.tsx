@@ -67,8 +67,20 @@ export function MfaEnrollForm() {
     if (started.current) return;
     started.current = true;
 
-    let cancelled = false;
-
+    /**
+     * No cancel-flag here, deliberately.
+     *
+     * `reactStrictMode` is on, so in development React mounts, unmounts and
+     * remounts this component before the first async continuation resolves. A
+     * flag set in cleanup is therefore already true by the time the response
+     * lands, while `started` - a ref, which survives the simulated remount -
+     * makes the second mount return early. Together they mean the request
+     * fires, the response is discarded, and no state is ever set: the screen
+     * renders its frame and nothing inside it. Measured on run b0952e, which
+     * left an unverified TOTP factor in GoTrue and a blank enrol screen.
+     * Setting state after a real unmount is a no-op in React 18+, so the flag
+     * was protecting against nothing.
+     */
     void (async () => {
       const { data: user } = await supabase.client.auth.getUser();
       if (user.user === null) {
@@ -95,8 +107,6 @@ export function MfaEnrollForm() {
       const { data: enrolled, error: enrollError } =
         await supabase.client.auth.mfa.enroll({ factorType: "totp" });
 
-      if (cancelled) return;
-
       if (enrollError || !enrolled) {
         setError(
           enrollError?.message ??
@@ -112,9 +122,6 @@ export function MfaEnrollForm() {
       setLoading(false);
     })();
 
-    return () => {
-      cancelled = true;
-    };
   }, [router, supabase]);
 
   const signOut = useCallback(async () => {
