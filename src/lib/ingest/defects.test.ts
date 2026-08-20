@@ -10,6 +10,7 @@ import { validateDefect } from "./types";
 import {
   QA_REPORT,
   QA_REPORT_CLEAN,
+  QA_REPORT_EDITED_IN_PLACE,
   QA_REPORT_UNKNOWN_SHAPES,
 } from "./__fixtures__/qaReport";
 import type {
@@ -295,5 +296,49 @@ describe("reactivations", () => {
     const one = defect({ id: "d1", engagement: "live" });
     const verdicts = deriveDefectStatuses({ defects: [one], ...CROSSING });
     expect(reactivations(engagements, [one], verdicts)).toEqual([]);
+  });
+});
+
+describe("parseQaFindings against a report edited in place", () => {
+  const parse = () =>
+    parseQaFindings(QA_REPORT_EDITED_IN_PLACE, "widget", "qa-report");
+
+  it("FR-64 reads a CLOSED marker as fixed rather than reporting it open", () => {
+    const closed = parse().defects.find((d) => d.title.startsWith("`pnpm e2e`"));
+    expect(closed?.status).toBe("fixed");
+  });
+
+  it("FR-64 strips the status marker so the finding's real title survives", () => {
+    // The marker is a SEPARATE leading bold span, so taking the first bold run
+    // yields `[CLOSED at c65e44d]` and loses the title entirely.
+    const titles = parse().defects.map((d) => d.title);
+    expect(titles.some((t) => t.startsWith("["))).toBe(false);
+    expect(titles).toContain("`pnpm e2e` is red on any correctly configured machine");
+  });
+
+  it("FR-64 handles a marker folded into the title's own bold span", () => {
+    const item = parse().defects.find((d) => d.title.startsWith("`/api/waits`"));
+    expect(item?.status).toBe("open");
+  });
+
+  it("does not ingest a WITHDRAWN finding as a defect, and says so", () => {
+    const result = parse();
+    expect(result.defects.some((d) => d.title.includes("engagementSlug"))).toBe(false);
+    expect(result.retracted).toBe(2); // the withdrawal and the closure record
+  });
+
+  it("does not ingest a struck-through closure record that repeats a finding below it", () => {
+    // The report carries the same critical twice: once struck through as the
+    // record of its closure, once in full. Two rows would report two criticals.
+    const criticals = parse().defects.filter((d) => d.severity === "critical");
+    expect(criticals).toHaveLength(1);
+    expect(criticals[0].status).toBe("fixed");
+  });
+
+  it("grades a status marker it has never seen `unparsed` rather than guessing", () => {
+    const unknown = parse().defects.find((d) => d.title.includes("never seen"));
+    expect(unknown?.status).toBe("unparsed");
+    // The severity heading was readable, so only the STATUS is unknown.
+    expect(unknown?.severity).toBe("minor");
   });
 });

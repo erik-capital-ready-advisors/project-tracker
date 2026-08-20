@@ -88,3 +88,54 @@ Nothing to act on.
 
 - Build (pnpm): PASS
 `;
+
+/**
+ * The shapes the REAL corpus uses, which the fixtures above do not.
+ *
+ * `qa-report-b0952e.md` was written once and then edited in place as findings
+ * were fixed, so it carries three things the synthetic fixtures never showed:
+ * a struck-through closure record that repeats a finding recorded below it, a
+ * bracketed status marker as a SEPARATE leading bold span, and the same marker
+ * folded INTO the title's own bold span. Copied from that report rather than
+ * invented — the first two entries are byte-for-byte, the rest trimmed for
+ * length.
+ *
+ * Wiring the parser into ingest is what exposed all of this: run b0952e's
+ * report produced 15 defects, every one `open`, three titled with a status
+ * marker, when the report says one critical and two important are closed and a
+ * fourth was withdrawn as wrong.
+ */
+export const QA_REPORT_EDITED_IN_PLACE = `# QA report b0952e
+
+## Issues
+
+### Critical
+
+1. ~~**Mode-1 ingest is inoperable**~~ — **CLOSED at \`c65e44d\`, re-verified by me through the product path.** Original finding retained below as the record.
+
+1. **Mode-1 ingest is inoperable: \`service_role\` cannot execute \`app.gates_are_closed_set\`** — \`supabase/migrations/20260819165903\`
+   - What: a CHECK constraint evaluates in the caller's role. FR-14.
+
+### Important
+
+1. **[CLOSED at \`c65e44d\`]** **\`pnpm e2e\` is red on any correctly configured machine** — \`e2e/sign-in.spec.ts:56\`
+   - **Re-verified:** \`pnpm exec playwright test\` now exits **0**.
+
+2. **[WITHDRAWN — my attribution was wrong]** **An explicit \`engagementSlug\` is silently discarded**
+   - **Correction:** explicit-slug resolution was never broken.
+
+3. **[NEW at \`c65e44d\`] \`/api/waits\` still accepts unrecognised keys** — FR-33
+   - What: the tightening did not reach this endpoint.
+
+4. **\`app.rate_limit_counters\` shipped with no §7a classification**
+   - What: migration \`20260819144647\` creates a 22nd table.
+
+### Minor
+
+1. **[REOPENED by someone]** **A marker this product has never seen**
+   - What: the status vocabulary is not closed, so an unknown marker must not be guessed at.
+
+## Verification performed
+
+- Nothing further.
+`;

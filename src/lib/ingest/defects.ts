@@ -40,6 +40,98 @@ const SEVERITY_BY_HEADING: ReadonlyMap<string, DefectSeverity> = new Map([
   ["minor", "minor"],
 ]);
 
+
+/**
+ * A QA report is written once and then EDITED IN PLACE as findings are fixed,
+ * so a finding carries its own current state in a bracketed marker. Measured on
+ * `qa-report-b0952e.md` when this parser was first wired into ingest: 15
+ * findings, three titled with a marker instead of a title, four that the report
+ * says are closed or withdrawn, and every one of them stored `open`. The screen
+ * would have reported two critical defects open when the report says the one
+ * critical is fixed and re-verified — a confident wrong answer, in the flagship
+ * answer of a product built to refuse them.
+ *
+ * Two spellings, both in that one report:
+ *
+ *     1. **[CLOSED at `abc123`]** **The real title** — a separate bold span
+ *     1. **[NEW at `abc123`] The real title** — folded into the title's span
+ *
+ * The vocabulary is NOT closed. A marker this table does not know maps the
+ * status to `unparsed` and keeps the marker in `rawSeverity`'s spirit — loud,
+ * never guessed. Adding a synonym here to make a stubborn marker classify is
+ * the same failure as widening a severity regex.
+ */
+const STATUS_MARKER = /^\s*\*\*\[([A-Z]+)\b([^\]]*)\]\*\*\s*/;
+const STATUS_MARKER_INLINE = /^\[([A-Z]+)\b([^\]]*)\]\s*/;
+
+const STATUS_BY_MARKER: ReadonlyMap<string, DefectStatus> = new Map([
+  ["CLOSED", "fixed"],
+  ["FIXED", "fixed"],
+  ["NEW", "open"],
+]);
+
+/**
+ * A finding the author RETRACTED, and a struck-through entry that repeats a
+ * finding recorded in full below it.
+ *
+ * Neither is ingested. A withdrawal is the author saying the defect was never
+ * real — storing it as one asserts a claim nobody stands behind — and a
+ * struck-through closure record is a second row for a defect that already has
+ * one, which would report the same critical twice. Both are counted and handed
+ * back so the drop is visible rather than silent.
+ */
+const RETRACTED_MARKERS = new Set(["WITHDRAWN", "RETRACTED"]);
+const STRUCK_THROUGH = /^\s*~~/;
+
+/**
+ * A closure header does not always bracket its marker. The one in run b0952e's
+ * report reads:
+ *
+ *     1. ~~**Mode-1 ingest is inoperable**~~ — **CLOSED at `c65e44d`, re-verified …**
+ *
+ * so the status is a bold span whose FIRST WORD is a status word, sitting after
+ * the struck title rather than before it. Scanned only on struck-through
+ * entries, because that is the only place this spelling appears — looking for a
+ * bare `CLOSED` anywhere in any finding would match a sentence describing one.
+ */
+const BOLD_SPANS = /\*\*(.+?)\*\*/g;
+
+function statusFromClosureLine(line: string): DefectStatus | null {
+  for (const span of line.matchAll(BOLD_SPANS)) {
+    const word = /^([A-Z]+)\b/.exec(span[1].trim())?.[1];
+    if (word === undefined) continue;
+    if (RETRACTED_MARKERS.has(word)) return null;
+    const status = STATUS_BY_MARKER.get(word);
+    if (status !== undefined) return status;
+  }
+  return null;
+}
+
+interface FindingStatus {
+  status: DefectStatus;
+  /** The line with its marker removed, so the title can be read from it. */
+  body: string;
+  retracted: boolean;
+}
+
+function statusOf(body: string): FindingStatus {
+  const separate = STATUS_MARKER.exec(body);
+  const inline = separate === null ? STATUS_MARKER_INLINE.exec(body) : null;
+  const match = separate ?? inline;
+  if (match === null) return { status: "open", body, retracted: false };
+
+  const word = match[1];
+  const rest = body.slice(match[0].length);
+  if (RETRACTED_MARKERS.has(word)) {
+    return { status: "open", body: rest, retracted: true };
+  }
+  return {
+    status: STATUS_BY_MARKER.get(word) ?? "unparsed",
+    body: rest,
+    retracted: false,
+  };
+}
+
 interface RawFinding {
   heading: string | null;
   lines: string[];
@@ -89,18 +181,35 @@ function findings(text: string): RawFinding[] {
 }
 
 function titleOf(startLine: string): string {
-  const body = FINDING_START.exec(startLine)?.[1] ?? startLine;
+  const raw = FINDING_START.exec(startLine)?.[1] ?? startLine;
+  // The marker is removed BEFORE the bold run is read. Taking the first bold
+  // span off `**[CLOSED at abc]** **The real title**` yields the marker and
+  // drops the title, which is how three findings in run b0952e's report came
+  // to be titled `[CLOSED at c65e44d]`.
+  const body = statusOf(raw).body;
   const bold = BOLD_TITLE.exec(body);
+  // A marker folded into the title's own bold span survives the strip above,
+  // so it is taken off the extracted title too.
+  const extracted = (bold?.[1] ?? body).trim();
+  const inner = STATUS_MARKER_INLINE.exec(extracted);
   // The title is free text, not a classified field, so falling back to the
   // line itself is a transcription rather than a guess. The classified field
   // is `severity`, and that carries the unparsed discipline.
-  return (bold?.[1] ?? body).trim().slice(0, MAX_TITLE);
+  return (inner === null ? extracted : extracted.slice(inner[0].length))
+    .trim()
+    .slice(0, MAX_TITLE);
 }
 
 export interface QaFindings {
   defects: Defect[];
   /** FR-58: how many findings this parser could not grade. */
   unparsed: number;
+  /**
+   * Findings deliberately NOT turned into defects: a withdrawal, and a
+   * struck-through closure record that repeats a finding below it. Counted so
+   * the drop is reported rather than silent.
+   */
+  retracted: number;
 }
 
 /**
@@ -117,9 +226,57 @@ export function parseQaFindings(
   engagement: string,
   reportName: string,
 ): QaFindings {
-  const defects: Defect[] = [];
+  const raw = findings(text).map((finding, index) => {
+    const first = FINDING_START.exec(finding.lines[0])?.[1] ?? finding.lines[0];
+    const struck = STRUCK_THROUGH.test(first);
+    const marked = statusOf(struck ? first.replace(STRUCK_THROUGH, "") : first);
+    if (struck) {
+      const closure = statusFromClosureLine(first);
+      if (closure !== null) marked.status = closure;
+    }
+    return { finding, index, struck, marked, title: titleOf(finding.lines[0]) };
+  });
 
-  findings(text).forEach((finding, index) => {
+  /**
+   * A struck-through entry carries the closure and says so in words — "Original
+   * finding retained below as the record" — so the STATUS lives on the struck
+   * line and the DETAIL lives on the full one. Dropping the struck entry alone
+   * would lose the closure and report a fixed critical as open, which is the
+   * failure this whole change exists to remove.
+   *
+   * The pairing is deliberately narrow: same severity heading, and the full
+   * finding's title must START WITH the struck one's. That is the shape the
+   * corpus uses (`Mode-1 ingest is inoperable` then `Mode-1 ingest is
+   * inoperable: service_role cannot execute …`). Nothing looser — an unmatched
+   * struck entry stays a defect in its own right rather than being discarded,
+   * because a dropped finding nobody counted is worse than a duplicate.
+   */
+  const absorbed = new Set<number>();
+  for (const entry of raw) {
+    if (!entry.struck) continue;
+    const match = raw.find(
+      (other) =>
+        !other.struck &&
+        other.finding.heading === entry.finding.heading &&
+        entry.title.length > 0 &&
+        other.title.startsWith(entry.title),
+    );
+    if (match === undefined) continue;
+    match.marked = { ...match.marked, status: entry.marked.status };
+    absorbed.add(entry.index);
+  }
+
+  const defects: Defect[] = [];
+  let retracted = 0;
+
+  for (const { finding, index, struck, marked, title } of raw) {
+    if (absorbed.has(index) || marked.retracted) {
+      retracted += 1;
+      continue;
+    }
+    // An unabsorbed struck entry is still a finding; it just found no twin.
+    void struck;
+
     const heading = finding.heading;
     const severity =
       heading === null
@@ -136,20 +293,21 @@ export function parseQaFindings(
       source: "qa_agent",
       severity,
       rawSeverity: heading,
-      title: titleOf(finding.lines[0]),
+      title,
       description: description === "" ? null : description,
-      status: "open",
+      status: marked.status,
       wontFixReason: null,
       requirementRef: FR_REF.exec(whole)?.[0] ?? null,
       fixingWorkItem: null,
       reportedAt: null,
       reportedBy: null,
     });
-  });
+  }
 
   return {
     defects,
     unparsed: defects.filter((defect) => defect.severity === "unparsed").length,
+    retracted,
   };
 }
 

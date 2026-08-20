@@ -5,6 +5,7 @@ import { QUESTION_FILES } from "@/lib/ingest/__fixtures__/questions";
 import {
   QA_REPORT,
   QA_REPORT_CLEAN,
+  QA_REPORT_EDITED_IN_PLACE,
   QA_REPORT_UNKNOWN_SHAPES,
 } from "@/lib/ingest/__fixtures__/qaReport";
 import {
@@ -250,5 +251,16 @@ describe("planRun", () => {
     const built = planRun({ ...ARTIFACTS, qaReportText: QA_REPORT_CLEAN });
     expect(built.defects).toEqual([]);
     expect(built.summary.unparsedDefects).toBe(0);
+  });
+
+  it("FR-22 keys a defect by its ordinal in the report, not its position in the array", () => {
+    // A retracted finding shortens the array. If source_key were positional,
+    // every later defect would re-point at its neighbour's row on the next post.
+    const built = planRun({ ...ARTIFACTS, qaReportText: QA_REPORT_EDITED_IN_PLACE });
+    const keys = built.defects.map((d) => d.source_key);
+    expect(new Set(keys).size).toBe(keys.length);
+    // Entry 0 is a struck-through closure record and is not ingested, so the
+    // first surviving defect is #1 rather than #0.
+    expect(keys[0]).toBe("qa-report#1");
   });
 });

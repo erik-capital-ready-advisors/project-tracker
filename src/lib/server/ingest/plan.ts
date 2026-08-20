@@ -372,6 +372,18 @@ export function planRun(artifacts: RunArtifacts): RunPlan {
         "Parsed and returned in the response; queued as a question for Erik.",
     });
   }
+  if (findings !== null && findings.retracted > 0) {
+    notPersisted.push({
+      kind: "QA findings the report retracted",
+      count: findings.retracted,
+      reason:
+        "A finding marked WITHDRAWN is the author saying it was never real, and " +
+        "a struck-through closure record is a second entry for a defect already " +
+        "recorded in full below it. Storing either would report a defect nobody " +
+        "stands behind, or the same critical twice. The closure record's STATUS " +
+        "is not lost — it is applied to the finding it repeats.",
+    });
+  }
 
   return {
     engagementSlug: engagement,
@@ -384,8 +396,13 @@ export function planRun(artifacts: RunArtifacts): RunPlan {
     workItemRequirements,
     questions,
     testCases,
-    defects: (findings?.defects ?? []).map((defect, index) => ({
-      source_key: `qa-report#${index}`,
+    defects: (findings?.defects ?? []).map((defect) => ({
+      // The ordinal comes from the PARSER's `id`, which counts findings in the
+      // report, not from this array's position. Retracting a finding shortens
+      // the array, and a positional key would then re-point every later defect
+      // at its neighbour's row — silently rewriting D-9 with D-10's content on
+      // the next post. `parseQaFindings` sets `id` to `<engagement>:<report>:<n>`.
+      source_key: `qa-report#${defect.id.split(":").at(-1) ?? "?"}`,
       severity: defect.severity,
       raw_severity: defect.rawSeverity,
       title: defect.title,
