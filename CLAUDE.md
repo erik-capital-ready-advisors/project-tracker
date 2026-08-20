@@ -222,3 +222,9 @@ Behavioral rules earned on this project. Append one line per lesson, in the mome
   default. The cost is not just his prompting time: a hand-built milestone leaves no `.fleet/`
   manifest for Mode 1 to ingest, and while B4 keeps the session hook uninstalled it leaves no
   `work_session` row either, so the work is invisible to the product it is building.
+- When every option produces the same work product, it is not a decision — pick the reversible
+  default, state it in one line, and proceed. Reserve `AskUserQuestion` for what is genuinely
+  irreversible or outward-facing (merging to `master`, deploying, deleting, anything that leaves the
+  machine). The tell: if the branch name changes but the diff does not, do not ask. Dispatching M2.7
+  was stopped for a four-option question in which three options built identical code onto different
+  refs, which made Erik the bottleneck on a `git checkout -b`.
