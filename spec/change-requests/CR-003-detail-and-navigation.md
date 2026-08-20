@@ -53,13 +53,34 @@ immediately without waiting for it.
 | Next | **FR-53** | No description; a row names a unit and a work type only |
 | Bottleneck | **FR-56** | No description |
 
-Broken already renders the full decrypted description inline, along with `ref`, `source`,
+~~Broken already renders the full decrypted description inline, along with `ref`, `source`,
 `reportedBy`, `reportedAt`, `requirementRef`, `workItem`, `blockedBy` and its test evidence. **The
 decryption path exists, is used, and is tested.** Bringing the other three screens to the same level
-is closing a gap against a requirement already approved, and needs no CR.
+is closing a gap against a requirement already approved, and needs no CR.~~
 
-That inconsistency — one screen carrying detail and three carrying identifiers — is worth naming as
-its own finding. Nothing decided it; the units that built them made different calls.
+~~That inconsistency — one screen carrying detail and three carrying identifiers — is worth naming as
+its own finding. Nothing decided it; the units that built them made different calls.~~
+
+> **CORRECTION, 2026-08-20, after approval.** The struck paragraphs are **false** and were written
+> into this CR, into `prod.md`, and into the conversation that produced this approval. Broken does
+> **not** render a decrypted description. `defect.description` appears only in *comments* in
+> `broken.ts` and `engagement-broken.tsx`; `BrokenDefect` has no such field. The claim came from a
+> grep that matched comment text and was reported as code.
+>
+> **What was actually true: no screen among the six decrypted prose at all.** `load.ts` decrypted
+> exactly one thing — `contract_milestone.amount`, so Committed can total it. There was no
+> "inconsistency between one rich screen and three bare ones"; there were six bare ones and a
+> product that had never shown an operator a sentence it had stored.
+>
+> **The ruling is unaffected and stands.** These remain gaps against FR-52, FR-53 and FR-56 rather
+> than new scope: the requirements ask what a work item *is*, and the screens answered only which
+> one it is. What changes is the size — this was the FIRST decrypt edge on those screens, not the
+> reuse of a proven one, and §7a had to be read to confirm it was permitted (`work_item` and
+> `blocker` both say "operator, agents, decrypted server-side") rather than assumed from Broken.
+>
+> **Fixed and shipped 2026-08-20 in `3ee4acb`**, with an opt-in `withProse` so screens that need
+> only status do not pay a decrypt round trip per row. Kept struck rather than deleted, because a
+> CR that quietly rewrites the premise it was approved on is worth less than one that shows it.
 
 ---
 

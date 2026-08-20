@@ -209,3 +209,10 @@ Behavioral rules earned on this project. Append one line per lesson, in the mome
   clipboard, and the next paste puts the instruction text into the `read` prompt — which looks
   identical to a successful paste because `read -rs` echoes nothing. Order the steps so the secret
   is the last thing copied, or have him start the waiting `read` before he opens the browser.
+- To establish that code *does* something, grep the code form and then confirm at the type or the
+  return site — never a bare identifier. `grep -oE "defect\.[a-zA-Z]+"` matched `defect.description`
+  inside a **comment** saying the field is deliberately never read, and that was reported as "Broken
+  renders the decrypted description" twice, once inside a correction of the first claim, and it
+  reached `prod.md` and an approved CR. Comments in this repo describe what the code does NOT do at
+  least as often as what it does, so a match in prose is evidence of the opposite. Check the
+  interface: `BrokenDefect` had no such field.
