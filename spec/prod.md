@@ -33,14 +33,26 @@ This file is the **build log**. It tracks the live state of development: what's 
 > 1. **`pnpm gate:m27:e2e`** with a signed-in `aal2` session. **M2.7 is NOT Complete until this
 >    runs** and must not be marked so — nothing in the milestone has met a real row. If it errors
 >    `Project(s) "m27-gate" not found`, that is an unset `M27_BASE_URL`, not a deleted gate.
->    Capture the session with:
->    `mkdir -p .playwright-auth && pnpm exec playwright codegen --save-storage=.playwright-auth/operator.json http://localhost:3000/sign-in`
->    then `M27_BASE_URL=http://localhost:3000 M27_STORAGE_STATE=.playwright-auth/operator.json pnpm gate:m27:e2e`
+>    Three commands, in this order. **The first one is not optional** — the other two talk to
+>    `localhost:3000` and there is nothing there until it runs:
+>    ```
+>    pnpm dev                                   # leave running; sign in at /sign-in, COMPLETE TOTP
+>    mkdir -p .playwright-auth && pnpm exec playwright codegen --save-storage=.playwright-auth/operator.json http://localhost:3000/sign-in
+>    M27_BASE_URL=http://localhost:3000 M27_STORAGE_STATE=.playwright-auth/operator.json pnpm gate:m27:e2e
+>    ```
+>    You need **`aal2`** — password *and* second factor. At `aal1` the saved state is useless and
+>    the gate will say `rendered the operator gate`, which is the failure telling you to redo it.
+>    This is **B31**.
 > 2. **§5a** — approve or redirect, against the populated screens. Gates the user guide and the merge.
 > 3. **B4** — session-hook install scope. Recommendation on file: global with an allowlist. Until
 >    it is answered `work_session` stays at 0 rows and every hand session is invisible.
 > 4. **B30** — confirm or redirect the decrypted export.
-> 5. **The purge probe** — authorise it. Both engagements are unarchived so it hits the
+> 5. **B35 — FR-80 and FR-81 disagree and the spec does not say which wins.** FR-80 names an
+>    engagement slug among the navigable references; FR-81's eight kinds do not include one. The
+>    fleet ruled it served by the existing `/registry/[slug]` and said the cost out loud: a plain
+>    link carries no dangling treatment. **This is a scope decision, not a defect — it wants a
+>    one-line CR-004**, and it is the only item in this list that changes the spec.
+> 6. **The purge probe** — authorise it. Both engagements are unarchived so it hits the
 >    archive-first refusal and destroys nothing. Closes M1.10's one NOT VERIFIED.
 >
 > **Owed by the next session, carried honestly rather than done:**
@@ -53,6 +65,11 @@ This file is the **build log**. It tracks the live state of development: what's 
 >   `questions-qa1-eb2490.jsonl`, 0 collected — decisions Erik never got to make. Deliberately not
 >   reconciled: the audit reports on the record and fixing it is diagnosis, not tidying.
 > - **8 leaked worktrees** under `.claude/worktrees/` (P23). Prune owed.
+> - **B36 — `/questions/[id]` ships unreachable.** Nothing links to it and no foreign key reaches
+>   `open_question`. A route that exists and cannot be arrived at is not navigable, whatever the
+>   gate says about the references that *are* rendered.
+> - **B33 — the four-state prose renderer exists in five copies** with three incompatible
+>   `data-verify` contracts. Cleanup, and a drift risk `tests/state-scale.test.ts` does not cover.
 > - **Top defects from QA (0 critical, 3 important):** the money-formatter split — `/committed`
 >   renders `111.00 USD` and `/milestones/[id]` renders `$111.00` for the same row, an adjacency
 >   this run created (**B32**); and `<EntityDetail identifier>` being optional, so omitting it
