@@ -2,8 +2,11 @@
 
 **Amends:** `spec/spec-approved.md` (v1, approved 2026-08-17), as already amended by CR-001 and CR-002
 **Drafted:** 2026-08-20
-**Status:** **PENDING APPROVAL.** Drafted at Erik's direction on 2026-08-20, after the first
-populated look at the six answer screens.
+**Status:** **APPROVED 2026-08-20 by Erik**, with Q9, Q10 and Q11 answered at approval. This CR now
+amends `spec-approved.md` per the repo's CR rule, as already amended by CR-001 and CR-002. Drafted
+the same day, after the first populated look at the six answer screens. **No entity count change**,
+so the 21-entity `security-gate.sh` PASS (2026-08-18) is unaffected. **Nothing here is buildable
+until PR #1 merges** — see Q10.
 **Why now:** the screens have real data for the first time today, and the gap is only visible with
 rows in them. Settling it before M1.10 and before the §5a design approval costs a section; settling
 it after means approving a visual design for screens whose interaction model is about to change.
@@ -110,7 +113,9 @@ This CR is the unit that makes that decision unavoidable. It does not create the
 existing screen already reads this way — but it multiplies the number of places that do, and it is
 the point at which "RLS is decorative" stops being a risk and becomes a description.
 
-Two honest options, and this CR does not choose between them. See §6, Q9.
+**Settled at approval — Q9 answered (b):** M2.7 ships on the existing read path and the debt is
+recorded as **B29**, raised now rather than when the work starts. The risk is carried explicitly:
+RLS is not a real control on any operator read surface, and every view this CR adds deepens that.
 
 **It does not add an entity.** No new table, no §7a row, so the 21-entity `security-gate.sh` PASS
 stands. What changes is which *fields* reach a screen, and every one of them is already classified.
@@ -137,11 +142,13 @@ No classification changes. Two restatements that this CR makes load-bearing:
   decryption-oracle surface `i1` warned about.
   **(b)** Ship detail views on the existing `service_role` read path and raise the debt as a
   standing blocker with a milestone.
-  **Recommendation: (b), with the blocker raised in the same commit as the CR's approval.** (a) is
-  the correct end state and doing it under the same milestone as eight new views is how a security
-  control gets built in a hurry. But (b) is only acceptable if the blocker is written down at
-  approval time rather than at build time — the failure mode `i1` named is precisely a unit quietly
-  deepening this without anyone recording it.
+  **ANSWERED 2026-08-20: (b).** Detail views ship on the existing `service_role` read path and the
+  debt is recorded as **B29**, raised at approval time rather than at build time. (a) is the correct
+  end state; building it under the same milestone as eight new views is how a security control gets
+  built in a hurry. The defence of (b) is not that the work is deferred — it is that the failure
+  mode `i1` named is a unit deepening this *quietly*, and a written blocker with a milestone is
+  exactly what makes it not quiet. **The risk is carried explicitly: RLS is not a real control on
+  any operator read surface, and every screen this CR adds deepens that.**
 
 - **Q10 — Which phase?** Proposed as a new Phase 1 milestone **M1.11**, on the argument that the
   product does not meet its stated purpose without it. The alternative is Phase 2, on the argument
@@ -151,8 +158,13 @@ No classification changes. Two restatements that this CR makes load-bearing:
 - **Q11 — Does FR-55's "links" mean a hyperlink?** FR-55 reads "Untested reports coverage per FR-48
   and **links** each uncovered requirement to the work item that implements it." It is the only use
   of the word in the spec and it is ambiguous between the data relationship (built) and a hyperlink
-  (not built). If a hyperlink, FR-55 is already partly unmet and this CR closes it rather than
-  extending it.
+  (not built).
+
+  **ANSWERED 2026-08-20: a hyperlink.** FR-55 is therefore **PARTIALLY MET rather than met**, and
+  this CR *closes* it rather than extending it. The reading is the one consistent with the product's
+  purpose: an uncovered requirement you cannot follow to its implementing work item is the dead end
+  CR-003 exists to remove. M1.8's status is unchanged — the join it built is correct and is what
+  makes the link possible.
 
 ---
 
@@ -160,17 +172,25 @@ No classification changes. Two restatements that this CR makes load-bearing:
 
 | Milestone | Contents | Requirements |
 |---|---|---|
-| **M1.11** Detail and navigation | Eight detail views; reference resolution and linking across every screen; the dangling-reference treatment on a navigable surface; filter-state restoration | FR-80–FR-86, and FR-55 if Q11 answers "hyperlink" |
+| **M2.7** Detail and navigation | Eight detail views; reference resolution and linking across every screen; the dangling-reference treatment on a navigable surface; filter-state restoration; FR-55's hyperlink | FR-80–FR-86, **and FR-55**, which Q11 reclassified as partially met |
+
+**Numbered M2.7 and built FIRST.** Q10 put this in Phase 2, and M2.1–M2.6 are already numbered and
+referenced across `prod.md` and CR-001; renumbering them to put this at M2.1 would break every
+reference for a cosmetic gain. The number records when it was added, not when it is built.
 
 ---
 
 ## 8. Approval
 
-- [ ] Approved by Erik on **__________**
-- [ ] Q9 answered: **(a) build the views** / **(b) ship on `service_role` and raise the blocker**
-- [ ] Q10 answered: **Phase 1 as M1.11** / **Phase 2**
-- [ ] Q11 answered: FR-55's "links" means **a hyperlink** / **the data relationship**
+- [x] Approved by Erik on **2026-08-20**
+- [x] Q9 answered: **(b) ship on `service_role` and raise the blocker** — B29
+- [x] Q10 answered: **Phase 2, as M2.7, built first. PR #1 merges before any of it starts**
+- [x] Q11 answered: FR-55's "links" means **a hyperlink**; FR-55 is now PARTIALLY MET
 
-Until approved, `spec-approved.md` as amended by CR-001 and CR-002 remains the effective spec, and
-none of FR-80–FR-86 is buildable. The three defects in §2 are **not** gated on this approval and
-should be fixed regardless.
+The effective spec is `spec-approved.md` as amended by CR-001, CR-002 and this CR. **FR-80–FR-86 and
+FR-55's hyperlink are not buildable until PR #1 merges and M1.10 is complete** — that ordering is
+part of the approval, not a scheduling preference.
+
+The three defects in §2 are **not** gated on this and should be fixed regardless. They are gaps
+against FR-52, FR-53 and FR-56 in the *current* branch, which means they belong to PR #1 rather than
+to M2.7.
