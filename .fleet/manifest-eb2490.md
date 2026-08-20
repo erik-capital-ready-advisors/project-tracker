@@ -42,12 +42,12 @@ wave merges to the branch before the next is cut from it.
 | ID | Type | Wave | Description | Dispatched-to | Depends-on | Status |
 |----|------|------|-------------|---------------|-----------|--------|
 | u1 | ui | A | The one seam: `src/lib/entity-routes.ts`, `<EntityRef>`, `<EntityDetail>`; delete the gate exclusion from `vitest.config.ts` | ui-designer | — | **done** — `report-gate.sh` PASS. Merged as `b9ffe5d`. gate:m27 4/5 pass; test 2 left red pending Wave C's routes. `pnpm test` 1099 passed / 1 failed / 6 skipped. 2 questions queued |
-| i1 | integration | B | Detail read layer: reference resolution + eight loaders + FR-82's four relationships, opt-in prose decryption | api-integrator | u1 | in_progress (dispatched 2026-08-20T13:20Z) |
-| f1 | ui | C | Detail routes: work_item, defect, blocker | ui-designer | u1, i1 | pending |
-| f2 | ui | C | Detail routes: requirement (FR-82) and open_question | ui-designer | u1, i1 | pending |
-| f3 | ui | C | Detail routes: external_wait, release, contract_milestone | ui-designer | u1, i1 | pending |
-| f4 | ui | C | Reference adoption on the six answer screens; FR-55's hyperlink on /untested | ui-designer | u1, i1 | pending |
-| f5 | ui | C | Reference adoption on /work-items, /registry, /waits; FR-84; nav + e2e shell count | ui-designer | u1, i1 | pending |
+| i1 | integration | B | Detail read layer: reference resolution + eight loaders + FR-82's four relationships, opt-in prose decryption | api-integrator | u1 | **done** — `report-gate.sh` PASS. Merged as `41d0221`. 37 tests, 6 mutations applied and one SURVIVED (vacuous engagement-scoping test, fixed). 11 new decrypt edges and 10 new `service_role` read surfaces, each named. No migration, no JSON route, no `security_invoker` view. 6 questions queued |
+| f1 | ui | C | Detail routes: work_item, defect, blocker | ui-designer | u1, i1 | in_progress (dispatched 2026-08-20T14:00Z) |
+| f2 | ui | C | Detail routes: requirement (FR-82) and open_question | ui-designer | u1, i1 | in_progress (dispatched 2026-08-20T14:00Z) |
+| f3 | ui | C | Detail routes: external_wait, release, contract_milestone | ui-designer | u1, i1 | in_progress (dispatched 2026-08-20T14:00Z) |
+| f4 | ui | C | Reference adoption on the six answer screens; FR-55's hyperlink on /untested | ui-designer | u1, i1 | in_progress (dispatched 2026-08-20T14:00Z) |
+| f5 | ui | C | Reference adoption on /work-items, /registry, /waits; FR-84; nav + e2e shell count | ui-designer | u1, i1 | in_progress (dispatched 2026-08-20T14:00Z) |
 | qa1 | qa | D | Independent review of the merged branch | qa-reviewer | f1–f5 | pending |
 
 ## Defer list
@@ -64,6 +64,16 @@ wave merges to the branch before the next is cut from it.
   the larger error. Reported as NOT WRITTEN with the reason.
 - `research` — none. The unknowns this milestone would have researched are settled in writing by
   CR-003's Q9/Q10/Q11 and by the two gate files.
+
+## Rulings issued to Wave C (project-lead, on i1's queued questions)
+
+1. **Ambiguous reference resolution refuses.** Exactly one match resolves; zero and two-or-more both dangle. Accepted as i1 built it.
+2. **`fallbackLabel(kind, id)` is the only fallback** for a row carrying no human reference. No unit invents a second.
+3. **FR-80's engagement slug does NOT become a ninth `ENTITY_KIND`.** Gate test 1 asserts `ENTITY_KINDS` equals exactly FR-81's eight, and an engagement already has a detail view at `/registry/[slug]`. Wave C renders it as a plain `next/link`, never as `<EntityRef>`. FR-80 is met in substance and the divergence is on the record.
+4. **Milestones on a requirement view may render**, in a section distinct from FR-82's four named ones. FR-81 asks for inbound and outbound references; the gate asserts only the four.
+5. **FR-50's billable state is NOT computed on the milestone detail view.** That rule lives in M1.8/`/committed` and a second implementation would drift. Link to `/committed` instead.
+6. **`open_question` resolves by `(engagement_id, source_key)`** per the later migration, and is expected to be unused.
+7. **`<EntityRef>` supersedes `<Ref>` wherever a token names one of FR-81's eight kinds.** `<Ref>` survives only for tokens naming nothing that has a detail view. **No unit modifies `src/components/answer-chips.tsx`** — five parallel units editing one file is a merge conflict by construction.
 
 ## Question files
 
