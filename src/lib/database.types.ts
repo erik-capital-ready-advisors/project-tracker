@@ -16,6 +16,15 @@
 // identically — if it does not, the migration did not apply, and that is the
 // finding rather than a types problem.
 //
+// REGENERATED 2026-08-20 after migration 20260820153021_m110_export_and_purge
+// (M1.10). That regeneration IS the "next legitimate regeneration" the note
+// above anticipates, and it reproduced all five hand-applied columns identically
+// — so the check that note set has now been run and passed. It carried three
+// changes: `export_everything` and `purge_engagement` in Functions, and
+// `test_result.Relationships` becoming `[]`, because CR-002 §2.4 drops the
+// foreign key to `test_case` and leaves `test_case_id` as a recorded identifier
+// that may name a row which no longer exists.
+//
 // `audit_log.capability` is `string`, not the `agent_capability` enum, and that
 // is deliberate: it stores FR-5's WIRE spelling (`answer:read`) rather than the
 // enum's (`answer_read`), pinned by a check constraint. See the migration.
@@ -766,15 +775,7 @@ export type Database = {
           status?: Database["public"]["Enums"]["test_status"]
           test_case_id?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "test_result_test_case_id_fkey"
-            columns: ["test_case_id"]
-            isOneToOne: false
-            referencedRelation: "test_case"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       work_item: {
         Row: {
@@ -1027,10 +1028,15 @@ export type Database = {
       }
       decrypt_field: { Args: { ciphertext: string }; Returns: string }
       encrypt_field: { Args: { plaintext: string }; Returns: string }
+      export_everything: { Args: never; Returns: Json }
       hash_agent_token: { Args: { p_token: string }; Returns: string }
       prune_rate_limit_counters: {
         Args: { p_older_than?: string }
         Returns: number
+      }
+      purge_engagement: {
+        Args: { p_actor: string; p_slug: string }
+        Returns: Json
       }
       verify_agent_token: {
         Args: { p_hash: string; p_token: string }

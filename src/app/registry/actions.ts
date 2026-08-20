@@ -4,7 +4,15 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
 import { ApiError } from "@/lib/api";
+import type { ActionResult } from "@/lib/action-result";
+import { runOperatorAction } from "@/lib/operator-load";
+import type { PurgeResult } from "@/lib/purge-result";
 import { splitList, splitRefs } from "@/lib/registry-display";
+import {
+  archiveEngagement,
+  purgeEngagement,
+  unarchiveEngagement,
+} from "@/lib/server/registry/archive";
 import {
   createEngagement,
   updateEngagement,
@@ -214,5 +222,68 @@ export async function submitMilestoneDate(
     );
   } catch (error) {
     return failed(previous, refusal(error));
+  }
+}
+
+/**
+ * FR-61 — archive, restore, and hard deletion.
+ *
+ * The first two return `ActionResult` like every other form seam in this file.
+ * The third does not, and the difference is deliberate.
+ *
+ * A purge has three outcomes and `ActionResult` only has two. `refused` is not a
+ * failure — the database looked, decided, and destroyed nothing — and `unparsed`
+ * is not a success. Flattening them into `ok: false` would put "this engagement
+ * is not archived" and "this reply made no sense" behind the same sentence, on
+ * the one action in this product that cannot be undone. So `PurgeResult` travels
+ * intact and the component renders all three distinctly.
+ *
+ * A **thrown** error becomes `unparsed` rather than `refused`, because that is
+ * what it is: the request failed somewhere this code cannot see, and the honest
+ * statement about the rows is that nothing can be said about them yet. `refused`
+ * would be a claim that the database declined, which is more than is known.
+ */
+
+export async function archiveEngagementSafe(
+  id: string,
+): Promise<ActionResult<{ archivedAt: string | null }>> {
+  return runOperatorAction(async () => {
+    const outcome = await archiveEngagement(id);
+    revalidatePath(`/registry/${outcome.slug}`);
+    revalidatePath("/registry");
+    return { archivedAt: outcome.archivedAt };
+  });
+}
+
+export async function restoreEngagementSafe(
+  id: string,
+): Promise<ActionResult<{ archivedAt: string | null }>> {
+  return runOperatorAction(async () => {
+    const outcome = await unarchiveEngagement(id);
+    revalidatePath(`/registry/${outcome.slug}`);
+    revalidatePath("/registry");
+    return { archivedAt: outcome.archivedAt };
+  });
+}
+
+export async function purgeEngagementSafe(
+  slug: string,
+  typedConfirmation: string,
+): Promise<PurgeResult> {
+  try {
+    const result = await purgeEngagement(slug, typedConfirmation);
+    if (result.kind === "purged") {
+      revalidatePath("/registry");
+    }
+    return result;
+  } catch (error) {
+    return {
+      kind: "unparsed",
+      reason:
+        error instanceof ApiError
+          ? error.message
+          : "The deletion failed for a reason this interface could not classify. " +
+            "Check the audit log before assuming anything about what was destroyed.",
+    };
   }
 }

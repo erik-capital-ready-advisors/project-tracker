@@ -87,6 +87,12 @@ export const OPERATOR_ROUTES: readonly NavItem[] = [
     question: "Credentials an agent uses to read and write the ledger.",
     requirements: ["FR-4", "FR-5"],
   },
+  {
+    href: "/settings/export",
+    label: "Export",
+    question: "Every record in one file, for the day this system is not here.",
+    requirements: ["FR-60"],
+  },
 ] as const;
 
 export const ALL_ROUTES: readonly NavItem[] = [

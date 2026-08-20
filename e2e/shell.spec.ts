@@ -42,7 +42,7 @@ test.describe("app shell", () => {
   }) => {
     await page.goto("/");
     const cards = page.locator("[data-verify-unit='answer-card']");
-    // six answers plus four record surfaces
-    await expect(cards).toHaveCount(10);
+    // six answers plus five record surfaces (Export joined them at M1.10)
+    await expect(cards).toHaveCount(11);
   });
 });

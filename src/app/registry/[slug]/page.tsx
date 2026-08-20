@@ -14,6 +14,12 @@ import type {
   MilestoneRecord,
 } from "@/lib/server/registry/types";
 
+import {
+  archiveEngagementSafe,
+  purgeEngagementSafe,
+  restoreEngagementSafe,
+} from "../actions";
+import { DangerZone } from "../_components/danger-zone";
 import { IdentifiersPanel } from "../_components/identifiers-panel";
 import { MilestoneDialog } from "../_components/milestone-dialog";
 import { MilestoneTable } from "../_components/milestone-table";
@@ -51,7 +57,7 @@ export default async function EngagementPage({
       <Screen
         title="Engagement"
         question="Contract milestones, acceptance criteria and provisioning identifiers."
-        requirements={["FR-10", "FR-11", "FR-12", "FR-77"]}
+        requirements={["FR-10", "FR-11", "FR-12", "FR-77", "FR-61"]}
       >
         <OperatorGatePanel gate={gate} />
       </Screen>
@@ -81,7 +87,7 @@ export default async function EngagementPage({
       <Screen
         title="Engagement"
         question="Contract milestones, acceptance criteria and provisioning identifiers."
-        requirements={["FR-10", "FR-11", "FR-12", "FR-77"]}
+        requirements={["FR-10", "FR-11", "FR-12", "FR-77", "FR-61"]}
       >
         <OperatorGatePanel gate={failure} />
       </Screen>
@@ -99,7 +105,7 @@ export default async function EngagementPage({
     <Screen
       title={engagement.clientName}
       question="Contract milestones, acceptance criteria and provisioning identifiers."
-      requirements={["FR-10", "FR-11", "FR-12", "FR-77"]}
+      requirements={["FR-10", "FR-11", "FR-12", "FR-77", "FR-61"]}
     >
       <div
         className="flex flex-wrap items-center gap-x-3 gap-y-2"
@@ -113,6 +119,14 @@ export default async function EngagementPage({
         <span className="border-border ident rounded border px-1.5 py-0.5 text-xs">
           {engagement.status}
         </span>
+        {engagement.archivedAt !== null ? (
+          <span
+            className="border-state-carried/50 bg-state-carried/10 ident rounded border px-1.5 py-0.5 text-xs"
+            data-verify-unit="engagement-archived"
+          >
+            archived
+          </span>
+        ) : null}
         <span className="text-muted-foreground text-xs">
           {contract.text} · sourced {source.text}
         </span>
@@ -235,6 +249,18 @@ export default async function EngagementPage({
           ) : null}
           <IdentifiersPanel engagement={engagement} />
         </div>
+
+        {/* FR-61. Last on the page on purpose: it is the one section here that
+            destroys something, and nothing above it should be reachable by
+            scrolling past this. */}
+        <DangerZone
+          engagementId={engagement.id}
+          slug={engagement.slug}
+          archivedAt={engagement.archivedAt}
+          onArchive={archiveEngagementSafe}
+          onRestore={restoreEngagementSafe}
+          onPurge={purgeEngagementSafe}
+        />
       </div>
     </Screen>
   );
