@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 import {
   Table,
   TableBody,
@@ -11,6 +13,7 @@ import {
   DispositionChip,
   ExecutorChip,
 } from "@/components/answer-chips";
+import { EntityRef } from "@/components/entity-ref";
 import { StateBadge } from "@/components/state-badge";
 import { isoDay } from "@/lib/display-format";
 import { cn } from "@/lib/utils";
@@ -97,8 +100,16 @@ export function BottleneckTable({ answer }: { answer: BottleneckAnswer }) {
               data-verify-disposition={item.disposition ?? "not-recorded"}
             >
               <TableCell className="align-top font-medium">
+                {/* FR-80. Every reference on this screen is uuid-backed —
+                    `item.id` is the work item's row id and
+                    `nearestMilestone.id` the milestone's — so this screen
+                    resolves nothing and costs no extra read. */}
                 <span className="ident whitespace-nowrap">
-                  {item.unit ?? <Absent title="No unit key was recorded." />}
+                  {item.unit === null ? (
+                    <Absent title="No unit key was recorded." />
+                  ) : (
+                    <EntityRef kind="work_item" label={item.unit} id={item.id} />
+                  )}
                 </span>
                 {/*
                   FR-56. What Erik is the bottleneck ON, not merely which unit
@@ -115,7 +126,17 @@ export function BottleneckTable({ answer }: { answer: BottleneckAnswer }) {
               </TableCell>
 
               <TableCell className="ident text-muted-foreground whitespace-nowrap">
-                {item.engagement}
+                {/* FR-80's engagement slug. `engagement` is not one of FR-81's
+                    eight kinds, so this is an ordinary anchor to the detail
+                    view that already exists at `/registry/[slug]`. */}
+                <Link
+                  href={`/registry/${item.engagement}`}
+                  data-verify-unit="engagement-link"
+                  data-verify-slug={item.engagement}
+                  className="rounded-sm underline-offset-2 hover:underline"
+                >
+                  {item.engagement}
+                </Link>
               </TableCell>
 
               <TableCell className="text-muted-foreground whitespace-nowrap">
@@ -172,10 +193,12 @@ export function BottleneckTable({ answer }: { answer: BottleneckAnswer }) {
                 {item.nearestMilestone === null ? (
                   <Absent title="No milestone's acceptance criteria name any requirement this item implements." />
                 ) : (
-                  <span className="inline-flex flex-col">
-                    <span className="text-foreground text-sm">
-                      {item.nearestMilestone.name}
-                    </span>
+                  <span className="inline-flex flex-col items-start">
+                    <EntityRef
+                      kind="contract_milestone"
+                      label={item.nearestMilestone.name}
+                      id={item.nearestMilestone.id}
+                    />
                     <span className="ident text-muted-foreground text-xs">
                       {isoDay(item.nearestMilestone.due) ?? "no due date"}
                     </span>

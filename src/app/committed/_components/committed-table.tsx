@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 import {
   Table,
   TableBody,
@@ -11,10 +13,11 @@ import {
   ContestedChip,
   CoverageChip,
   MilestoneStateChip,
-  Ref,
   ShippedChip,
 } from "@/components/answer-chips";
+import { EntityRef } from "@/components/entity-ref";
 import { StateBadge } from "@/components/state-badge";
+import type { RefEntry, RefLookup } from "@/lib/answer-screen-refs";
 import { isoDay } from "@/lib/display-format";
 import { money } from "@/lib/money-display";
 import { cn } from "@/lib/utils";
@@ -95,10 +98,33 @@ function Fraction({
   );
 }
 
+/**
+ * FR-80 — the text references on this screen: the acceptance requirements.
+ *
+ * `CommittedMilestone.milestone` is the `contract_milestone` row id (it is what
+ * `data-verify-id` already publishes), so the milestone itself needs no
+ * resolution. Its acceptance criteria are `FR-nn` strings parsed off the
+ * milestone record, and whether the engagement has ingested a requirement
+ * carrying each one is exactly the question FR-12 asks and FR-83 answers.
+ */
+export function committedTableRefEntries(
+  milestones: readonly CommittedMilestone[],
+): RefEntry[] {
+  return milestones.flatMap((milestone) =>
+    milestone.acceptance.map((ref) => ({
+      kind: "requirement" as const,
+      engagement: milestone.engagement,
+      ref,
+    })),
+  );
+}
+
 export function CommittedTable({
   milestones,
+  refs,
 }: {
   milestones: readonly CommittedMilestone[];
+  refs: RefLookup;
 }) {
   return (
     <div className="border-border overflow-x-auto rounded-lg border">
@@ -143,17 +169,31 @@ export function CommittedTable({
                 data-verify-paid={milestone.paid === null ? "false" : "true"}
               >
                 <TableCell className="max-w-sm align-top">
-                  <span className="text-foreground block text-sm font-medium">
-                    {milestone.name}
+                  {/* FR-80. `milestone.milestone` IS the row id — the same
+                      value `data-verify-id` above publishes — so the milestone
+                      is navigable with no resolution. */}
+                  <span className="block">
+                    <EntityRef
+                      kind="contract_milestone"
+                      label={milestone.name}
+                      id={milestone.milestone}
+                    />
                   </span>
                   <span className="ident text-muted-foreground block text-xs">
-                    {milestone.engagement}
+                    <Link
+                      href={`/registry/${milestone.engagement}`}
+                      data-verify-unit="engagement-link"
+                      data-verify-slug={milestone.engagement}
+                      className="rounded-sm underline-offset-2 hover:underline"
+                    >
+                      {milestone.engagement}
+                    </Link>
                     <span className="text-muted-foreground/70">
                       {" · "}
                       {milestone.clientName}
                     </span>
                   </span>
-                  <MilestoneAcceptance milestone={milestone} />
+                  <MilestoneAcceptance milestone={milestone} refs={refs} />
                 </TableCell>
 
                 <TableCell className="ident text-muted-foreground align-top whitespace-nowrap">
@@ -269,8 +309,10 @@ export function CommittedTable({
  */
 function MilestoneAcceptance({
   milestone,
+  refs,
 }: {
   milestone: CommittedMilestone;
+  refs: RefLookup;
 }) {
   if (milestone.acceptance.length === 0) {
     return (
@@ -305,7 +347,11 @@ function MilestoneAcceptance({
             data-verify-regressed={regressed.has(ref) ? "true" : "false"}
             className="flex flex-wrap items-center gap-1.5"
           >
-            <Ref value={ref} />
+            <EntityRef
+              kind="requirement"
+              label={ref}
+              id={refs("requirement", milestone.engagement, ref)}
+            />
             <CoverageChip value={covered.has(ref) ? "covered" : "uncovered"} />
             <ShippedChip environments={milestone.shippedEnvironments[ref] ?? []} />
             {/* FR-70: a requirement this milestone once had covered and has

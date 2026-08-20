@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 import {
   Table,
   TableBody,
@@ -6,12 +8,35 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Absent, ExecutorChip, RefList } from "@/components/answer-chips";
+
+import { Absent, ExecutorChip } from "@/components/answer-chips";
+import { EntityRef, EntityRefList } from "@/components/entity-ref";
 import { StateBadge } from "@/components/state-badge";
+import type { RefEntry, RefLookup } from "@/lib/answer-screen-refs";
 import { isoDay } from "@/lib/display-format";
 import { cn } from "@/lib/utils";
 
 import type { NextAnswer } from "@/lib/server/answers/next";
+
+/**
+ * FR-80 — the text references on this table, which is `implements` and nothing
+ * else.
+ *
+ * `NextItem.id` is the work item's row id and `nearestMilestone.id` is the
+ * `contract_milestone` row id, so those two are navigable with no round trip.
+ * `implements` is a list of `FR-nn` strings read off `work_item_requirement`,
+ * and only a lookup can say whether the engagement has ingested a requirement
+ * carrying that ref.
+ */
+export function nextTableRefEntries(answer: NextAnswer): RefEntry[] {
+  return answer.items.flatMap((item) =>
+    item.implements.map((ref) => ({
+      kind: "requirement" as const,
+      engagement: item.engagement,
+      ref,
+    })),
+  );
+}
 
 /**
  * FR-53 — the work that can be started right now, nearest milestone first.
@@ -39,7 +64,13 @@ import type { NextAnswer } from "@/lib/server/answers/next";
  * date renders its name with the date absent, which is different from an item
  * that serves no milestone at all.
  */
-export function NextTable({ answer }: { answer: NextAnswer }) {
+export function NextTable({
+  answer,
+  refs,
+}: {
+  answer: NextAnswer;
+  refs: RefLookup;
+}) {
   const ordered = answer.ordering === "milestone-due-date";
 
   return (
@@ -90,7 +121,12 @@ export function NextTable({ answer }: { answer: NextAnswer }) {
             >
               <TableCell className="align-top font-medium">
                 <span className="ident whitespace-nowrap">
-                {item.unit ?? <Absent title="No unit key was recorded." />}
+                {/* FR-80. `item.id` IS the work item's row id — no resolution. */}
+                {item.unit === null ? (
+                  <Absent title="No unit key was recorded." />
+                ) : (
+                  <EntityRef kind="work_item" label={item.unit} id={item.id} />
+                )}
                 {item.phase === null ? null : (
                   <span className="text-muted-foreground/70 ml-1.5 text-xs">
                     p{item.phase}
@@ -113,7 +149,17 @@ export function NextTable({ answer }: { answer: NextAnswer }) {
               </TableCell>
 
               <TableCell className="ident text-muted-foreground whitespace-nowrap">
-                {item.engagement}
+                {/* FR-80's engagement slug. `/registry/[slug]` is its detail
+                    view and `engagement` is not one of FR-81's eight kinds, so
+                    this is an ordinary anchor and not an `<EntityRef>`. */}
+                <Link
+                  href={`/registry/${item.engagement}`}
+                  data-verify-unit="engagement-link"
+                  data-verify-slug={item.engagement}
+                  className="rounded-sm underline-offset-2 hover:underline"
+                >
+                  {item.engagement}
+                </Link>
               </TableCell>
 
               <TableCell className="text-muted-foreground whitespace-nowrap">
@@ -127,8 +173,12 @@ export function NextTable({ answer }: { answer: NextAnswer }) {
               <TableCell className="max-w-xs">
                 {/* §7a: joined and reported by `FR-nn`, never by requirement
                     text. There is no requirement prose on this screen. */}
-                <RefList
-                  refs={item.implements}
+                <EntityRefList
+                  refs={item.implements.map((ref) => ({
+                    kind: "requirement" as const,
+                    label: ref,
+                    id: refs("requirement", item.engagement, ref),
+                  }))}
                   empty="This item names no requirement."
                 />
               </TableCell>
@@ -147,10 +197,12 @@ export function NextTable({ answer }: { answer: NextAnswer }) {
                 {item.nearestMilestone === null ? (
                   <Absent title="No milestone's acceptance criteria name any requirement this item implements." />
                 ) : (
-                  <span className="inline-flex flex-col">
-                    <span className="text-foreground text-sm">
-                      {item.nearestMilestone.name}
-                    </span>
+                  <span className="inline-flex flex-col items-start">
+                    <EntityRef
+                      kind="contract_milestone"
+                      label={item.nearestMilestone.name}
+                      id={item.nearestMilestone.id}
+                    />
                     <span className="ident text-muted-foreground text-xs">
                       {isoDay(item.nearestMilestone.due) ?? (
                         <span title="This milestone has no due date. It is not nearer than a dated one and not further away — it is unordered.">

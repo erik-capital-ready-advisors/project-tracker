@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 import {
   Table,
   TableBody,
@@ -6,16 +8,37 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  Absent,
-  CoverageChip,
-  ExecutorChip,
-  Ref,
-  RefList,
-} from "@/components/answer-chips";
+import { Absent, CoverageChip, ExecutorChip } from "@/components/answer-chips";
+import { EntityRef, EntityRefList } from "@/components/entity-ref";
+import type { RefEntry, RefLookup } from "@/lib/answer-screen-refs";
+import { fallbackLabel } from "@/lib/server/detail/types";
 import { cn } from "@/lib/utils";
 
 import type { EngagementCoverage as Coverage } from "@/lib/server/answers/untested";
+
+/**
+ * FR-80 — every requirement this section renders as text, in one batch.
+ *
+ * The work items are deliberately not here, and that is the point of FR-55:
+ * `implementedBy` already carries the row id of each implementing work item, so
+ * the hyperlink CR-003 Q11 ruled FR-55 requires costs nothing beyond rendering
+ * it. The join M1.8 built is what made that possible; this is the other half.
+ */
+export function engagementCoverageRefEntries(coverage: Coverage): RefEntry[] {
+  const requirement = (ref: string): RefEntry => ({
+    kind: "requirement",
+    engagement: coverage.engagement,
+    ref,
+  });
+
+  return [
+    ...coverage.uncoveredDetail.map((one) => requirement(one.ref)),
+    ...coverage.unproven.map(requirement),
+    ...coverage.selfCertifiedDetail.flatMap((test) =>
+      test.covers.map(requirement),
+    ),
+  ];
+}
 
 /**
  * FR-48 / FR-49 / FR-55 — one engagement's coverage, in three sections that are
@@ -53,7 +76,13 @@ import type { EngagementCoverage as Coverage } from "@/lib/server/answers/untest
  * `ref` clear, so there is no requirement prose on this screen at all, by
  * design rather than by omission.
  */
-export function EngagementCoverage({ coverage }: { coverage: Coverage }) {
+export function EngagementCoverage({
+  coverage,
+  refs,
+}: {
+  coverage: Coverage;
+  refs: RefLookup;
+}) {
   const covered = coverage.requirements - coverage.uncovered.length;
 
   return (
@@ -69,7 +98,19 @@ export function EngagementCoverage({ coverage }: { coverage: Coverage }) {
       className="border-border overflow-hidden rounded-lg border"
     >
       <header className="border-border bg-muted/40 flex flex-wrap items-baseline gap-x-3 gap-y-1 border-b px-3 py-2">
-        <h2 className="ident text-sm font-semibold">{coverage.engagement}</h2>
+        <h2 className="ident text-sm font-semibold">
+          {/* FR-80's engagement slug. `/registry/[slug]` is the engagement's
+              detail view; `engagement` is not one of FR-81's eight kinds, so
+              this is an ordinary anchor rather than an `<EntityRef>`. */}
+          <Link
+            href={`/registry/${coverage.engagement}`}
+            data-verify-unit="engagement-link"
+            data-verify-slug={coverage.engagement}
+            className="rounded-sm underline-offset-2 hover:underline"
+          >
+            {coverage.engagement}
+          </Link>
+        </h2>
         <span className="text-muted-foreground text-xs">
           {coverage.clientName}
         </span>
@@ -134,7 +175,11 @@ export function EngagementCoverage({ coverage }: { coverage: Coverage }) {
                     data-verify-implementers={one.implementedBy.length}
                   >
                     <TableCell className="whitespace-nowrap">
-                      <Ref value={one.ref} />
+                      <EntityRef
+                        kind="requirement"
+                        label={one.ref}
+                        id={refs("requirement", coverage.engagement, one.ref)}
+                      />
                     </TableCell>
                     <TableCell>
                       <CoverageChip value="uncovered" />
@@ -159,10 +204,29 @@ export function EngagementCoverage({ coverage }: { coverage: Coverage }) {
                               data-verify-status={item.status}
                               className="flex flex-wrap items-center gap-1.5"
                             >
-                              <span className="ident text-xs font-medium">
-                                {item.unit ?? (
-                                  <Absent title="No unit key was recorded." />
-                                )}
+                              {/*
+                                FR-55, the half CR-003 Q11 ruled was missing:
+                                "links" means a hyperlink. `item.id` is the
+                                work item's row id, so this needs no resolution
+                                and cannot dangle for a row that is right here
+                                in the payload.
+
+                                `fallbackLabel` rather than `Absent` where the
+                                unit is null: a `hand` or `external` work item
+                                has no unit key and is still the thing that
+                                implements this requirement, so it gets a link
+                                carrying the fleet's one agreed fallback label
+                                rather than an em-dash that goes nowhere.
+                              */}
+                              <span className="text-xs font-medium">
+                                <EntityRef
+                                  kind="work_item"
+                                  label={
+                                    item.unit ??
+                                    fallbackLabel("work_item", item.id)
+                                  }
+                                  id={item.id}
+                                />
                               </span>
                               <span className="ident text-muted-foreground text-xs">
                                 {item.status}
@@ -193,7 +257,14 @@ export function EngagementCoverage({ coverage }: { coverage: Coverage }) {
         >
           <div className="flex flex-wrap items-center gap-2 px-3 pb-3">
             <CoverageChip value="unproven" />
-            <RefList refs={coverage.unproven} empty="none" />
+            <EntityRefList
+              refs={coverage.unproven.map((ref) => ({
+                kind: "requirement" as const,
+                label: ref,
+                id: refs("requirement", coverage.engagement, ref),
+              }))}
+              empty="none"
+            />
           </div>
         </Section>
       ) : null}
@@ -233,8 +304,12 @@ export function EngagementCoverage({ coverage }: { coverage: Coverage }) {
                       {test.harness}
                     </TableCell>
                     <TableCell>
-                      <RefList
-                        refs={test.covers}
+                      <EntityRefList
+                        refs={test.covers.map((ref) => ({
+                          kind: "requirement" as const,
+                          label: ref,
+                          id: refs("requirement", coverage.engagement, ref),
+                        }))}
                         empty="This test names no requirement."
                       />
                     </TableCell>

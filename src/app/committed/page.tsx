@@ -21,11 +21,21 @@ import {
 } from "@/lib/answer-query";
 import type { SearchParams } from "@/lib/answer-query";
 import { readCommitted } from "@/lib/answer-load";
+import {
+  buildRefLookup,
+  collectRefQueries,
+  engagementIdsBySlug,
+} from "@/lib/answer-screen-refs";
+import { readRefResolution } from "@/lib/detail-load";
 import { ANSWER_ROUTES } from "@/lib/nav";
 import { loadForOperator } from "@/lib/operator-load";
+import { listEngagements } from "@/lib/server/registry/engagements";
 import { readUnparsedCensus } from "@/lib/unparsed-census";
 
-import { CommittedTable } from "./_components/committed-table";
+import {
+  CommittedTable,
+  committedTableRefEntries,
+} from "./_components/committed-table";
 import { CommittedTotalsStrip } from "./_components/committed-totals";
 
 const NAV = ANSWER_ROUTES[2];
@@ -63,11 +73,30 @@ export default async function CommittedPage({
 }) {
   const query = parseCommittedQuery(await searchParams);
   const [result, census] = await Promise.all([
-    loadForOperator(() => readCommitted(query)),
+    // FR-80. Resolution runs inside the same `loadForOperator` as the answer:
+    // a failed read renders the load notice, never a screen of references in
+    // FR-12's dangling treatment, which asserts something a failed read has
+    // not established. FR-86 is untouched — `readRefResolution` decrypts
+    // nothing and adds no agent-reachable surface, and `/api/answer/committed`
+    // still answers an agent token `403 forbidden_table`.
+    loadForOperator(async () => {
+      const [answer, engagements] = await Promise.all([
+        readCommitted(query),
+        listEngagements(),
+      ]);
+      const engagementIds = engagementIdsBySlug(engagements);
+      const resolution = await readRefResolution(
+        collectRefQueries(
+          engagementIds,
+          committedTableRefEntries(answer.milestones),
+        ),
+      );
+      return { answer, refs: buildRefLookup(engagementIds, resolution) };
+    }),
     readUnparsedCensus(),
   ]);
 
-  const answer = result.ok ? result.data : null;
+  const loaded = result.ok ? result.data : null;
 
   return (
     <Screen
@@ -119,16 +148,16 @@ export default async function CommittedPage({
         />
       )}
 
-      {answer === null ? null : (
+      {loaded === null ? null : (
         <>
           {/* A failed shipped-state read reports its requirements as "not
               shipped", which may be wrong. Saying so beats a row that looks
               like a finding. */}
-          <AnswerWarnings warnings={answer.warnings} />
+          <AnswerWarnings warnings={loaded.answer.warnings} />
 
-          {answer.engagementUnknown ? (
+          {loaded.answer.engagementUnknown ? (
             <UnknownEngagementNotice slug={query.engagement as string} />
-          ) : answer.milestones.length === 0 ? (
+          ) : loaded.answer.milestones.length === 0 ? (
             <EmptyState
               headline={
                 query.filtered
@@ -139,8 +168,11 @@ export default async function CommittedPage({
             />
           ) : (
             <>
-              <CommittedTotalsStrip totals={answer.totals} />
-              <CommittedTable milestones={answer.milestones} />
+              <CommittedTotalsStrip totals={loaded.answer.totals} />
+              <CommittedTable
+                milestones={loaded.answer.milestones}
+                refs={loaded.refs}
+              />
               <CommittedLegend />
             </>
           )}
