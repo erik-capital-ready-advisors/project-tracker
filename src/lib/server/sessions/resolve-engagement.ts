@@ -39,6 +39,17 @@ export interface EngagementResolution {
   slug: string;
   /** How it was decided. Reported back so a mis-filed session is diagnosable. */
   source: ResolutionSource;
+  /**
+   * A slug the caller explicitly asked for that this resolver did NOT honour,
+   * or `null` when nothing was overridden.
+   *
+   * FR-26's `unassigned` fallback is for a session that resolves to no known
+   * engagement. Applying it to a session the caller *named* is a different act,
+   * and doing it in silence produces a wrong attribution Erik has to find and
+   * undo by hand. The fallback stays — losing the record is worse — but the
+   * caller is told which assertion of theirs was dropped.
+   */
+  unhonouredSlug: string | null;
 }
 
 /** Strip trailing slashes so `/a/b/` and `/a/b` are the same directory. */
@@ -68,7 +79,12 @@ export function resolveEngagement(
   if (input.engagementSlug !== null) {
     const named = candidates.find((c) => c.slug === input.engagementSlug);
     if (named) {
-      return { engagementId: named.id, slug: named.slug, source: "explicit-slug" };
+      return {
+        engagementId: named.id,
+        slug: named.slug,
+        source: "explicit-slug",
+        unhonouredSlug: null,
+      };
     }
     // A slug the caller invented does NOT fall through to a path match. The
     // caller asserted an engagement; if it does not exist, that assertion is
@@ -90,7 +106,12 @@ export function resolveEngagement(
     }
 
     if (best) {
-      return { engagementId: best.id, slug: best.slug, source: "repo-path" };
+      return {
+        engagementId: best.id,
+        slug: best.slug,
+        source: "repo-path",
+        unhonouredSlug: null,
+      };
     }
   }
 
@@ -109,5 +130,6 @@ export function resolveEngagement(
     engagementId: unassigned.id,
     slug: unassigned.slug,
     source: "unassigned",
+    unhonouredSlug: input.engagementSlug,
   };
 }

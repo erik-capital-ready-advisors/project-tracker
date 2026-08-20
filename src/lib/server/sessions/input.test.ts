@@ -209,3 +209,60 @@ describe("FR-28 to FR-30 the work item a session produces", () => {
     expect(result.ok && result.value.workItem.dependsOn).toEqual(["i1", "i2"]);
   });
 });
+
+/**
+ * qa1 finding I2, run b0952e.
+ *
+ * Posting a session with a correct, registered slug under the key
+ * `engagementSlug` returned 201 with `"engagement":"unassigned"`. The key this
+ * endpoint reads is `engagement`; the misspelling was accepted and discarded in
+ * silence, producing a wrong attribution Erik would then have to find and undo
+ * by hand. FR-26's `unassigned` fallback is for a session that resolves to no
+ * KNOWN engagement, not for one whose slug was thrown away unread.
+ */
+describe("unrecognised body fields are refused rather than dropped", () => {
+  function base(): Record<string, unknown> {
+    return {
+      workingDirectory: "/Users/erik/Projects/acme",
+      startedAt: "2026-08-19T09:00:00.000Z",
+      endedAt: "2026-08-19T10:00:00.000Z",
+    };
+  }
+
+  it("refuses `engagementSlug`, the exact key that lost an attribution", () => {
+    const result = parseSessionPayload({ ...base(), engagementSlug: "acme" });
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(result.errors.join(" ")).toContain("engagementSlug");
+    // and it names the field that would have worked
+    expect(result.errors.join(" ")).toContain("`engagement`");
+  });
+
+  it("still accepts the correct spelling — the fix is not a blanket refusal", () => {
+    const result = parseSessionPayload({ ...base(), engagement: "acme" });
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.value.engagementSlug).toBe("acme");
+  });
+
+  it("refuses an invented field", () => {
+    const result = parseSessionPayload({ ...base(), totallyMadeUpKey: 1 });
+    expect(result.ok).toBe(false);
+  });
+
+  it("refuses an unrecognised field inside workItem, named with its path", () => {
+    const result = parseSessionPayload({ ...base(), workItem: { ttile: "x" } });
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(result.errors.join(" ")).toContain("workItem.ttile");
+  });
+
+  it("reports a bad field alongside the other problems, not instead of them", () => {
+    const result = parseSessionPayload({ nonsense: 1 });
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    // `workingDirectory` and `startedAt` are both missing, and the unknown key
+    // is a third problem — a misconfigured hook is fixed in one pass.
+    expect(result.errors.length).toBeGreaterThanOrEqual(3);
+  });
+});

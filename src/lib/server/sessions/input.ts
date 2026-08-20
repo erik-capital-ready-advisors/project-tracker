@@ -17,6 +17,8 @@
  * is rejected before it is quoted.
  */
 
+import { unknownKeyProblems } from "@/lib/api/unknown-keys";
+
 import {
   DISPOSITION,
   EVIDENCE_SCOPE,
@@ -207,6 +209,39 @@ function readDependsOn(raw: unknown, errors: string[]): string[] {
 }
 
 /**
+ * Every field this endpoint reads, in wire spelling.
+ *
+ * The list is here rather than derived, because it IS the wire contract and a
+ * derived one would silently follow a refactor that renamed a field. Note
+ * `engagement`, not `engagementSlug`: posting the latter used to return 201 and
+ * file the session against `unassigned`, discarding a correct attribution in
+ * silence.
+ */
+const SESSION_BODY_FIELDS = [
+  "workingDirectory",
+  "engagement",
+  "startedAt",
+  "endedAt",
+  "stack",
+  "summary",
+  "source",
+  "filesChanged",
+  "commits",
+  "workItem",
+] as const;
+
+const SESSION_WORK_ITEM_FIELDS = [
+  "title",
+  "status",
+  "executorKind",
+  "unautomatedReason",
+  "disposition",
+  "evidenceScope",
+  "notVerifiedCount",
+  "dependsOn",
+] as const;
+
+/**
  * Validate a posted work session.
  *
  * Collects **every** problem rather than stopping at the first, so a
@@ -291,6 +326,11 @@ export function parseSessionPayload(body: unknown): ParseResult<SessionInput> {
     "unparsed";
   const notVerifiedCount = readCount(workItemSource, "notVerifiedCount", errors) ?? 0;
   const dependsOn = readDependsOn(workItemSource.dependsOn, errors);
+
+  errors.push(...unknownKeyProblems(body, SESSION_BODY_FIELDS));
+  if (isRecord(rawWorkItem)) {
+    errors.push(...unknownKeyProblems(rawWorkItem, SESSION_WORK_ITEM_FIELDS, { path: "workItem" }));
+  }
 
   if (errors.length > 0) return { ok: false, errors };
 

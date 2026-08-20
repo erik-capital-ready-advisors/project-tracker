@@ -50,6 +50,19 @@ export interface RecordedSession {
   engagementSlug: string;
   /** `unassigned` here is what FR-26's queue is populated from. */
   resolvedBy: ResolutionSource;
+  /**
+   * A slug the caller named that was not honoured, or `null`. Never silent:
+   * a session filed against `unassigned` despite naming an engagement is a
+   * wrong attribution, and the caller is the only party that can correct it.
+   */
+  unhonouredSlug: string | null;
+  /**
+   * True when directory resolution could not be attempted because the FR-5
+   * column scoping refused `engagement.repo_path` (the open §7a-versus-FR-24
+   * question). Distinguishes "no engagement matched" from "matching was not
+   * possible".
+   */
+  resolutionDegraded: boolean;
   stackId: string | null;
   durationMinutes: number | null;
   /** FR-42. Empty is a fact; a missing field would not be. */
@@ -101,10 +114,23 @@ function fail(what: string): never {
  * The hook can also skip the whole question by exporting
  * `DELIVERY_LEDGER_ENGAGEMENT`; `slug` is on the allowlist.
  */
+export interface EngagementCandidates {
+  candidates: EngagementCandidate[];
+  /**
+   * False when the FR-5 column scoping refused `repo_path`, so directory
+   * resolution could not run at all. Reported to the caller: a session that
+   * landed in the attribution queue because a column was unreadable is a
+   * different fact from one that landed there because no engagement matched,
+   * and only the first is fixed by a decision Erik has not made yet.
+   */
+  repoPathReadable: boolean;
+}
+
 async function readEngagementCandidates(
   db: ServiceClient,
-): Promise<EngagementCandidate[]> {
+): Promise<EngagementCandidates> {
   let rows: { id: string; slug: string; repo_path?: string | null }[] | null = null;
+  let repoPathReadable = true;
 
   try {
     const { data, error } = await db
@@ -117,6 +143,7 @@ async function readEngagementCandidates(
     // Only the FR-5 column refusal is absorbed. Anything else is a real fault
     // and must not be turned into a quietly-degraded resolution.
     if (!(thrown instanceof ApiError) || thrown.code !== "forbidden_table") throw thrown;
+    repoPathReadable = false;
 
     const { data, error } = await db
       .from("engagement")
@@ -137,11 +164,14 @@ async function readEngagementCandidates(
     );
   }
 
-  return rows.map((row) => ({
-    id: row.id,
-    slug: row.slug,
-    repoPath: row.repo_path ?? null,
-  }));
+  return {
+    repoPathReadable,
+    candidates: rows.map((row) => ({
+      id: row.id,
+      slug: row.slug,
+      repoPath: row.repo_path ?? null,
+    })),
+  };
 }
 
 /**
@@ -253,7 +283,7 @@ export async function recordWorkSession(
 ): Promise<RecordedSession> {
   const nowIso = now.toISOString();
 
-  const candidates = await readEngagementCandidates(db);
+  const { candidates, repoPathReadable } = await readEngagementCandidates(db);
   const engagement = resolveEngagement(input, candidates);
   const stackId = await upsertStack(db, input.stackName, nowIso);
 
@@ -362,6 +392,13 @@ export async function recordWorkSession(
     engagementId: engagement.engagementId,
     engagementSlug: engagement.slug,
     resolvedBy: engagement.source,
+    unhonouredSlug: engagement.unhonouredSlug,
+    // Only meaningful when a directory match was the thing that could have run:
+    // an explicit slug does not need `repo_path`.
+    resolutionDegraded:
+      !repoPathReadable &&
+      engagement.source === "unassigned" &&
+      input.engagementSlug === null,
     stackId,
     durationMinutes: sessionValues.duration_minutes,
     droppedEdges: edges.dropped,

@@ -86,3 +86,6 @@ export type {
   AgentRouteDeps,
   AgentRouteHandler,
 } from "./guard";
+
+export { findUnknownKeys, unknownKeyProblems } from "./unknown-keys";
+export type { UnknownKey } from "./unknown-keys";

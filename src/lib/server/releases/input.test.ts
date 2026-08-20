@@ -196,3 +196,52 @@ describe("parseReleaseBody", () => {
     expect(problems([1, 2, 3])[0]).toContain("JSON object");
   });
 });
+
+/**
+ * qa1 finding I3, run b0952e.
+ *
+ * `POST /api/ingest/release` reads `deployed_at`. Posting `deployedAt` — the
+ * camelCase spelling every OTHER ingest endpoint uses — together with a wholly
+ * unknown key returned 201 and stored `deployed_at: null`, losing the deploy
+ * date FR-73 requires. i7 had already made an unrecognised *query* parameter a
+ * 400; a request *body* should not be laxer.
+ *
+ * The casing inconsistency between the three ingest endpoints is deliberately
+ * NOT fixed here — that is a wire contract and a scope decision for Erik. It is
+ * made loud instead.
+ */
+describe("unrecognised body fields are refused rather than dropped", () => {
+  it("refuses `deployedAt` and names `deployed_at`", () => {
+    const found = problems(valid({ deployedAt: "2026-08-19T12:00:00Z" })).join(" ");
+    expect(found).toContain("deployedAt");
+    expect(found).toContain("deployed_at");
+  });
+
+  it("still reads the documented spelling", () => {
+    expect(parsed(valid({ deployed_at: "2026-08-19T12:00:00Z" })).deployedAt).toBe(
+      "2026-08-19T12:00:00.000Z",
+    );
+  });
+
+  it("refuses a wholly unknown key", () => {
+    expect(problems(valid({ nonsenseKey: true })).join(" ")).toContain("nonsenseKey");
+  });
+
+  it("refuses `requirementRefs` and names `requirement_refs`", () => {
+    const found = problems(valid({ requirementRefs: ["FR-73"] })).join(" ");
+    expect(found).toContain("requirement_refs");
+  });
+
+  it("accepts a server-owned field and reports it as ignored, rather than refusing it", () => {
+    // `source` is not unknown — this endpoint knows exactly what it means and
+    // pins it to `ingested`. Refusing it would break a caller that sends it
+    // harmlessly today. Dropping it in silence is the option that is gone.
+    const result = parsed(valid({ source: "declared" }));
+    expect(result.ignoredFields).toEqual(["source"]);
+    expect(Object.keys(result)).not.toContain("source");
+  });
+
+  it("reports no ignored fields when none were sent", () => {
+    expect(parsed(valid()).ignoredFields).toEqual([]);
+  });
+});

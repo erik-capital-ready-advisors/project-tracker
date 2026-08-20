@@ -17,7 +17,12 @@ describe("FR-26 engagement resolution", () => {
         { workingDirectory: "/Users/erik/Projects/acme", engagementSlug: null },
         CANDIDATES,
       ),
-    ).toEqual({ engagementId: "id-acme", slug: "acme", source: "repo-path" });
+    ).toEqual({
+      engagementId: "id-acme",
+      slug: "acme",
+      source: "repo-path",
+      unhonouredSlug: null,
+    });
   });
 
   it("FR-26 matches a subdirectory of a registered repo path", () => {
@@ -86,6 +91,8 @@ describe("FR-26 engagement resolution", () => {
       engagementId: "id-unassigned",
       slug: "unassigned",
       source: "unassigned",
+      // The caller named no slug here, so nothing was overridden.
+      unhonouredSlug: null,
     });
   });
 
@@ -99,6 +106,7 @@ describe("FR-26 engagement resolution", () => {
       engagementId: "id-site",
       slug: "acme-site",
       source: "explicit-slug",
+      unhonouredSlug: null,
     });
   });
 
@@ -130,5 +138,48 @@ describe("FR-26 engagement resolution", () => {
          { id: "id-x", slug: "x", repoPath: "" }],
       ).slug,
     ).toBe("unassigned");
+  });
+});
+
+/**
+ * qa1 finding I2, run b0952e — the second half.
+ *
+ * FR-26's `unassigned` fallback is for a session that resolves to no KNOWN
+ * engagement. Applying it to a session whose caller NAMED an engagement is a
+ * different act, and doing it silently is a wrong attribution. The fallback
+ * stays — losing an hour of client work is worse than queueing it — but the
+ * assertion that was dropped is now named back.
+ */
+describe("FR-26 says which caller assertion it did not honour", () => {
+  const ATTRIBUTION_CANDIDATES = [
+    { id: "id-unassigned", slug: "unassigned", repoPath: null },
+    { id: "id-acme", slug: "acme", repoPath: "/Users/erik/Projects/acme" },
+  ];
+
+  it("names an explicit slug that matched nothing", () => {
+    const result = resolveEngagement(
+      { workingDirectory: "/tmp/elsewhere", engagementSlug: "not-registered" },
+      ATTRIBUTION_CANDIDATES,
+    );
+    expect(result.slug).toBe("unassigned");
+    expect(result.source).toBe("unassigned");
+    expect(result.unhonouredSlug).toBe("not-registered");
+  });
+
+  it("reports nothing unhonoured when the caller named nothing", () => {
+    const result = resolveEngagement(
+      { workingDirectory: "/tmp/elsewhere", engagementSlug: null },
+      ATTRIBUTION_CANDIDATES,
+    );
+    expect(result.source).toBe("unassigned");
+    expect(result.unhonouredSlug).toBeNull();
+  });
+
+  it("reports nothing unhonoured when the slug was honoured", () => {
+    const result = resolveEngagement(
+      { workingDirectory: "/tmp/elsewhere", engagementSlug: "acme" },
+      ATTRIBUTION_CANDIDATES,
+    );
+    expect(result.unhonouredSlug).toBeNull();
   });
 });

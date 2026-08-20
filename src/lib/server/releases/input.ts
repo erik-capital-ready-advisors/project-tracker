@@ -1,3 +1,5 @@
+import { unknownKeyProblems } from "@/lib/api/unknown-keys";
+
 import { requirementRefs } from "@/lib/ingest/refs";
 
 /**
@@ -199,6 +201,11 @@ export interface ParsedReleaseInput {
   unparsedRefEntries: string[];
   /** Query parameters removed from `url` because they carried a credential. */
   strippedUrlParams: string[];
+  /**
+   * Fields the caller sent that this endpoint owns and will not take from the
+   * wire. Reported so a caller who set one learns it had no effect.
+   */
+  ignoredFields: string[];
 }
 
 export interface ReleaseInputProblems {
@@ -250,6 +257,27 @@ function readString(
  * over the ingest API whatever it claims about itself. The route pins
  * `ingested`; the operator path pins `declared`.
  */
+/**
+ * Every field this endpoint reads, in wire spelling.
+ *
+ * Deliberately snake_case, and deliberately NOT unified with the camelCase of
+ * `/api/ingest/session` and `/api/waits`. That inconsistency is real and it is a
+ * wire contract; changing one is a scope decision for Erik, not a remediation.
+ * What changed here is that the mismatch is now reported instead of swallowed —
+ * a caller sending `deployedAt` is told the field is `deployed_at`.
+ */
+const RELEASE_SERVER_OWNED_FIELDS = ["source"] as const;
+
+const RELEASE_BODY_FIELDS = [
+  "engagement",
+  "identifier",
+  "environment",
+  "recorded_by",
+  "url",
+  "deployed_at",
+  "requirement_refs",
+] as const;
+
 export function parseReleaseBody(
   raw: unknown,
 ): ParsedReleaseInput | ReleaseInputProblems {
@@ -259,6 +287,26 @@ export function parseReleaseBody(
 
   const record = raw as Record<string, unknown>;
   const problems: string[] = [];
+
+  // Before anything is read. `deployedAt` — the camelCase spelling every other
+  // ingest endpoint uses — used to return 201 with `deployed_at: null`, losing
+  // the deploy date FR-73 requires, and an entirely invented key was accepted
+  // just as quietly.
+  problems.push(
+    ...unknownKeyProblems(record, [
+      ...RELEASE_BODY_FIELDS,
+      ...RELEASE_SERVER_OWNED_FIELDS,
+    ]),
+  );
+
+  // A key the server owns is NOT an unknown key: the endpoint knows exactly what
+  // it means and deliberately will not take it from the wire (`source` is always
+  // `ingested` here). Refusing it would break a caller that sends it harmlessly
+  // today, so it is accepted and named back instead. Silently dropping it is the
+  // one option not on the table.
+  const ignoredFields = RELEASE_SERVER_OWNED_FIELDS.filter(
+    (field) => record[field] !== undefined,
+  );
 
   const engagementSlug = readString(record, "engagement", 200, problems, {
     required: true,
@@ -397,5 +445,6 @@ export function parseReleaseBody(
     refs,
     unparsedRefEntries,
     strippedUrlParams,
+    ignoredFields,
   };
 }

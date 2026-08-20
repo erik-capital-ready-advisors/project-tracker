@@ -112,3 +112,38 @@ describe("parseRunPayload", () => {
     expect(parsed.qaReportText).toBeNull();
   });
 });
+
+/**
+ * qa1 findings I2/I3 generalised, run b0952e.
+ *
+ * An artifact posted under a key this route does not read is an artifact
+ * silently not ingested — and the response would still report success, with a
+ * count that quietly omitted it. That is the `unparsed` discipline broken at the
+ * API boundary rather than in a parser.
+ */
+describe("unrecognised body fields are refused rather than dropped", () => {
+  const BASE = {
+    engagement: "delivery-ledger",
+    run: "b0952e",
+    checkpoint: "# checkpoint",
+  };
+
+  it("accepts the documented shape", () => {
+    expect(() => parseRunPayload(BASE)).not.toThrow();
+  });
+
+  it("refuses an artifact sent under an unread key", () => {
+    // `manifest` rather than `manifests` would have ingested nothing and said 200.
+    expect(() => parseRunPayload({ ...BASE, manifest: [] })).toThrow(/manifest/);
+  });
+
+  it("refuses a wholly invented key", () => {
+    expect(() => parseRunPayload({ ...BASE, nonsense: 1 })).toThrow(/nonsense/);
+  });
+
+  it("names the field it meant when the spelling is close", () => {
+    expect(() => parseRunPayload({ ...BASE, question_files: [] })).toThrow(
+      /questionFiles/,
+    );
+  });
+});

@@ -158,6 +158,13 @@ async function ingest(request: Request, db: ReleaseDb): Promise<Response> {
        * is, never how to get into it.
        */
       url_params_stripped: parsed.strippedUrlParams,
+      /**
+       * Fields the caller sent that this endpoint owns and did not take from the
+       * wire — `source` is always `ingested` here. Named rather than dropped in
+       * silence: a caller who set one should learn it had no effect, in the same
+       * way an unrecognised field is refused outright.
+       */
+      ignored_fields: parsed.ignoredFields,
     },
     {
       status: result.created ? 201 : 200,

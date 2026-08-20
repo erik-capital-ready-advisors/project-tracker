@@ -26,6 +26,36 @@ export const runtime = "nodejs";
  */
 export const dynamic = "force-dynamic";
 
+/**
+ * One sentence a human can act on, or null when nothing needs saying.
+ *
+ * The structured fields above are for the hook; this is for whoever reads the
+ * response in a terminal and would otherwise see `201` and assume the session
+ * was filed where they asked.
+ */
+function attributionNote(recorded: {
+  unhonouredSlug: string | null;
+  resolutionDegraded: boolean;
+}): string | null {
+  if (recorded.unhonouredSlug !== null) {
+    return (
+      `No engagement is registered with the slug \`${recorded.unhonouredSlug}\`, so ` +
+      `this session was filed against \`unassigned\` for attribution rather than ` +
+      `discarded (FR-26). Register the engagement, then re-post: the session's ` +
+      `natural key is unchanged, so the second post corrects the first.`
+    );
+  }
+  if (recorded.resolutionDegraded) {
+    return (
+      `This session could not be matched to an engagement by its working ` +
+      `directory, because an agent token may not read \`engagement.repo_path\`. ` +
+      `It was filed against \`unassigned\`. Post an explicit \`engagement\` slug ` +
+      `to file it directly.`
+    );
+  }
+  return null;
+}
+
 export const POST = withAgentRoute(INGEST_WRITE, async ({ request, db }) => {
   let body: unknown;
   try {
@@ -52,6 +82,17 @@ export const POST = withAgentRoute(INGEST_WRITE, async ({ request, db }) => {
       // FR-26: `unassigned` here is the caller's signal that this session is in
       // the attribution queue rather than filed against a client.
       resolvedBy: recorded.resolvedBy,
+      // The slug the caller asked for and did not get, or null. FR-26's
+      // fallback still applies -- the session is kept, never discarded -- but it
+      // is no longer applied in silence. A named engagement quietly turned into
+      // `unassigned` is a wrong attribution, and the caller is the only party
+      // positioned to correct it.
+      unhonouredSlug: recorded.unhonouredSlug,
+      // True when directory resolution could not run because this token may not
+      // read `engagement.repo_path` (the open 7a-versus-FR-24 question). "No
+      // engagement matched" and "matching was not possible" are different facts.
+      resolutionDegraded: recorded.resolutionDegraded,
+      attributionNote: attributionNote(recorded),
       durationMinutes: recorded.durationMinutes,
       storedEdges: recorded.storedEdgeCount,
       // FR-42: named, not merely counted. A caller that declared an edge to a
