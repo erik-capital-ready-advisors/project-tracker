@@ -19,6 +19,32 @@
  * authority, and re-listing their members in a dropdown is how a screen and a
  * database drift into disagreeing about what `erik_gate` is called.
  *
+ * ## A stored value is not a URL value, and `toWire` is the difference
+ *
+ * `closedSet` in `rules.ts` maps a **wire** spelling to a **stored** one, and
+ * for two of the six sets those differ: `EVIDENCE_SCOPE` stores
+ * `observed_live` and accepts only `observed-live`; `UNAUTOMATED_REASON` stores
+ * `human_judgment` and accepts only `human-judgment`. `parse` is an exact key
+ * lookup with no normalisation, so writing a stored value into the URL produces
+ * a link this module then REJECTS.
+ *
+ * It did, on eight of this screen's twenty-eight filter option values, until
+ * M2.7 (f5) — measured, not inferred. The symptom was the one this file's next
+ * paragraph exists to prevent, arrived at from the other end: pick "human
+ * judgment", get the "not recognised" banner and an unfiltered list. It also
+ * broke FR-84 outright for those two filters, because the URL a detail view
+ * restores is only as good as the parse on the way back in.
+ *
+ * So every closed-set value goes through `toWire` on the way out, uniformly —
+ * including the four sets where the two spellings happen to coincide today.
+ * Applying it only where it currently matters is how this returns.
+ *
+ * **The fix is here and not in `rules.ts`.** Teaching `UNAUTOMATED_REASON` to
+ * also accept `human_judgment` would work and is the wrong move twice over: it
+ * widens a closed set to make a stubborn input classify, which `CLAUDE.md`
+ * names as the failure this project is built around, and `toWire` already
+ * exists for exactly this translation.
+ *
  * ## Filters are clear columns only, and that is §7a's decision rather than mine
  *
  * `work_item.description` and `raw_status` are pgcrypto columns, and §7a states
@@ -251,12 +277,19 @@ export function withParams(
   const current: Record<string, string> = {};
 
   if (query.engagementSlug) current[PARAM.engagement] = query.engagementSlug;
-  if (query.executionMode) current[PARAM.mode] = query.executionMode;
-  if (query.executorKind) current[PARAM.executor] = query.executorKind;
-  if (query.status) current[PARAM.status] = query.status;
-  if (query.disposition) current[PARAM.disposition] = query.disposition;
-  if (query.unautomatedReason) current[PARAM.reason] = query.unautomatedReason;
-  if (query.evidenceScope) current[PARAM.evidence] = query.evidenceScope;
+  // `toWire` on every one of them, including where the two spellings coincide.
+  // See the header: this is the round trip FR-84 rests on.
+  if (query.executionMode)
+    current[PARAM.mode] = EXECUTION_MODE.toWire(query.executionMode);
+  if (query.executorKind)
+    current[PARAM.executor] = EXECUTOR_KIND.toWire(query.executorKind);
+  if (query.status) current[PARAM.status] = WORK_STATUS.toWire(query.status);
+  if (query.disposition)
+    current[PARAM.disposition] = DISPOSITION.toWire(query.disposition);
+  if (query.unautomatedReason)
+    current[PARAM.reason] = UNAUTOMATED_REASON.toWire(query.unautomatedReason);
+  if (query.evidenceScope)
+    current[PARAM.evidence] = EVIDENCE_SCOPE.toWire(query.evidenceScope);
   if (query.blockedOnly) current[PARAM.blocked] = "1";
   if (query.sort !== DEFAULT_SORT) current[PARAM.sort] = query.sort;
   if (query.direction !== DEFAULT_DIRECTION) current[PARAM.dir] = query.direction;

@@ -3,6 +3,8 @@ import { notFound } from "next/navigation";
 
 import { EmptyState, Screen } from "@/components/screen";
 import { Button } from "@/components/ui/button";
+import { readRefResolution, resolvedId } from "@/lib/detail-load";
+import type { RefQuery } from "@/lib/detail-load";
 import { formatIdentifier } from "@/lib/registry-display";
 import { getEngagement } from "@/lib/server/registry/engagements";
 import {
@@ -43,6 +45,18 @@ type Totals = Awaited<ReturnType<typeof milestoneTotals>>;
  * here from the records I already hold would be a second implementation of the
  * money rules that could drift from the first. A one-operator studio pays one
  * extra query for that; the two reads run concurrently rather than in sequence.
+ *
+ * ## FR-80 — acceptance references resolve once for the screen, never per row
+ *
+ * `readRefResolution` takes every acceptance reference on every milestone in one
+ * batch and answers them in **one** round trip over `requirement`. A resolver
+ * called per row would be one query per `FR-nn` on a page that can carry dozens.
+ *
+ * It decrypts nothing — `requirement.ref` is clear and `requirement.text` is not
+ * even projected — so making these references navigable costs this screen no
+ * `decrypt_field` call and adds no §7a surface. **B29:** it runs as
+ * `service_role` like every other operator read here, which CR-003 Q9 accepted
+ * explicitly; it is `i1`'s read and this is a call site, not a new one.
  */
 export default async function EngagementPage({
   params,
@@ -68,14 +82,37 @@ export default async function EngagementPage({
   let milestones: readonly MilestoneRecord[] = [];
   let totals: Totals | null = null;
   let failure: GateRefusal | null = null;
+  // FR-83: a reference nobody resolved is `null`, which dangles. Starting empty
+  // rather than absent means a read that fails below leaves every acceptance
+  // token honestly un-navigable instead of un-rendered.
+  let resolvedAcceptance: ReadonlyMap<string, string | null> = new Map();
 
   try {
     engagement = await getEngagement(slug);
     if (engagement !== null) {
+      // Captured as a const so the closure below narrows without an assertion.
+      const engagementId = engagement.id;
+
       [milestones, totals] = await Promise.all([
-        listMilestones(engagement.id),
-        milestoneTotals(engagement.id),
+        listMilestones(engagementId),
+        milestoneTotals(engagementId),
       ]);
+
+      // Every acceptance reference on the page, in one batch. Keyed by `ref`
+      // rather than by hand-spelled composite: all of them share this one
+      // engagement and `requirement` carries neither a run nor an environment,
+      // so `ref` is the whole of what distinguishes them here. `resolvedId`
+      // still builds the lookup key through `refKey`, which is the rule.
+      const queries: RefQuery[] = [
+        ...new Set(milestones.flatMap((milestone) => milestone.acceptance)),
+      ].map((ref) => ({ kind: "requirement" as const, ref, engagementId }));
+
+      if (queries.length > 0) {
+        const resolution = await readRefResolution(queries);
+        resolvedAcceptance = new Map(
+          queries.map((query) => [query.ref, resolvedId(resolution, query)]),
+        );
+      }
     }
   } catch {
     engagement = null;
@@ -180,6 +217,7 @@ export default async function EngagementPage({
                 milestones={milestones}
                 engagementId={engagement.id}
                 slug={engagement.slug}
+                resolvedAcceptance={resolvedAcceptance}
               />
             )}
           </section>

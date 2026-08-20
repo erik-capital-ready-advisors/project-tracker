@@ -3,6 +3,8 @@ import Link from "next/link";
 import { EmptyState, Screen } from "@/components/screen";
 import { OperatorLoadNotice } from "@/components/operator-load-notice";
 import { Button } from "@/components/ui/button";
+import { readRefResolution } from "@/lib/detail-load";
+import type { RefQuery, RefResolution } from "@/lib/detail-load";
 import { OPERATOR_ROUTES } from "@/lib/nav";
 import { loadForOperator } from "@/lib/operator-load";
 
@@ -52,6 +54,31 @@ export default async function WaitsPage({
   ]);
 
   const listing = waits.ok ? waits.data : null;
+
+  // FR-80 — every unit key every wait blocks, resolved in ONE round trip for
+  // the whole screen rather than one per row. `readRefResolution` decrypts
+  // nothing, so making these navigable costs this screen no `decrypt_field`
+  // call; B29-wise it is `i1`'s `service_role` read and this is a call site.
+  //
+  // A failed resolution leaves the map empty, which dangles every block. That
+  // is the honest outcome: the waits still list, and a work item nobody could
+  // resolve is shown rather than linked or hidden.
+  const blockQueries: RefQuery[] =
+    listing === null
+      ? []
+      : listing.waits.flatMap((wait) =>
+          wait.blocks.map((unit) => ({
+            kind: "work_item" as const,
+            ref: unit,
+            engagementId: wait.engagementId,
+          })),
+        );
+
+  let resolution: RefResolution = new Map();
+  if (blockQueries.length > 0) {
+    const resolved = await loadForOperator(() => readRefResolution(blockQueries));
+    if (resolved.ok) resolution = resolved.data;
+  }
 
   // The server's calendar day, computed once here and passed down. A client
   // component that called `new Date()` would render one day on the server and
@@ -172,7 +199,7 @@ export default async function WaitsPage({
           detail="Waits on people outside the studio appear here with the date they started, the date they are expected to clear, and the work items they hold."
         />
       ) : (
-        <WaitList groups={listing.byOwner} />
+        <WaitList groups={listing.byOwner} resolution={resolution} />
       )}
     </Screen>
   );

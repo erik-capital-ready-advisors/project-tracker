@@ -6,6 +6,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { EntityRef } from "@/components/entity-ref";
 import { formatAmount, formatDate, NOT_RECORDED } from "@/lib/registry-display";
 import type { MilestoneRecord } from "@/lib/server/registry/types";
 import { cn } from "@/lib/utils";
@@ -27,12 +28,27 @@ import { MilestoneDialog } from "./milestone-dialog";
  *     ingested is marked in place, every time the row is read (FR-12). Not a
  *     toast at write time — a toast is gone by the time anyone looks.
  *
+ * ## FR-80 — the milestone is itself a reference now (M2.7, f5)
+ *
+ * `contract_milestone` is one of FR-81's eight kinds and its `name` is the
+ * natural key `resolveRefs` looks it up by — `unique (engagement_id, name)`. So
+ * the name is an identifier in this product's sense, and FR-80 says every
+ * identifier on every screen is navigable to its entity. `id` comes straight off
+ * the row, so this reference needs no resolution and can never dangle.
+ *
+ * §7a is unchanged by that: `/milestones/<uuid>` is an operator route,
+ * `contract_milestone` stays in `AGENT_FORBIDDEN_TABLES`, and this table
+ * publishes no amount and no note text into an attribute. A link is not a
+ * decryption surface.
+ *
  * State contract for qa-reviewer:
  *   data-verify-unit="milestone-table", data-verify-total, data-verify-unreadable,
  *     data-verify-with-unknown-refs
  *   data-verify-unit="milestone-row", data-verify-milestone,
  *     data-verify-amount-readable, data-verify-submitted, data-verify-paid,
  *     data-verify-unknown-refs
+ *   data-verify-unit="entity-ref" — one per milestone name, plus one per
+ *     acceptance reference (see `acceptance-refs.tsx`)
  *
  * Counts and statuses only. No amount, no client prose, and no note text is ever
  * published into a `data-verify-*` attribute — those are §7a `sensitive`.
@@ -57,10 +73,19 @@ export function MilestoneTable({
   milestones,
   engagementId,
   slug,
+  resolvedAcceptance,
 }: {
   milestones: readonly MilestoneRecord[];
   engagementId: string;
   slug: string;
+  /**
+   * FR-80 — acceptance `ref` → the requirement's uuid, or `null`.
+   *
+   * Passed straight through to `AcceptanceRefs`, which treats an absent map as
+   * "nothing resolved" and dangles every token. Optional for the same reason it
+   * is optional there: omission must never be able to produce a link.
+   */
+  resolvedAcceptance?: ReadonlyMap<string, string | null>;
 }) {
   const unreadable = milestones.filter((m) => m.amount === null).length;
   const withUnknownRefs = milestones.filter(
@@ -102,7 +127,17 @@ export function MilestoneTable({
                 data-verify-unknown-refs={milestone.unknownAcceptanceRefs.length}
               >
                 <TableCell className="py-2 align-top">
-                  <div className="text-sm font-medium">{milestone.name}</div>
+                  <div>
+                    {/* `text-sm font-medium` is what this cell has always
+                        drawn, restated so adopting the reference token keeps
+                        the milestone name at the size and weight it had. */}
+                    <EntityRef
+                      kind="contract_milestone"
+                      label={milestone.name}
+                      id={milestone.id}
+                      className="text-sm font-medium"
+                    />
+                  </div>
                   {milestone.notes ? (
                     <div className="text-muted-foreground line-clamp-1 max-w-xs text-xs">
                       {milestone.notes}
@@ -118,6 +153,7 @@ export function MilestoneTable({
                     <AcceptanceRefs
                       refs={milestone.acceptance}
                       unknown={milestone.unknownAcceptanceRefs}
+                      resolved={resolvedAcceptance}
                     />
                   </div>
                 </TableCell>

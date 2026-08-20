@@ -3,6 +3,14 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Field, NativeSelect } from "@/components/native-select";
+import {
+  DISPOSITION,
+  EVIDENCE_SCOPE,
+  EXECUTION_MODE,
+  EXECUTOR_KIND,
+  UNAUTOMATED_REASON,
+  WORK_STATUS,
+} from "@/lib/server/workitems/rules";
 
 import {
   DISPOSITIONS,
@@ -45,6 +53,21 @@ import type { WorkItemQuery } from "../_lib/query";
  * Execution mode is a filter sitting in the same row as every other filter, not
  * a tab strip above the table. `CLAUDE.md`: "Splitting them yields three lists
  * Erik has to merge in his head, which is the state this product exists to end."
+ *
+ * ## Every option value is a WIRE spelling, never a stored one
+ *
+ * `closedSet` distinguishes the two and for `EVIDENCE_SCOPE` and
+ * `UNAUTOMATED_REASON` they differ — stored `observed_live`, accepted
+ * `observed-live`. `EVIDENCE_SCOPES` and `UNAUTOMATED_REASONS` here are the
+ * *stored* keys, because they index the label maps, so submitting them raw put
+ * a value in the URL that `parseWorkItemQuery` rejected: eight of this bar's
+ * twenty-eight options showed the "not recognised" banner over an unfiltered
+ * list, which is the exact failure that banner exists to report. Found and
+ * fixed at M2.7 (f5) while establishing FR-84's precondition.
+ *
+ * So `toWire` is applied to every option value and to every `defaultValue`,
+ * uniformly — including the four sets whose two spellings coincide today.
+ * Applying it only where it currently matters is how this comes back.
  */
 export function WorkItemFilterBar({ query }: { query: WorkItemQuery }) {
   return (
@@ -76,12 +99,16 @@ export function WorkItemFilterBar({ query }: { query: WorkItemQuery }) {
         <NativeSelect
           id="filter-mode"
           name={PARAM.mode}
-          defaultValue={query.executionMode ?? ""}
+          defaultValue={
+            query.executionMode === null
+              ? ""
+              : EXECUTION_MODE.toWire(query.executionMode)
+          }
           className="ident"
         >
           <option value="">any</option>
           {EXECUTION_MODES.map((mode) => (
-            <option key={mode} value={mode}>
+            <option key={mode} value={EXECUTION_MODE.toWire(mode)}>
               {EXECUTION_MODE_LABELS[mode]}
             </option>
           ))}
@@ -92,12 +119,16 @@ export function WorkItemFilterBar({ query }: { query: WorkItemQuery }) {
         <NativeSelect
           id="filter-executor"
           name={PARAM.executor}
-          defaultValue={query.executorKind ?? ""}
+          defaultValue={
+            query.executorKind === null
+              ? ""
+              : EXECUTOR_KIND.toWire(query.executorKind)
+          }
           className="ident"
         >
           <option value="">any</option>
           {EXECUTOR_KINDS.map((kind) => (
-            <option key={kind} value={kind}>
+            <option key={kind} value={EXECUTOR_KIND.toWire(kind)}>
               {EXECUTOR_KIND_LABELS[kind]}
             </option>
           ))}
@@ -108,12 +139,14 @@ export function WorkItemFilterBar({ query }: { query: WorkItemQuery }) {
         <NativeSelect
           id="filter-status"
           name={PARAM.status}
-          defaultValue={query.status ?? ""}
+          defaultValue={
+            query.status === null ? "" : WORK_STATUS.toWire(query.status)
+          }
           className="ident"
         >
           <option value="">any</option>
           {WORK_STATUSES.map((status) => (
-            <option key={status} value={status}>
+            <option key={status} value={WORK_STATUS.toWire(status)}>
               {WORK_STATUS_LABELS[status]}
             </option>
           ))}
@@ -126,12 +159,16 @@ export function WorkItemFilterBar({ query }: { query: WorkItemQuery }) {
         <NativeSelect
           id="filter-disposition"
           name={PARAM.disposition}
-          defaultValue={query.disposition ?? ""}
+          defaultValue={
+            query.disposition === null
+              ? ""
+              : DISPOSITION.toWire(query.disposition)
+          }
           className="ident"
         >
           <option value="">any</option>
           {DISPOSITIONS.map((disposition) => (
-            <option key={disposition} value={disposition}>
+            <option key={disposition} value={DISPOSITION.toWire(disposition)}>
               {DISPOSITION_LABELS[disposition]}
             </option>
           ))}
@@ -145,12 +182,16 @@ export function WorkItemFilterBar({ query }: { query: WorkItemQuery }) {
         <NativeSelect
           id="filter-evidence"
           name={PARAM.evidence}
-          defaultValue={query.evidenceScope ?? ""}
+          defaultValue={
+            query.evidenceScope === null
+              ? ""
+              : EVIDENCE_SCOPE.toWire(query.evidenceScope)
+          }
           className="ident"
         >
           <option value="">any</option>
           {EVIDENCE_SCOPES.map((scope) => (
-            <option key={scope} value={scope}>
+            <option key={scope} value={EVIDENCE_SCOPE.toWire(scope)}>
               {EVIDENCE_SCOPE_LABELS[scope]}
             </option>
           ))}
@@ -161,12 +202,16 @@ export function WorkItemFilterBar({ query }: { query: WorkItemQuery }) {
         <NativeSelect
           id="filter-reason"
           name={PARAM.reason}
-          defaultValue={query.unautomatedReason ?? ""}
+          defaultValue={
+            query.unautomatedReason === null
+              ? ""
+              : UNAUTOMATED_REASON.toWire(query.unautomatedReason)
+          }
           className="ident"
         >
           <option value="">any</option>
           {UNAUTOMATED_REASONS.map((reason) => (
-            <option key={reason} value={reason}>
+            <option key={reason} value={UNAUTOMATED_REASON.toWire(reason)}>
               {UNAUTOMATED_REASON_LABELS[reason]}
             </option>
           ))}

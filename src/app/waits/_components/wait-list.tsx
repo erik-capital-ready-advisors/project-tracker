@@ -1,3 +1,9 @@
+import Link from "next/link";
+
+import { EntityRef, EntityRefList } from "@/components/entity-ref";
+import type { EntityRefItem } from "@/components/entity-ref";
+import { resolvedId } from "@/lib/detail-load";
+import type { RefResolution } from "@/lib/detail-load";
 import { cn } from "@/lib/utils";
 import type { WaitGroup, StoredWait } from "@/lib/server/waits/store";
 
@@ -27,6 +33,24 @@ import { ResolveWaitButton } from "./resolve-wait-button";
  * `isOverdue` is false for a wait nobody gave a date for, which is correct --
  * there is no date to be past. But rendering that as an unmarked row would read
  * as "on schedule". It gets its own quiet marker instead.
+ *
+ * ## FR-80 — two kinds of reference on this screen, resolved differently
+ *
+ * The **wait itself** carries its own uuid, so `<EntityRef kind="external_wait">`
+ * needs no resolution and can never dangle. Its `label` is also its natural key
+ * — `unique (engagement_id, label)` — which is why the label is the reference.
+ *
+ * The **work items it blocks** are the other case: `StoredWait.blocks` holds
+ * *unit keys* and no ids, so those must be resolved. The page resolves every
+ * block on the screen in one batch and passes the result down; this component
+ * looks each one up through `resolvedId`, which builds the key with `refKey`
+ * rather than spelling one out.
+ *
+ * A wait carries no run, so a unit key resolves only while the engagement holds
+ * exactly one work item with it. `resolveRefs` refuses rather than guessing when
+ * a second run defines the same unit, and the token then dangles — visibly,
+ * which is the intent. `unparsed` is the only default and a link to the wrong
+ * work item is the navigable form of a wrong `done`.
  */
 
 function OverdueBadge({ days }: { days: number | null }) {
@@ -42,7 +66,23 @@ function OverdueBadge({ days }: { days: number | null }) {
   );
 }
 
-function WaitRow({ wait }: { wait: StoredWait }) {
+function WaitRow({
+  wait,
+  resolution,
+}: {
+  wait: StoredWait;
+  resolution: RefResolution;
+}) {
+  const blocks: EntityRefItem[] = wait.blocks.map((unit) => ({
+    kind: "work_item" as const,
+    label: unit,
+    id: resolvedId(resolution, {
+      kind: "work_item",
+      ref: unit,
+      engagementId: wait.engagementId,
+    }),
+  }));
+
   const started = isoDay(wait.startedOn);
   const expected = isoDay(wait.expectedBy);
   const resolvedOn = isoDay(wait.resolvedAt);
@@ -64,13 +104,25 @@ function WaitRow({ wait }: { wait: StoredWait }) {
     >
       <div className="min-w-0 flex-1">
         <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-          <span className="text-foreground text-sm font-medium">
-            {wait.label}
-          </span>
+          {/* `text-sm font-medium` is what this heading has always drawn,
+              restated so adopting the reference token keeps its size and
+              weight. The wait's label IS its natural key, so it is the
+              reference and needs no separate identifier beside it. */}
+          <EntityRef
+            kind="external_wait"
+            label={wait.label}
+            id={wait.id}
+            className="text-sm font-medium"
+          />
           {wait.engagementSlug === null ? null : (
-            <span className="ident text-muted-foreground text-xs">
+            <Link
+              href={`/registry/${wait.engagementSlug}`}
+              data-verify-unit="engagement-link"
+              data-verify-slug={wait.engagementSlug}
+              className="ident text-muted-foreground hover:text-foreground text-xs underline-offset-2 hover:underline"
+            >
               {wait.engagementSlug}
-            </span>
+            </Link>
           )}
           {wait.ownerType === null ? null : (
             <span className="ident text-muted-foreground/70 text-xs">
@@ -84,12 +136,13 @@ function WaitRow({ wait }: { wait: StoredWait }) {
           <p className="text-muted-foreground mt-1 text-sm">{wait.reason}</p>
         )}
 
-        {wait.blocks.length === 0 ? null : (
+        {blocks.length === 0 ? null : (
           <p className="text-muted-foreground mt-1 text-xs">
             blocks{" "}
-            <span className="ident text-foreground">
-              {wait.blocks.join(" ")}
-            </span>
+            <EntityRefList
+              refs={blocks}
+              empty="This wait holds nothing up."
+            />
           </p>
         )}
       </div>
@@ -145,7 +198,18 @@ function WaitRow({ wait }: { wait: StoredWait }) {
   );
 }
 
-export function WaitList({ groups }: { groups: readonly WaitGroup[] }) {
+export function WaitList({
+  groups,
+  resolution,
+}: {
+  groups: readonly WaitGroup[];
+  /**
+   * FR-80 — every unit key in every group's `blocks`, resolved in one batch by
+   * the page. An **empty** map is the honest default: nothing was resolved, so
+   * every blocked work item dangles rather than linking somewhere unchecked.
+   */
+  resolution: RefResolution;
+}) {
   return (
     <div className="flex flex-col gap-4" data-verify-unit="wait-list">
       {groups.map((group) => (
@@ -169,7 +233,7 @@ export function WaitList({ groups }: { groups: readonly WaitGroup[] }) {
           </header>
           <ul>
             {group.waits.map((wait) => (
-              <WaitRow key={wait.id} wait={wait} />
+              <WaitRow key={wait.id} wait={wait} resolution={resolution} />
             ))}
           </ul>
         </section>
