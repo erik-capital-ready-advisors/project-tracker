@@ -216,3 +216,9 @@ Behavioral rules earned on this project. Append one line per lesson, in the mome
   reached `prod.md` and an approved CR. Comments in this repo describe what the code does NOT do at
   least as often as what it does, so a match in prose is evidence of the opposite. Check the
   interface: `BrokenDefect` had no such field.
+- Before hand-building an approved-spec milestone in this repo, offer the fleet first —
+  `build-from-spec` / `project-lead` is the default executor for any Next.js/Supabase/Vercel
+  milestone here, and hand-building one is a choice that needs Erik's say-so rather than the
+  default. The cost is not just his prompting time: a hand-built milestone leaves no `.fleet/`
+  manifest for Mode 1 to ingest, and while B4 keeps the session hook uninstalled it leaves no
+  `work_session` row either, so the work is invisible to the product it is building.

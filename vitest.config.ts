@@ -36,6 +36,15 @@ export default defineConfig({
     globals: false,
     setupFiles: ["./vitest.setup.ts"],
     include: ["tests/**/*.test.{ts,tsx}", "src/**/*.test.{ts,tsx}"],
-    exclude: ["node_modules/**", ".next/**", "e2e/**"],
+    exclude: [
+      "node_modules/**",
+      ".next/**",
+      "e2e/**",
+      // M2.7's acceptance gate, written before M2.7 was dispatched and RED on
+      // purpose. Run it with `pnpm gate:m27`. DELETE THIS LINE on the day the
+      // milestone starts — from then on it is a normal test and the suite is
+      // what says whether the detail views are navigable.
+      "tests/m27-gate.test.ts",
+    ],
   },
 });

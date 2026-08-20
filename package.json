@@ -10,6 +10,8 @@
     "lint": "oxlint",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
+    "gate:m27": "vitest run --config vitest.gate.config.ts",
+    "gate:m27:e2e": "playwright test --project=m27-gate",
     "test:watch": "vitest",
     "e2e": "playwright test"
   },
