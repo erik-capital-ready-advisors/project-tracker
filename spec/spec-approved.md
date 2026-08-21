@@ -411,6 +411,43 @@ No contract or policy text was supplied. Erik's client work is performed under U
 
 ---
 
+## 7c. Verification Access
+
+**Added 2026-08-21. Erik's ruling, not an agent's** — recorded in `spec/prod.md`'s Decisions log
+the same day. `security-gate.sh` refuses a run whose spec has neither this section nor a waiver
+line, and it may not be filled in by an agent, for the same reason §7a may not: an
+agent-invented `reachable` reads exactly like a tested one.
+
+| Boundary | Agent reach | Mechanism or reason | Consequence if unreachable |
+|---|---|---|---|
+| Agent token (`ingest:write`, `answer:read`) | reachable | a token minted per run and placed in `.env.local`; see `docs/agent-tokens.md` | — |
+| Operator sign-in at `aal2` (TOTP) | reachable | `node scripts/save-operator-session.mjs` — Erik completes the second factor once, the script refuses to save anything below `aal2`, and the resulting storage state is passed as `M27_STORAGE_STATE` | — |
+
+**On the second row, because it is the one that was ruled rather than observed.** It is
+`reachable` with a human in the loop for exactly one step: the script cannot mint a factor, so
+Erik completes TOTP once and the captured session is then usable by any agent for its lifetime.
+The ruling is that this counts, and the reasoning is that `save-operator-session.mjs` enforces
+the only property that matters — it refuses below `aal2` (`scripts/save-operator-session.mjs:78`),
+so a session that would have failed the gate later cannot be saved at all.
+
+**What this costs if it turns out to be wrong.** If the captured session is unavailable when a
+run starts — expired, revoked, or never minted — this row is `unreachable` in practice while
+declaring itself `reachable`, and the run will discover that instead of knowing it. The tell is
+`project-lead` Phase 0: it runs every `reachable` mechanism before dispatch and reports what
+happened, so a stale session surfaces as a Phase 0 blocker on Erik rather than as a silent
+verification gap. **If Phase 0 cannot produce an `aal2` session, this row is to be treated as
+`unreachable` for that run** and its consequence is: every authenticated screen is built
+unobserved, `pnpm gate:m27:e2e` cannot run in-run, and `docs/user-guide.md` (§7b) cannot be
+written.
+
+**One handling rule that travels with this section (B38).** A failing `gate:m27:e2e` prints the
+live operator session cookie — access token *and* refresh token — into its output, because
+Playwright logs request headers on failure and `M27_STORAGE_STATE` puts the cookie on every
+request. It leaked twice on 2026-08-20. Assume any gate failure exposes a live session and
+revoke afterwards.
+
+---
+
 ## 8. Integrations & APIs
 
 ### 8.1 Supabase (Postgres, Auth, Storage)
