@@ -188,11 +188,14 @@ Behavioral rules earned on this project. Append one line per lesson, in the mome
   you know is present also comes back non-zero. A bundle scan pointed at the wrong chunks reported
   a clean result indistinguishable from a real one; adding a control term (`function`, in any React
   chunk) exposed it and moved the scan to the chunks the browser Supabase client actually lands in.
-- When running `fleet-preflight.sh`, pass the session's **launch** cwd as argument 2 explicitly —
-  never `$PWD` after a `cd` earlier in the same Bash call. The harness resets the Bash cwd per
-  call, so the `cd` makes the cwd check pass against a repo the session was never launched from,
-  and worktree isolation keys off the launch cwd regardless. A green preflight obtained this way
-  is the same false-green as a subagent editing its own gate.
+- Run `fleet-preflight.sh <repo_path>` with **one argument**, and never pass `$PWD` as a second.
+  As of 2026-08-20 the script derives the session's launch cwd from `$CLAUDE_CODE_SESSION_ID`,
+  which no `cd` can alter; argument 2 is a fallback only, and one that disagrees with the derived
+  value earns a `WARN`. The rule this replaces existed because the harness resets the Bash cwd per
+  call, so `cd <repo> && fleet-preflight.sh .` made the check pass against a repo the session was
+  never launched from — the same false-green as a subagent editing its own gate. Read the verdict
+  line rather than the exit code: `PREFLIGHT PASS (n WARN)` carrying `launch cwd NOT VERIFIED`
+  means the derivation failed and that fallback is back in play.
 - When sending a mid-flight `SendMessage` to a background agent, confirm the target `agentId` against
   that agent's own completion notification or its `description` before sending — dispatch order is not
   a reliable index into the ids, and a misdirected brief assigns the work to nobody while looking sent.
