@@ -1,0 +1,45 @@
+# pnpm 11 refuses to run ANY script while a dependency's install-time build script is
+# undecided: `verify-deps-before-run` raises ERR_PNPM_IGNORED_BUILDS and aborts inside
+# `runDepsStatusCheck`, so `pnpm build`, `pnpm test`, `pnpm typecheck` and `pnpm lint` all
+# fail before the tooling starts. Vercel hits the same gate, so leaving it undecided breaks
+# the deploy, not just local work.
+#
+# pnpm writes `unrs-resolver: set this to true or false` here and waits for a human, because
+# letting a package execute code at install time is a trust decision. The answer recorded
+# below is `false` -- the REFUSING answer. It withholds execution permission rather than
+# granting it, which is why an agent may write it; flipping it to `true` is Erik's call and
+# is queued as a question for run b0952e.
+#
+# Declining costs nothing on this stack. `unrs-resolver` arrives transitively via
+# eslint-config-next -> eslint-import-resolver-typescript, and ships prebuilt platform
+# bindings as optional dependencies. `@unrs/resolver-binding-darwin-arm64` installs normally;
+# the postinstall script only builds a binding when no prebuilt one matched the platform.
+# Verified by behavior after setting this: `pnpm install` exits 0 and `pnpm build` runs.
+#
+# `ignoredBuiltDependencies:` does NOT work here -- pnpm 11.1.2 ignores it silently and
+# rewrites the `allowBuilds` placeholder back. Verify any change to this file by running a
+# script, never by reading the file back.
+allowBuilds:
+  unrs-resolver: false
+
+# ---------------------------------------------------------------------------
+# NOTE ON LINTING, recorded here because it is a property of this pinned stack.
+#
+# ESLint is NOT installed. typescript-eslint does not support TypeScript 7 and
+# refuses at LOAD time rather than degrading:
+#
+#   Error: typescript-eslint does not support TS 7.0.
+#
+# It is thrown from `@typescript-eslint/parser/dist/index.js` the moment the
+# module is required, which takes `eslint-config-next` down with it. No subset
+# of rules avoids it, because ESLint cannot parse a .tsx file at all without a
+# TypeScript parser. Tracking: typescript-eslint#10940.
+#
+# `pnpm lint` therefore runs oxlint, which parses TS/TSX natively in Rust and
+# has no dependency on the TypeScript compiler. Type-aware checking is not lost:
+# `pnpm typecheck` runs the real pinned 7.0.2 compiler.
+#
+# The documented side-by-side workaround (give the linter the TypeScript 6 API)
+# was attempted and abandoned: pnpm 11.1.2 silently ignored the `overrides` key
+# in BOTH this file and package.json's `pnpm.overrides`, reporting "Already up
+# to date" and writing nothing to the lockfile, even under `--force`.

@@ -1,0 +1,351 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+/* ---------------------------------------------------------------------------
+ * Tailwind v4 auto-detects content by scanning the project root, and it does
+ * NOT limit itself to source files. Every committed .md in the tree is scanned,
+ * so a utility name written in an ordinary English sentence ("filter", "table",
+ * "grid", "fixed", "container") is extracted as if it were markup and emitted
+ * as real CSS.
+ *
+ * This repo is unusually exposed to that: plan.md is 2,170 lines, spec/ holds
+ * the approved spec and its change requests, .fleet/ accumulates agent reports
+ * every run, and docs/user-guide.md is a Phase 1 deliverable. Left unexcluded,
+ * prose can resurrect a class deliberately deleted from the markup, which
+ * silently falsifies any assertion made about the emitted stylesheet.
+ *
+ * Keep this list in step with any new prose directory added to the repo root.
+ * ------------------------------------------------------------------------ */
+@source not "../../.fleet";
+@source not "../../spec";
+@source not "../../docs";
+@source not "../../tests/fixtures";
+@source not "../../plan.md";
+@source not "../../CLAUDE.md";
+@source not "../../README.md";
+
+@custom-variant dark (&:is(.dark *));
+
+/* ---------------------------------------------------------------------------
+ * DESIGN TOKENS -- spec section 5a. There is NO approved mockup for this
+ * project (5a: "Approved design: NOT YET APPROVED"), so these values are
+ * chosen from 5a's written direction and are Erik's to review.
+ *
+ * Three scales, kept deliberately separate:
+ *   1. NEUTRAL GROUND  -- zinc. Surfaces, text, borders.
+ *   2. ACCENT          -- violet. Interactive chrome ONLY: focus rings, the
+ *                         active nav item, primary buttons. It never encodes
+ *                         state, so a violet pixel always means "you can act
+ *                         on this" and never "this thing is in condition X".
+ *   3. SEMANTIC STATE  -- a separate scale, one colour per state, identical on
+ *                         every surface it appears on.
+ *
+ * The state scale carries far more states than hue alone can distinguish
+ * legibly, so it runs on two channels:
+ *
+ *   HUE       = family / valence
+ *   TREATMENT = confidence (solid fill = observed or derived firmly;
+ *               outline = asserted or decided; dashed outline = absent or
+ *               unverified)
+ *
+ * That second channel is what lets FR-43's four evidence scopes stay visibly
+ * distinct without four unrelated hues, and it survives greyscale printing.
+ * FR-43, FR-49 and FR-30 all forbid collapsing their states into each other,
+ * so every one below has its own token even where two share a hue family.
+ *
+ * Violet is deliberately absent from the state scale and fuchsia is deliberately
+ * absent from the chrome, so `unparsed` can never be mistaken for a UI affordance.
+ * ------------------------------------------------------------------------ */
+
+:root {
+  --radius: 0.5rem;
+
+  /* -- neutral ground (light) ------------------------------------------- */
+  --background: #fafafa;
+  --foreground: #18181b;
+  --card: #ffffff;
+  --card-foreground: #18181b;
+  --popover: #ffffff;
+  --popover-foreground: #18181b;
+  --muted: #f4f4f5;
+  --muted-foreground: #52525b;
+  --border: #e4e4e7;
+  --input: #e4e4e7;
+
+  /* -- accent: interactive chrome only (light) -------------------------- */
+  --primary: #6d28d9;
+  --primary-foreground: #fafafa;
+  --accent: #f4f4f5;
+  --accent-foreground: #18181b;
+  --secondary: #f4f4f5;
+  --secondary-foreground: #18181b;
+  --ring: #6d28d9;
+
+  /* -- semantic state scale (light) ------------------------------------- */
+  /* The five named in spec 5a */
+  --state-verified: #046c4e;         /* emerald 800  -- solid. Darkened from 700 so it clears
+                                        `carried` in greyscale; see tests/state-scale.test.ts */
+  --state-carried: #b45309;          /* amber 700    -- solid  */
+  --state-blocked: #b91c1c;          /* red 700      -- solid  */
+  --state-decided-against: #52525b;  /* zinc 600     -- outline, deliberately drained */
+  --state-unparsed: #a21caf;         /* fuchsia 700  -- solid, used for nothing else */
+
+  /* FR-30: closed is distinct from carried */
+  --state-closed: #52525b;           /* zinc 600     -- outline */
+
+  /* CR-001 FR-63/FR-67: defect status */
+  --state-open: #b91c1c;             /* red 700      -- outline */
+  --state-fixed: #0f7c9a;            /* cyan 700+    -- solid. Lifted so it clears `contested` */
+  --state-wont-fix: #52525b;         /* zinc 600     -- dashed outline */
+
+  /* CR-001 FR-79: billable but disputed. Never presented as clean. */
+  --state-contested: #c2410c;        /* orange 700   -- solid + ring */
+
+  /* FR-43: four evidence scopes, never collapsed into each other */
+  --state-observed-live: #047857;      /* emerald 700 -- solid  */
+  --state-observed-elsewhere: #0c615a; /* teal 800    -- solid. Darkened so FR-43's four scopes
+                                          stay distinct in greyscale */
+  --state-asserted: #b45309;           /* amber 700   -- outline */
+  --state-not-verified: #52525b;       /* zinc 600    -- dashed outline */
+
+  /* FR-49: unproven is distinct from uncovered */
+  --state-unproven: #b45309;         /* amber 700    -- dashed outline */
+  --state-uncovered: #b91c1c;        /* red 700      -- dashed outline */
+
+  --destructive: #b91c1c;
+  --destructive-foreground: #fafafa;
+
+  /* Sidebar surfaces, aligned to the zinc ground and the violet accent. */
+  --sidebar: #ffffff;
+  --sidebar-foreground: #18181b;
+  --sidebar-primary: #6d28d9;
+  --sidebar-primary-foreground: #fafafa;
+  --sidebar-accent: #f4f4f5;
+  --sidebar-accent-foreground: #18181b;
+  --sidebar-border: #e4e4e7;
+  --sidebar-ring: #6d28d9;
+
+  /* No charting library in Phase 1 (spec 5a). These exist because shadcn's
+   * primitives reference them; the register and bid table in Phase 2 decide
+   * whether a chart is earned. */
+  --chart-1: #6d28d9;
+  --chart-2: #0f766e;
+  --chart-3: #b45309;
+  --chart-4: #0e7490;
+  --chart-5: #a21caf;
+}
+
+.dark {
+  /* -- neutral ground (dark) -------------------------------------------- */
+  --background: #09090b;
+  --foreground: #fafafa;
+  --card: #121215;
+  --card-foreground: #fafafa;
+  --popover: #121215;
+  --popover-foreground: #fafafa;
+  --muted: #1c1c1f;
+  --muted-foreground: #a1a1aa;
+  --border: #27272a;
+  --input: #27272a;
+
+  /* -- accent: interactive chrome only (dark) --------------------------- */
+  --primary: #a78bfa;
+  --primary-foreground: #09090b;
+  --accent: #1c1c1f;
+  --accent-foreground: #fafafa;
+  --secondary: #1c1c1f;
+  --secondary-foreground: #fafafa;
+  --ring: #a78bfa;
+
+  /* -- semantic state scale (dark) -------------------------------------- */
+  --state-verified: #34d399;
+  --state-carried: #fbbf24;
+  --state-blocked: #f87171;
+  --state-decided-against: #a1a1aa;
+  --state-unparsed: #e879f9;
+
+  --state-closed: #a1a1aa;
+
+  --state-open: #f87171;
+  --state-fixed: #22d3ee;
+  --state-wont-fix: #a1a1aa;
+
+  --state-contested: #fb923c;
+
+  --state-observed-live: #34d399;
+  --state-observed-elsewhere: #27c0ad; /* darkened so it clears `observed-live` in greyscale */
+  --state-asserted: #fbbf24;
+  --state-not-verified: #a1a1aa;
+
+  --state-unproven: #fbbf24;
+  --state-uncovered: #f87171;
+
+  --destructive: #f87171;
+  --destructive-foreground: #09090b;
+
+  --sidebar: #121215;
+  --sidebar-foreground: #fafafa;
+  --sidebar-primary: #a78bfa;
+  --sidebar-primary-foreground: #09090b;
+  --sidebar-accent: #1c1c1f;
+  --sidebar-accent-foreground: #fafafa;
+  --sidebar-border: #27272a;
+  --sidebar-ring: #a78bfa;
+
+  --chart-1: #a78bfa;
+  --chart-2: #2dd4bf;
+  --chart-3: #fbbf24;
+  --chart-4: #22d3ee;
+  --chart-5: #e879f9;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-ring: var(--ring);
+
+  --color-state-verified: var(--state-verified);
+  --color-state-carried: var(--state-carried);
+  --color-state-blocked: var(--state-blocked);
+  --color-state-decided-against: var(--state-decided-against);
+  --color-state-unparsed: var(--state-unparsed);
+  --color-state-closed: var(--state-closed);
+  --color-state-open: var(--state-open);
+  --color-state-fixed: var(--state-fixed);
+  --color-state-wont-fix: var(--state-wont-fix);
+  --color-state-contested: var(--state-contested);
+  --color-state-observed-live: var(--state-observed-live);
+  --color-state-observed-elsewhere: var(--state-observed-elsewhere);
+  --color-state-asserted: var(--state-asserted);
+  --color-state-not-verified: var(--state-not-verified);
+  --color-state-unproven: var(--state-unproven);
+  --color-state-uncovered: var(--state-uncovered);
+
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+
+  --radius-sm: calc(var(--radius) - 2px);
+  --radius-md: var(--radius);
+  --radius-lg: calc(var(--radius) + 2px);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+
+  /* LITERAL family names, never `var(--font-sans)`. Tailwind v4 resolves
+   * `@theme inline` at PARSE time, so `--font-sans: var(--font-sans)` is a
+   * circular self-reference that resolves to nothing and silently drops the
+   * font, and even `var(--font-geist-sans)` fails because next/font injects
+   * that variable at RUNTIME. `shadcn init` writes the circular form -- if
+   * you have just re-run it, check these two lines first. */
+  --font-sans: "Geist", "Geist Fallback", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "Geist Mono", "Geist Mono Fallback", ui-monospace, SFMono-Regular,
+    "SF Mono", Menlo, monospace;
+  --font-heading: "Geist", "Geist Fallback", ui-sans-serif, system-ui, sans-serif;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  html {
+    @apply font-sans;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Spec 5a: identifiers, run ids, requirement refs, durations and dates are
+   * mono with tabular figures throughout -- they are read in columns and
+   * compared, so the glyphs must align. */
+  code,
+  kbd,
+  samp,
+  pre {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+  }
+
+  /* Spec 5a: motion is minimal -- transitions on state change only, and no
+   * entrance animation on a dashboard opened forty times a day. */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+/* The identifier idiom, applied wherever a work-unit id, run id, requirement
+ * ref, date or duration is rendered. Spec 5a requires tabular figures on all
+ * of them because they are read in columns and compared. */
+@utility ident {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+}
+
+/* `unparsed` is the one state that must never be mistaken for anything else,
+ * and the thing it was closest to was not another state - it was the primary
+ * action. Measured 2026-08-20: `--state-unparsed` and `--primary` sit 0.3 apart
+ * in greyscale in light and 0.9 in dark, out of 255. Desaturated, a fuchsia
+ * "unparsed" pill and a violet "Apply" button are the same value, which is
+ * exactly what spec 5a's "violet appears nowhere in the state scale and fuchsia
+ * nowhere in the chrome" was written to prevent.
+ *
+ * Hue could not fix it: inside the work-item scale `unparsed` must also clear
+ * `verified`, `carried` and `blocked`, and solving for all four inside the
+ * contrast floor has no room. So the separator is TEXTURE. No other chip and no
+ * button in this product is hatched, a hatch survives desaturation and every
+ * form of colour blindness because it is not a colour, and nothing that looks
+ * like this is clickable.
+ *
+ * `tests/state-scale.test.ts` reads the treatment off the component: revert this
+ * to a solid fill and the greyscale assertion comes back automatically. */
+@utility state-hatch {
+  background-image: repeating-linear-gradient(
+    135deg,
+    color-mix(in oklab, var(--state-unparsed) 34%, transparent) 0 2px,
+    transparent 2px 6px
+  );
+}

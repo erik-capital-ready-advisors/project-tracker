@@ -1,0 +1,62 @@
+-- Delivery Ledger — work-unit i10. One grant. It restores Mode-1 ingest, which
+-- has been inoperable since 20260819165903.
+--
+-- ---------------------------------------------------------------------------
+-- The defect
+-- ---------------------------------------------------------------------------
+-- 20260819165903_i5_ingest_idempotency_and_gates.sql:82 revoked EXECUTE on
+-- app.gates_are_closed_set(jsonb) from public, anon and authenticated, and added
+-- no grant back. Revoking from PUBLIC removes the default EXECUTE that every
+-- role holds implicitly, and `service_role` is not a member of `authenticated`,
+-- so the revoke took the function away from `service_role` too.
+--
+-- Line 89 of the same migration then made that function a CHECK constraint on
+-- public.fleet_run. **A CHECK constraint is evaluated in the CALLER's role**, not
+-- the table owner's and not the function owner's. Every application write runs
+-- as `service_role`, and persistPlan() writes fleet_run first, so:
+--
+--   POST /api/ingest/run  ->  500, always, for every payload.
+--
+-- Measured on this project, 2026-08-19, before this migration:
+--
+--   set local role service_role;
+--   select app.gates_are_closed_set('{}'::jsonb);
+--     -> SQLSTATE 42501: permission denied for function gates_are_closed_set
+--
+--   has_function_privilege('service_role',
+--     'app.gates_are_closed_set(jsonb)','EXECUTE')  ->  false
+--
+-- ---------------------------------------------------------------------------
+-- Why this is the whole fix, and why it is only one function
+-- ---------------------------------------------------------------------------
+-- Every other app.* function is reached from a context that does NOT check the
+-- caller's EXECUTE privilege at run time, which is why i1's design of six thin
+-- SECURITY DEFINER wrappers in `public` works and why nothing else broke:
+--
+--   * app.encrypt_field / decrypt_field / hash_token / verify_token /
+--     check_and_increment_rate_limit / prune_rate_limit_counters — called only
+--     from their public.* SECURITY DEFINER wrappers, which run as the owner.
+--   * app.looks_like_secret — called only from inside
+--     app.reject_secret_shaped_identifiers(), itself SECURITY DEFINER. Postgres
+--     checks EXECUTE on a trigger function at CREATE TRIGGER time, not at fire
+--     time, so FR-78 keeps working with no grant at all.
+--   * app.deny_mutation — four triggers, same reason.
+--   * app.is_operator — named in 23 RLS policies, which ARE caller-role, and it
+--     is correctly granted to both `authenticated` and `service_role` already.
+--
+-- A census of every caller-role context in the database (CHECK constraints,
+-- column defaults, generated columns, index expressions and predicates, RLS
+-- policies, and view bodies) was run against the live project before writing
+-- this, and app.gates_are_closed_set in fleet_run_gates_closed_set is the only
+-- app.* function reachable from one without a matching grant. There is no second
+-- instance of this defect to fix.
+--
+-- ---------------------------------------------------------------------------
+-- Why `service_role` alone
+-- ---------------------------------------------------------------------------
+-- The revoke of public, anon and authenticated stands and is deliberate. §7a's
+-- posture depends on the `app` schema staying unexposed, and nothing but the
+-- server writes fleet_run — the table's only policy for `authenticated` is a
+-- SELECT. Granting `authenticated` here would widen the surface to buy nothing.
+
+grant execute on function app.gates_are_closed_set(jsonb) to service_role;

@@ -117,6 +117,15 @@ inferred:
 - **Every new function in schema `public` needs an explicit per-name `REVOKE` from `PUBLIC`.**
   `ALTER DEFAULT PRIVILEGES` does not close it; that was measured, and it is a rule here rather
   than a discovery to repeat.
+- **Every per-name `REVOKE ... FROM public` needs a matching `GRANT ... TO service_role` whenever
+  the function is reached in the caller's role.** The revoke does not merely withhold — it removes
+  the EXECUTE that `service_role` inherited through `PUBLIC`, and `service_role` is not a member of
+  `authenticated`, so listing `anon, authenticated` beside `public` hides that. A CHECK constraint,
+  a generated column and an RLS policy expression all evaluate in the **caller's** role, so a
+  function used by one of them becomes unexecutable by the application and the table silently
+  unwritable — the migration succeeds and the first `INSERT` fails `42501` naming the function, not
+  the table. A `SECURITY DEFINER` trigger is the case that does not need the grant. Measured on run
+  `b0952e`: this killed Mode-1 ingest completely and the whole suite stayed green.
 
 ## Provisioning is Erik's decision
 
@@ -150,3 +159,60 @@ Behavioral rules earned on this project. Append one line per lesson, in the mome
   plus a `list_projects` that omitted it looked conclusive and was wrong: the Vercel project existed
   and was deployed, and the MCP connector simply could not see it. "The API cannot see it" and "it
   does not exist" are different claims.
+- When dispatching a `researcher`, give it an explicit output path under `.fleet/research/<run-id>/`.
+  Handed only a run id and a unit id, it writes its note to
+  `.fleet/specialist-reports/<run-id>/<unit>.md` and silently occupies the report path the
+  dispatching unit still has to write.
+- After `apply_migration`, rename the local file to the version `list_migrations` reports rather
+  than a timestamp you picked. Supabase assigns its own version, and a mismatch makes a later
+  `supabase db push` read every applied file as pending and re-run it — which fails on
+  `create type` and reads like a broken migration instead of a bookkeeping mismatch.
+- When mutation-testing new code, snapshot each file's bytes in the harness and write them back;
+  never revert with `git checkout --`. New files are untracked, `git checkout --` fails on them
+  with `did not match any file(s) known to git`, and if the harness ignores that exit code every
+  mutation stays applied and accumulates — so later mutations run against already-broken code and
+  the per-mutation verdicts are unattributable. Have the harness restore in a `finally` and print
+  the tree state at the end.
+- Upsert conflict targets must be PLAIN unique indexes, never partial ones. PostgREST's
+  `on_conflict` takes column names and cannot carry a `WHERE` predicate, so `supabase-js`
+  `.upsert()` against a partial unique index fails `42P10 there is no unique or exclusion
+  constraint matching the ON CONFLICT specification` — and it fails only on the *second* post,
+  which is exactly the idempotency case nobody exercises before shipping.
+- Read security headers off a protected Vercel preview with `vercel curl`, never a plain `curl`.
+  Deployment protection answers first with its own `302` to `vercel.com/sso-api`, and that
+  interstitial carries `strict-transport-security` and `x-frame-options` of its own — so a plain
+  `curl` returns a header block that looks like the app's and came from the edge. The tell here is
+  `preload`, which Vercel's HSTS has and `next.config.ts` deliberately omits; in general, verify a
+  header against the value the repo actually sets rather than against its mere presence.
+- When a scan for secret shapes returns zero on every pattern, assume it is blind until a pattern
+  you know is present also comes back non-zero. A bundle scan pointed at the wrong chunks reported
+  a clean result indistinguishable from a real one; adding a control term (`function`, in any React
+  chunk) exposed it and moved the scan to the chunks the browser Supabase client actually lands in.
+- When running `fleet-preflight.sh`, pass the session's **launch** cwd as argument 2 explicitly —
+  never `$PWD` after a `cd` earlier in the same Bash call. The harness resets the Bash cwd per
+  call, so the `cd` makes the cwd check pass against a repo the session was never launched from,
+  and worktree isolation keys off the launch cwd regardless. A green preflight obtained this way
+  is the same false-green as a subagent editing its own gate.
+- When sending a mid-flight `SendMessage` to a background agent, confirm the target `agentId` against
+  that agent's own completion notification or its `description` before sending — dispatch order is not
+  a reliable index into the ids, and a misdirected brief assigns the work to nobody while looking sent.
+  `u2` caught one addressed to `u4` and reported it; nothing else would have.
+- Test a React screen the way `next.config.ts` mounts it. `reactStrictMode: true` double-invokes
+  effects, and a bare `render(<X />)` cannot reproduce that — an effect guarded by a `useRef` plus a
+  cleanup-set cancel flag fires its request, discards the response and renders an empty frame, with
+  the whole suite green. Mount under `<StrictMode>` for anything that fetches in an effect.
+- Treat everything behind `aal2` as unexercised until a human has signed in. Agent verification
+  reaches every surface a token reaches and stops where an authenticator app begins; on run `b0952e`
+  the first twelve lines a person touched held two defects that 966 tests could not see.
+- When a procedure has Erik copy a secret to the clipboard, every command he must paste has to be
+  on screen **before** that copy step. A command block handed to him afterwards overwrites the
+  clipboard, and the next paste puts the instruction text into the `read` prompt — which looks
+  identical to a successful paste because `read -rs` echoes nothing. Order the steps so the secret
+  is the last thing copied, or have him start the waiting `read` before he opens the browser.
+- To establish that code *does* something, grep the code form and then confirm at the type or the
+  return site — never a bare identifier. `grep -oE "defect\.[a-zA-Z]+"` matched `defect.description`
+  inside a **comment** saying the field is deliberately never read, and that was reported as "Broken
+  renders the decrypted description" twice, once inside a correction of the first claim, and it
+  reached `prod.md` and an approved CR. Comments in this repo describe what the code does NOT do at
+  least as often as what it does, so a match in prose is evidence of the opposite. Check the
+  interface: `BrokenDefect` had no such field.

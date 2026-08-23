@@ -4,3 +4,25 @@ node_modules/
 .vercel/
 .claude/worktrees/
 .DS_Store
+
+# --- added by the application scaffold (work-unit u1, run b0952e) ---
+# Existing entries above are load-bearing; .claude/worktrees/ and .vercel/ in
+# particular must stay ignored -- see CLAUDE.md "Agent worktrees".
+/out/
+/build/
+*.tsbuildinfo
+next-env.d.ts
+
+# Playwright
+/playwright-report/
+/test-results/
+/blob-report/
+/playwright/.cache/
+
+# Tier-2 ingest fixtures: real fleet artifacts Erik copies in locally.
+# Spec section 7a classifies work-item, blocker and open-question prose `sensitive`,
+# and spec Q2 (whether a client contract restricts where their project details may
+# be stored) is open. Real client prose must never enter this repository; the
+# corpus suite skips when this directory is absent.
+fixtures-local/
+.playwright-mcp/
