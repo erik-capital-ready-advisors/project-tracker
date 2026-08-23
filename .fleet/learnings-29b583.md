@@ -3,7 +3,7 @@
 **Run:** 29b583
 **Project link:** [[Projects/Delivery Ledger]]
 **Date:** 2026-08-23
-**Cleared the bar:** 6 · **Routed:** 5 · **Held back:** 1 — over cap: a note on positional-index reads into a shared nav config array, which is a code-review pattern rather than a stack fact and is already captured in the run's own blocker record.
+**Cleared the bar:** 6 · **Routed:** 5 · **Held back:** 1 — over cap: a note on positional-index reads into a shared nav config array, which is a code-review pattern rather than a stack fact and is already captured in the run's own blocker record. (L3 was widened mid-run to carry a second, worse provisioning symptom rather than routing it as a sixth thin note.)
 
 ---
 
@@ -33,16 +33,22 @@ The boundary here was ruled `reachable` on the reasoning that a human completes 
 
 **Do this instead:** distinguish two states in the declaration rather than one. "Reachable by an agent unaided" and "reachable only with a person present" are different capabilities and they fail differently. A boundary in the second class should carry the freshness requirement explicitly — what artifact makes it reachable, how long that artifact lasts, and what the run does when it has lapsed — so a run can check the precondition instead of discovering it. And whichever class it is, run the named mechanism at the start of the run and report what happened: a declaration is a claim, and the run is the only thing that can test it.
 
-## L3 — Agent worktrees are not guaranteed to be cut from the branch you dispatched against, and a merge commit is "not an ancestor" while contributing nothing
+## L3 — Agent worktree isolation is not guaranteed: verify the base commit AND verify the agent is actually in its own tree
 
 **Topics:** git, worktrees, fleet, orchestration, merge-base, dispatch
 **Applies to:** any orchestrator dispatching parallel agents into isolated git worktrees
 **Confidence:** high
-**Evidence:** within one run, three worktrees were cut at the run branch's tip and a fourth at the repository's `master`; the containment check `comm -23 <(git ls-tree -r --name-only <master> | sort) <(git ls-tree -r --name-only <branch tip> | sort)` returned empty while `git merge-base --is-ancestor <master> <branch tip>` returned false
+**Evidence:** within one run, three worktrees were cut at the run branch's tip and a fourth at the repository's `master`; separately, a resumed agent wrote its source files into the **shared checkout** rather than any worktree, and a subsequent `git add -A` committed one of them inside a different unit's commit
 
 Worktree provisioning picked different base commits for different agents in the same run, with no change in how they were dispatched. So a brief that says "you are cut from X" is a guess, and the safety instruction every agent runs at step zero — prove the tree is clean and prove you hold no commits the branch lacks, then reset — is doing real work rather than ceremony.
 
 The second half is the part that costs an orchestrator time. When an agent lands on a **merge commit**, the check `git log <branch>..HEAD` correctly prints that commit, because a merge node on a mainline is genuinely not an ancestor of a branch that descends from the merge's *source* rather than through the merge itself. The agent stops, as it should. But the commit contributes no file and no line — its content is already in the branch by another path. Topology says "divergent"; content says "identical".
+
+There is a second, worse symptom of the same unreliability, and it does not announce itself at all. A resumed agent — one whose original worktree had been reclaimed after it stopped without changing anything — came back and did its work **in the shared checkout**. Nothing failed. Its reads succeeded, its writes succeeded, its tests passed. The damage surfaced only at commit time: an orchestrator running a broad `git add` swept that agent's new component into a *different* unit's commit, and a later, properly isolated instance of the same unit then read the shared checkout and found what looked like finished work already in place from an unknown source.
+
+That last part is the trap worth internalising. **A successful read does not tell you which tree it came from.** Two trees can hold different content at the same relative path, and an agent handed both a worktree and a shared `repo_path` has no signal distinguishing them. An agent that reads the shared path will report the shared tree's state as its own starting state, confidently and wrongly.
+
+**Do this instead, on top of the base-commit check:** have each agent confirm it is in its own tree before writing anything — compare `git rev-parse --show-toplevel` against the path it was told to work in, and treat a mismatch as a stop condition rather than a curiosity. Have agents address source files by their worktree-relative path, never by an absolute shared-checkout path handed down in the brief. And at the orchestrator, **never commit with a broad `git add -A` during a run with live agents** — stage the named paths the specialist reported, so a stray file written by someone else cannot ride along. When contamination does happen, prefer documenting the seam over rewriting history: a branch mid-run carries specialist output that exists nowhere else, and tidy attribution is not worth risking it.
 
 **Do this instead:** when a step-zero guard escalates, adjudicate with a **content** comparison rather than a topology one. Compare the two trees file-by-file (`git ls-tree -r --name-only`, diffed with `comm`) and check whether the merge's source commit is an ancestor. If nothing is present in the agent's base that the branch lacks, authorise the reset explicitly and record the proof; if anything is, stop and escalate to a person. Never tell an agent to "just reset" without doing this — `git reset --hard` discards uncommitted tracked edits with no stash and no reflog entry, and the guard exists precisely because the orchestrator, not the agent, is the one holding enough context to rule.
 
