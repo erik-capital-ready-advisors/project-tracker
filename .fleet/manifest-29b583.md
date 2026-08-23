@@ -99,10 +99,10 @@ which is the shape `prod.md` names as what avoids the three-way merge that block
 
 | ID | Type | Phase | Wave | Description | Dispatched-to | Depends-on | Status |
 |----|------|-------|------|-------------|---------------|-----------|--------|
-| u1 | ui | 1 | A | **B33** — hoist the four-state prose renderer from five copies into one component with one verification contract | ui-designer | — | in_progress (dispatched 2026-08-23T12:52Z) |
+| u1 | ui | 1 | A | **B33** — hoist the four-state prose renderer from five copies into one component with one verification contract | ui-designer | — | **done** — report gate PASS; +17 tests, 8 call sites adopt one contract; merged in `4a90be8` |
 | u2 | ui | 1 | A | **B36** — `/questions/[id]` is unreachable: add a `/questions` list route and a nav entry so an open question is linked from somewhere | ui-designer | — | **done** — report gate PASS; +15 tests, 41→42 routes; found a positional-index landmine in 5 sibling pages |
 | u3 | ui | 1 | A | **B32** — the money-formatter split: `formatAmount` `$111.00` vs `money` `111.00 USD`, one click apart since M2.7 | ui-designer | — | in_progress — returned, **report gate FAIL**, resumed to fix (see note) |
-| u4 | ui | 1 | B | **B40** — no sign-out control exists anywhere in the signed-in app | ui-designer | u1 | pending |
+| u4 | ui | 1 | B | **B40** — no sign-out control exists anywhere in the signed-in app | ui-designer | u1 | in_progress (dispatched 2026-08-23T13:10Z, based on `4a90be8`) |
 | qa1 | qa | final | C | Independent review of the merged branch, incl. trajectory grading | qa-reviewer | u1,u2,u3,u4 | pending |
 
 ### Owned files, per unit
@@ -165,3 +165,54 @@ constructed one, and this run's id, never the report's own.
   format string containing angle brackets.
 - **u2** — `REPORT GATE PASS`. Run id matched, all 6 mandated sections, 9 files listed,
   Verification carried observations, 2 queued questions present on disk in the named per-unit file.
+- **u1** — `REPORT GATE PASS`. Run id matched, all 6 mandated sections, 20 files listed,
+  Verification carried observations, `## Questions Queued` declares none (and none on disk — consistent).
+
+## Merge log
+
+**File overlap between the three Wave A worktrees: ZERO.** Enumerated from each worktree's own
+`git status --porcelain`, **not** from `git diff` — `git diff` showed u2 changing exactly one file
+because its six new files were untracked, which is precisely the trap that hides `.env.example`-class
+additions at merge time.
+
+**Two declared-ownership crossings by u1, both benign, both recorded rather than waved through:**
+u1 modified `src/app/questions/_components/open-question-view.tsx` (inside u2's declared directory)
+and `src/app/milestones/[id]/page.tsx` (u3's declared file). Neither u2 nor u3 touched those exact
+files — u2 only *created* new files in that directory and u3 left `milestones/[id]/page.tsx`
+untouched — so no conflict arose. u1's reason is sound: both are additional call sites of the same
+prose renderer it was hoisting, and leaving them behind would have left the "single selector covers
+all eight views" criterion unmet. **The boundary was mine and it was drawn one file too tight.**
+
+- **`4a90be8`** — u1 + u2 merged. Measured on the merged tree: typecheck 0, lint 0,
+  `pnpm test` **1391 passed / 6 skipped** (baseline 1359, +32 = u1's +17 and u2's +15),
+  `pnpm gate:m27` **5/5**, build 42 routes (was 41).
+
+## Worktree provisioning anomaly — u4, adjudicated 2026-08-23
+
+**The step-zero guard fired, correctly, and stopped a unit before it acted.** u4's worktree was cut
+from **`f629816`** — `origin/master`, the PR #1 merge — while u1, u2 and u3 had been cut from the
+branch tip `8b311c4`. So `git log --oneline agent-build/2026-08-23-29b583..HEAD` printed one line
+instead of being empty, and u4 stopped without resetting, without cleaning up, and without touching
+a file. That is the guard behaving exactly as designed: it does not distinguish "a commit of my own
+work" from "a commit of someone else's lineage", and it should not — it escalates to the
+orchestrator, which is what happened.
+
+**Adjudicated with a containment proof, not by waving it through:**
+
+    git merge-base --is-ancestor f629816 4a90be8   ->  NO (not an ancestor)
+    git log --oneline 4a90be8..f629816             ->  exactly 1 commit: f629816 itself
+    comm -23 <(git ls-tree -r --name-only f629816 | sort) \
+             <(git ls-tree -r --name-only 4a90be8 | sort)   ->  EMPTY
+    git merge-base --is-ancestor b654279 4a90be8   ->  YES
+
+`f629816` is not an ancestor only because this branch descends from the merge's *source* branch
+(`b654279`, run `b0952e`) rather than through the merge node. `b654279` **is** an ancestor, and
+**zero files** in `f629816`'s tree are absent from the branch tip. `f629816` contributes the merge
+node and nothing else — no file, no line. **Reset authorised by the orchestrator on that evidence;
+nothing was discarded.** u4 resumed from `4a90be8`.
+
+**Standing consequence for this fleet:** worktree provisioning does not reliably cut from the run's
+branch. Within one run it cut three worktrees at the branch tip and a fourth at `master`. The
+step-zero guard is therefore load-bearing rather than ceremonial, and an orchestrator must be
+prepared to adjudicate its second check with a containment proof rather than re-dispatching blindly
+or telling the unit to "just reset".

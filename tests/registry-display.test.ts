@@ -8,6 +8,7 @@ import {
   formatDate,
   formatIdentifier,
   joinList,
+  MIXED_CURRENCY_TOTAL,
   NOT_RECORDED,
   splitList,
   splitRefs,
@@ -54,6 +55,42 @@ describe("formatAmount — an amount that did not decrypt is not zero", () => {
     expect(odd.readable).toBe(true);
     expect(odd.text).toContain("1,500");
     expect(odd.text).toContain("ZZZ");
+  });
+
+  /**
+   * B32's "subtle" disagreement, pinned directly. Measured with `node -e`
+   * against this repo's own `Intl` before writing this test: `ZZZ` is a
+   * SYNTACTICALLY well-formed ISO 4217 shape (three letters) that names no
+   * real currency, and `Intl.NumberFormat` does not throw for that shape --
+   * it treats the code itself as the currency symbol and PREFIXES it, the
+   * same position a real symbol like `$` takes. `formatAmount`'s own `catch`
+   * branch (built for "an unrecognised currency code is not a reason to drop
+   * the number") never fires for a code shaped like this; it fires only for a
+   * code `Intl` refuses outright for being the wrong length, which the second
+   * test below exercises. A well-formed-but-fictional code is the realistic
+   * case a bad ingest would actually produce, and it does not take this
+   * module's fallback path at all.
+   */
+  it("prefixes the code for a well-formed but fictional currency (ZZZ never reaches the catch branch)", () => {
+    expect(formatAmount(1500, "ZZZ").text).toBe("ZZZ\u00A01,500.00");
+  });
+
+  it("suffixes the code instead, only when Intl refuses the code outright", () => {
+    // "US" is two letters -- `Intl.NumberFormat` throws `RangeError` for this
+    // shape rather than accepting it as a currency, which is what actually
+    // exercises `formatAmount`'s `catch` branch (`${plain} ${currency}`).
+    expect(formatAmount(1500, "US").text).toBe("1,500 US");
+  });
+
+  it("keeps a negative amount's sign", () => {
+    expect(formatAmount(-500, "USD").text).toBe("-$500.00");
+  });
+});
+
+describe("MIXED_CURRENCY_TOTAL — relocated from the deleted money-display.ts (B32)", () => {
+  it("still states why a mixed-currency total prints no figure", () => {
+    expect(MIXED_CURRENCY_TOTAL).toContain("not summed");
+    expect(MIXED_CURRENCY_TOTAL).toContain("more than one currency");
   });
 });
 

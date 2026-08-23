@@ -223,9 +223,72 @@ describe("Committed (FR-54, FR-51, FR-75, FR-79)", () => {
     const { container } = render(<CommittedTable milestones={COMMITTED} refs={REFS} />);
     const rows = all(container, "[data-verify-unit='committed-row']");
     expect(rows[1]).toHaveAttribute("data-verify-amount-readable", "true");
-    expect(rows[1]?.textContent).toContain("0.00 EUR");
+    // B32: through `formatAmount`, not the deleted `money()` — a real EUR zero
+    // reads "€0.00", not the old "0.00 EUR".
+    expect(rows[1]?.textContent).toContain("€0.00");
     expect(rows[2]).toHaveAttribute("data-verify-amount-readable", "false");
     expect(rows[2]?.textContent).toContain("unreadable");
+  });
+
+  /**
+   * B32 — "two money formatters disagree, and M2.7 put them one click apart."
+   * `/committed` (this table, via the now-deleted `money()`) and
+   * `/milestones/[id]` (via `formatAmount`) rendered the same
+   * `contract_milestone` row differently. Both now call `formatAmount`, so this
+   * pins the three disagreements QA found, directly against this screen.
+   */
+  describe("B32 — one formatter, not two", () => {
+    it("uses formatAmount's symbol-and-comma style, not the deleted money()'s code-and-narrow-space style", () => {
+      const { container } = render(<CommittedTable milestones={COMMITTED} refs={REFS} />);
+      const rows = all(container, "[data-verify-unit='committed-row']");
+      // m-1: amount 12500, EUR. `formatAmount` -> "€12,500.00" (symbol, comma).
+      // The deleted `money()` produced "12 500.00 EUR" (code, U+202F space) --
+      // neither substring should survive the consolidation.
+      expect(rows[0]?.textContent).toContain("€12,500.00");
+      expect(rows[0]?.textContent).not.toContain("12 500.00");
+      expect(rows[0]?.textContent).not.toContain("EUR");
+    });
+
+    it("renders the same amount identically to /milestones/[id] — the adjacency B32 names as the defect", () => {
+      // `tests/detail-milestone.test.tsx` pins `amount: 111, currency: "USD"`
+      // rendered by `/milestones/[id]` (via `formatAmount`) as literally
+      // "$111.00". This table renders the identical amount/currency pair
+      // through the same `formatAmount` call, so the two screens can no longer
+      // disagree on what one `contract_milestone` row is worth.
+      const identical = [{ ...COMMITTED[0], amount: 111, currency: "USD" }];
+      const { container } = render(<CommittedTable milestones={identical} refs={REFS} />);
+      expect(container.textContent).toContain("$111.00");
+    });
+
+    it("reverses the currency-code position for an unrecognised currency, exactly as formatAmount does everywhere else", () => {
+      // Pinning the actual, measured behaviour rather than the assumed one:
+      // `Intl.NumberFormat` does NOT throw for a syntactically well-formed but
+      // fictional 3-letter code like "ZZZ" -- it treats the code itself as the
+      // currency symbol and PREFIXES it (joined with U+00A0, not a plain
+      // space -- also measured, not assumed), unlike every real currency's
+      // symbol-prefix rendering, and unlike the deleted money()'s always-
+      // suffixed code. `formatAmount`'s own catch branch (code suffixed,
+      // "<number> <code>") is reachable only by a MALFORMED code -- see
+      // `tests/registry-display.test.ts` for that path pinned directly.
+      const unrecognised = [{ ...COMMITTED[0], amount: 1500, currency: "ZZZ" }];
+      const { container } = render(<CommittedTable milestones={unrecognised} refs={REFS} />);
+      expect(container.textContent).toContain("ZZZ 1,500.00");
+    });
+
+    it("renders a genuinely unpriced milestone as absent, never as unreadable and never as zero", () => {
+      // No row in the shared COMMITTED fixture exercises `amount: null` with
+      // `amountUnreadable: false` (nobody has priced the milestone at all, as
+      // opposed to a stored ciphertext that would not decrypt) -- so this is
+      // built locally rather than by widening the shared fixture. This is the
+      // branch `committed-table.tsx` had to re-derive when it switched from
+      // checking `money()`'s bare `null` to `formatAmount`'s `.readable`.
+      const unpriced = [{ ...COMMITTED[0], amount: null, amountUnreadable: false }];
+      const { container } = render(<CommittedTable milestones={unpriced} refs={REFS} />);
+      const row = q(container, "[data-verify-unit='committed-row']");
+      expect(row?.textContent).not.toContain("unreadable");
+      expect(row?.textContent).not.toContain("0.00");
+      expect(row?.querySelector("[title='No amount was recorded for this milestone.']")).not.toBeNull();
+    });
   });
 
   it("publishes no contract amount into any state contract", () => {
@@ -312,6 +375,26 @@ describe("Committed (FR-54, FR-51, FR-75, FR-79)", () => {
       "data-verify-count",
       "1",
     );
+  });
+
+  it("B32: formats totals through formatAmount too, not the deleted money()", () => {
+    // Before B32, the totals strip and this table both imported `money()` and
+    // stated the currency the deleted module's way -- comma-and-symbol here
+    // means the strip is no longer a second formatter.
+    const { container } = render(
+      <CommittedTotalsStrip
+        totals={{
+          currency: "EUR",
+          committed: 15500,
+          billable: 12500,
+          submitted: 0,
+          paid: 0,
+          unreadable: 0,
+        }}
+      />,
+    );
+    expect(container.textContent).toContain("€15,500.00");
+    expect(container.textContent).not.toContain("15 500.00");
   });
 });
 

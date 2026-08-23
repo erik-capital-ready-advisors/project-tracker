@@ -19,7 +19,7 @@ import { EntityRef } from "@/components/entity-ref";
 import { StateBadge } from "@/components/state-badge";
 import type { RefEntry, RefLookup } from "@/lib/answer-screen-refs";
 import { isoDay } from "@/lib/display-format";
-import { money } from "@/lib/money-display";
+import { formatAmount } from "@/lib/registry-display";
 import { cn } from "@/lib/utils";
 
 import type { CommittedMilestone } from "@/lib/server/answers/committed";
@@ -146,7 +146,7 @@ export function CommittedTable({
         <TableBody>
           {milestones.map((milestone) => {
             const acceptanceCount = milestone.acceptance.length;
-            const amount = money(milestone.amount, milestone.currency);
+            const amount = formatAmount(milestone.amount, milestone.currency);
 
             return (
               <TableRow
@@ -203,20 +203,18 @@ export function CommittedTable({
                 </TableCell>
 
                 <TableCell className="ident align-top text-right tabular-nums whitespace-nowrap">
-                  {amount === null ? (
-                    milestone.amountUnreadable ? (
-                      <span
-                        data-verify-unit="amount-unreadable"
-                        className="text-state-blocked text-xs"
-                        title="This milestone's amount is stored as ciphertext that could not be read back. It is excluded from every total on this screen and counted separately — it is NOT being treated as zero."
-                      >
-                        unreadable
-                      </span>
-                    ) : (
-                      <Absent title="No amount was recorded for this milestone." />
-                    )
+                  {amount.readable ? (
+                    <span className="text-foreground">{amount.text}</span>
+                  ) : milestone.amountUnreadable ? (
+                    <span
+                      data-verify-unit="amount-unreadable"
+                      className="text-state-blocked text-xs"
+                      title="This milestone's amount is stored as ciphertext that could not be read back. It is excluded from every total on this screen and counted separately — it is NOT being treated as zero."
+                    >
+                      unreadable
+                    </span>
                   ) : (
-                    <span className="text-foreground">{amount}</span>
+                    <Absent title="No amount was recorded for this milestone." />
                   )}
                 </TableCell>
 
