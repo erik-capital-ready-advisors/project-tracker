@@ -116,6 +116,31 @@ export const OPERATOR_ROUTES: readonly NavItem[] = [
     question: "Every question the fleet queued for Erik, answered or not.",
     requirements: ["FR-18", "FR-81", "FR-83"],
   },
+  {
+    // CR-005 §3.2 / M2.8. The fleet's own runs were ingested from the day
+    // Mode-1 ingest shipped and the product showed them on no screen: a
+    // `fleet_run` row could be reached only by reading the database. FR-92 is
+    // the listing that ends that.
+    //
+    // Appended at the END for the reason the /questions comment above spells
+    // out at length, which has not changed and is now worse by one: SIX pages
+    // read this array by POSITIONAL INDEX -- `OPERATOR_ROUTES[0]` through
+    // `[5]`, the sixth being `/questions` itself. This entry is `[6]`.
+    // Inserting it anywhere earlier would shift every one of those six and
+    // render a screen under another screen's title and requirement list --
+    // a wrong answer that does not crash, which is the worst kind.
+    // `tests/nav-routes.test.ts` pins `[0]`-`[4]` and is a tripwire this unit
+    // did not edit.
+    //
+    // This page does NOT add a seventh positional index. `runs/page.tsx` reads
+    // its own entry with `OPERATOR_ROUTES.find((r) => r.href === "/runs")`,
+    // which is B44's prescribed fix applied to the one call site this unit
+    // owns. The other six are out of scope and stay as they are.
+    href: "/runs",
+    label: "Fleet runs",
+    question: "Every fleet run ingested, and what each one claimed about itself.",
+    requirements: ["FR-92", "FR-94", "FR-95"],
+  },
 ] as const;
 
 export const ALL_ROUTES: readonly NavItem[] = [
