@@ -93,6 +93,29 @@ export const OPERATOR_ROUTES: readonly NavItem[] = [
     question: "Every record in one file, for the day this system is not here.",
     requirements: ["FR-60"],
   },
+  {
+    // B36: zero foreign keys reference `open_question` and, before this
+    // entry, nothing in navigation pointed at one -- the fleet queues
+    // questions on every run and the product showed them nowhere. This is
+    // the fix: a listing alongside the other two record surfaces, /waits and
+    // /work-items, each row navigable to /questions/[id].
+    //
+    // Appended at the END of this array rather than inserted after /waits,
+    // where it would read better: `registry/page.tsx`, `work-items/page.tsx`,
+    // `waits/page.tsx`, `settings/tokens/page.tsx` and `settings/export/page.tsx`
+    // all read their own nav metadata by POSITIONAL INDEX into this array
+    // (`OPERATOR_ROUTES[0]` through `[4]`), and none of those five files is
+    // this unit's to edit. Inserting in the middle would silently shift the
+    // two settings pages to the wrong index and swap their titles -- a
+    // regression this unit would have caused and not tested for, since it
+    // would show up on a screen this run cannot reach (see the run's
+    // verification note on the revoked operator session). Appending is the
+    // only change to this file that cannot do that.
+    href: "/questions",
+    label: "Questions",
+    question: "Every question the fleet queued for Erik, answered or not.",
+    requirements: ["FR-18", "FR-81", "FR-83"],
+  },
 ] as const;
 
 export const ALL_ROUTES: readonly NavItem[] = [

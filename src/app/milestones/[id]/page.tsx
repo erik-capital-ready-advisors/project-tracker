@@ -9,6 +9,7 @@ import {
 } from "@/components/entity-detail";
 import { EntityRefList } from "@/components/entity-ref";
 import { OperatorLoadNotice } from "@/components/operator-load-notice";
+import { ProseValue } from "@/components/prose-value";
 import { Screen } from "@/components/screen";
 import { Button } from "@/components/ui/button";
 import { readContractMilestoneDetail } from "@/lib/detail-load";
@@ -19,8 +20,6 @@ import {
   NOT_RECORDED,
   UNREADABLE_AMOUNT,
 } from "@/lib/registry-display";
-
-import { renderProse } from "../_components/prose-value";
 
 const SCREEN = "Contract milestone";
 const QUESTION =
@@ -249,7 +248,11 @@ export default async function ContractMilestoneDetailPage({
             >
               {/* Four `ProseState`s, four renderings. `notes` is encrypted under
                   the security BASELINE, not §7a — §7a is silent on it (B13). */}
-              {renderProse(milestone.notes)}
+              <ProseValue
+                field="notes"
+                prose={milestone.notes}
+                absent="Nothing was stored in this field. It is empty, rather than unreadable or unread."
+              />
             </DetailField>
           </DetailFields>
         </DetailSection>

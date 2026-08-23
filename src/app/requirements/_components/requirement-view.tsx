@@ -16,6 +16,7 @@ import {
   EntityDetail,
 } from "@/components/entity-detail";
 import { EntityRef, EntityRefList } from "@/components/entity-ref";
+import { ProseValue } from "@/components/prose-value";
 import { StateBadge } from "@/components/state-badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -29,8 +30,6 @@ import {
 import type { RequirementDetail } from "@/lib/detail-load";
 import { formatDate, NOT_RECORDED } from "@/lib/registry-display";
 import { cn } from "@/lib/utils";
-
-import { DetailProse } from "./detail-prose";
 
 /**
  * **FR-82 — the de-siloing view.** One requirement, and the four relationships
@@ -140,7 +139,7 @@ export function RequirementView({ detail }: { detail: RequirementDetail }) {
         verifyUnit="requirement-identity"
       >
         <div className="border-border border-b px-4 py-3">
-          <DetailProse
+          <ProseValue
             prose={detail.text}
             field="requirement-text"
             absent="No text is stored for this requirement. It was ingested as a reference and a section and nothing more — which is normal for a requirement named by an artifact this product has not been given the spec for."

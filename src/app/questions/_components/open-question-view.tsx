@@ -9,17 +9,11 @@ import {
   NO_IDENTIFIER,
 } from "@/components/entity-detail";
 import { EntityRef } from "@/components/entity-ref";
+import { ProseValue } from "@/components/prose-value";
 import { Button } from "@/components/ui/button";
 import type { OpenQuestionDetail } from "@/lib/detail-load";
 import { fallbackLabel } from "@/lib/detail-load";
 import { formatDate, NOT_RECORDED } from "@/lib/registry-display";
-
-// Lives in the requirement unit's `_components` because five of Wave C's eight
-// detail views render a `Prose` field and no unit owns `src/components/` — a
-// shared component created by whichever parallel unit got there first is a merge
-// collision. Queued as a question; it should be lifted to
-// `src/components/detail-prose.tsx` once Wave C is merged.
-import { DetailProse } from "../../requirements/_components/detail-prose";
 
 /**
  * FR-81 for `open_question` (FR-18) — a question the fleet queued, its best
@@ -135,7 +129,7 @@ export function OpenQuestionView({ detail }: { detail: OpenQuestionDetail }) {
         verifyUnit="open-question-question"
       >
         <div className="border-border border-b px-4 py-3">
-          <DetailProse
+          <ProseValue
             prose={detail.question}
             field="open-question-question"
             absent="No question text is stored. §7a encrypts this column, so an absence here means nothing was written — not that it could not be read."
@@ -150,7 +144,7 @@ export function OpenQuestionView({ detail }: { detail: OpenQuestionDetail }) {
             if nobody answered — so it is shown beside the question and not
             behind it.
           </p>
-          <DetailProse
+          <ProseValue
             prose={detail.bestGuess}
             field="open-question-best-guess"
             absent="No best guess is stored. The unit recorded a question and did not record what it would do in the meantime."
@@ -165,7 +159,7 @@ export function OpenQuestionView({ detail }: { detail: OpenQuestionDetail }) {
         verifyUnit="open-question-answer"
       >
         <div className="border-border border-b px-4 py-3">
-          <DetailProse
+          <ProseValue
             prose={detail.answer}
             field="open-question-answer"
             absent="Nobody has answered this question. The best guess above is what the build proceeded on."

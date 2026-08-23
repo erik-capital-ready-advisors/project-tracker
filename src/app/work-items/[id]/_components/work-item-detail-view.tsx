@@ -9,8 +9,9 @@ import {
   NO_IDENTIFIER,
 } from "@/components/entity-detail";
 import { EntityRef, EntityRefList } from "@/components/entity-ref";
+import { ProseValue } from "@/components/prose-value";
 import { isoMinute } from "@/lib/display-format";
-import type { Prose, WorkItemDetail } from "@/lib/detail-load";
+import type { WorkItemDetail } from "@/lib/detail-load";
 import { fallbackLabel } from "@/lib/detail-load";
 import type { EvidenceScope } from "@/lib/ingest/types";
 import type { StoredEvidenceScope } from "@/lib/server/workitems/rules";
@@ -26,105 +27,28 @@ import {
  * FR-81 for `work_item` — every field §7a lets the operator read, plus every
  * reference into and out of this row.
  *
- * ## The duplication in this file is deliberate and is a finding, not a habit
+ * ## B33 — the local `ProseValue` copy is gone
  *
- * `ProseValue` and `EngagementLink` below are byte-identical to the copies in
- * `src/app/defects/[id]/_components/defect-detail-view.tsx` and
- * `src/app/blockers/[id]/_components/blocker-detail-view.tsx`. They belong in
- * `src/components/`, once, and all eight of FR-81's views need them.
+ * This file used to carry its own copy of the four-state prose renderer,
+ * byte-identical to the ones in `defect-detail-view.tsx` and
+ * `blocker-detail-view.tsx`. B33 hoisted all three (plus the milestones and
+ * requirements/open-question copies) into `@/components/prose-value` — see
+ * that file's header for the contract and for which naming won.
  *
- * They are duplicated because **no Wave C unit owns `src/components/`**, and
- * three units creating the same new shared file in three parallel worktrees is
- * a three-way merge conflict on a file none of them may edit. Duplicating
- * inside the trees this unit does own has a cost — three copies of one wording
- * that must not drift — and that cost is paid knowingly and reported, rather
- * than traded for a merge failure. See `f1.md`, "Findings".
+ * `EngagementLink` below is still duplicated across this file and the other
+ * two Wave C detail views; it was not in scope for B33 and is unaffected.
  *
  * ## Nothing here introduces a design decision
  *
- * §5a is NOT YET APPROVED. Every treatment below already exists in this
- * repository: `EntityDetail`'s field primitives, the work-item chip ladder,
- * `answer-chips`' `Absent`, and — for the unreadable case — the exact treatment
- * `src/app/registry/_components/milestone-table.tsx` already uses for an amount
- * that did not decrypt. No colour, no token, no spacing idiom is new.
+ * §5a is approved (see `spec/prod.md`, 2026-08-22). Every treatment below
+ * already exists in this repository: `EntityDetail`'s field primitives, the
+ * work-item chip ladder, `answer-chips`' `Absent`, and the shared
+ * `@/components/prose-value` for the encrypted fields. No colour, no token, no
+ * spacing idiom is new.
  */
 
 /* ---------------------------------------------------------------------- */
-/* Duplicated primitive 1 of 2 — see the header                            */
-/* ---------------------------------------------------------------------- */
-
-/**
- * A §7a-encrypted field, read back, in all FOUR of its states.
- *
- * Two of the four would be invisible if this collapsed to "a string or null",
- * and both of those are the ones that matter:
- *
- *   * `unreadable` — ciphertext **was** stored and could not be read back.
- *     Rendering it blank states "there is nothing here" about a field that was
- *     lost. It takes the treatment `milestone-table.tsx` already gives an
- *     amount that did not decrypt, and for the identical reason recorded there:
- *     *this is not zero, and it is not empty.*
- *   * `not-requested` — this view declined to decrypt. Also not empty. It is
- *     drawn quietly rather than loudly, because nothing is wrong: nobody asked.
- *
- * The state reaches `data-verify-prose-state` so `qa-reviewer` can assert the
- * four are distinguished. **The text never does** — a `data-verify-*` attribute
- * carries counts and states, never decrypted content.
- */
-function ProseValue({
-  field,
-  prose,
-  absent,
-}: {
-  /** The field's stable name, for the state contract. Never its value. */
-  field: string;
-  prose: Prose;
-  /** Why there may be nothing here, when nothing was ever stored. */
-  absent: string;
-}) {
-  const body = (() => {
-    switch (prose.state) {
-      case "present":
-        return (
-          <p className="text-foreground whitespace-pre-wrap">{prose.text}</p>
-        );
-      case "absent":
-        return <Absent title={absent} />;
-      case "unreadable":
-        return (
-          <span
-            className="ident text-state-blocked font-semibold"
-            title="The stored ciphertext did not decrypt. This field is not empty — its contents could not be read back."
-          >
-            unreadable
-          </span>
-        );
-      case "not-requested":
-        return (
-          <span
-            className="text-muted-foreground/70 text-xs italic"
-            title="This view did not ask for this field to be decrypted, so nothing here is a statement about what it holds."
-          >
-            not read
-          </span>
-        );
-    }
-  })();
-
-  return (
-    <div
-      data-verify-unit="detail-prose"
-      data-verify-field={field}
-      data-verify-prose-state={prose.state}
-      className="min-w-0"
-    >
-      {body}
-    </div>
-  );
-}
-
-/* ---------------------------------------------------------------------- */
-/* Duplicated primitive 2 of 2 — see the header                            */
+/* Duplicated primitive — see the header                                   */
 /* ---------------------------------------------------------------------- */
 
 /**

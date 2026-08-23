@@ -9,21 +9,25 @@ import {
   NO_IDENTIFIER,
 } from "@/components/entity-detail";
 import { EntityRefList } from "@/components/entity-ref";
+import { ProseValue } from "@/components/prose-value";
 import { isoMinute } from "@/lib/display-format";
-import type { BlockerDetail, Prose } from "@/lib/detail-load";
+import type { BlockerDetail } from "@/lib/detail-load";
 import { fallbackLabel } from "@/lib/detail-load";
 
 /**
  * FR-81 for `blocker` — every field §7a lets the operator read, plus every work
  * item this blocker holds.
  *
- * ## The duplication in this file is deliberate and is a finding, not a habit
+ * ## B33 — the local `ProseValue` copy is gone
  *
- * `ProseValue` and `EngagementLink` below are byte-identical to the copies in
- * `src/app/work-items/[id]/_components/work-item-detail-view.tsx` and
- * `src/app/defects/[id]/_components/defect-detail-view.tsx`. See that first
- * file's header for the reasoning, and `f1.md` "Findings" for the
- * recommendation to factor them into `src/components/` once Wave C has merged.
+ * This file used to carry its own copy of the four-state prose renderer,
+ * byte-identical to the ones in `work-item-detail-view.tsx` and
+ * `defect-detail-view.tsx`. B33 hoisted all three (plus the milestones and
+ * requirements/open-question copies) into `@/components/prose-value` — see
+ * that file's header for the contract and for which naming won.
+ *
+ * `EngagementLink` below is still duplicated across this file and the other
+ * two Wave C detail views; it was not in scope for B33 and is unaffected.
  *
  * ## `ref` is nullable and `owner` defaults, and those are different facts
  *
@@ -35,73 +39,7 @@ import { fallbackLabel } from "@/lib/detail-load";
  */
 
 /* ---------------------------------------------------------------------- */
-/* Duplicated primitive 1 of 2 — see the header                            */
-/* ---------------------------------------------------------------------- */
-
-/**
- * A §7a-encrypted field, read back, in all FOUR of its states.
- *
- * `unreadable` takes the treatment `src/app/registry/_components/milestone-table.tsx`
- * already gives an amount that did not decrypt, and for the identical reason:
- * *this is not zero, and it is not empty.* `not-requested` is drawn quietly
- * instead, because nothing is wrong — nobody asked.
- *
- * The state reaches `data-verify-prose-state`; **the text never does.**
- */
-function ProseValue({
-  field,
-  prose,
-  absent,
-}: {
-  /** The field's stable name, for the state contract. Never its value. */
-  field: string;
-  prose: Prose;
-  /** Why there may be nothing here, when nothing was ever stored. */
-  absent: string;
-}) {
-  const body = (() => {
-    switch (prose.state) {
-      case "present":
-        return (
-          <p className="text-foreground whitespace-pre-wrap">{prose.text}</p>
-        );
-      case "absent":
-        return <Absent title={absent} />;
-      case "unreadable":
-        return (
-          <span
-            className="ident text-state-blocked font-semibold"
-            title="The stored ciphertext did not decrypt. This field is not empty — its contents could not be read back."
-          >
-            unreadable
-          </span>
-        );
-      case "not-requested":
-        return (
-          <span
-            className="text-muted-foreground/70 text-xs italic"
-            title="This view did not ask for this field to be decrypted, so nothing here is a statement about what it holds."
-          >
-            not read
-          </span>
-        );
-    }
-  })();
-
-  return (
-    <div
-      data-verify-unit="detail-prose"
-      data-verify-field={field}
-      data-verify-prose-state={prose.state}
-      className="min-w-0"
-    >
-      {body}
-    </div>
-  );
-}
-
-/* ---------------------------------------------------------------------- */
-/* Duplicated primitive 2 of 2 — see the header                            */
+/* Duplicated primitive — see the header                                   */
 /* ---------------------------------------------------------------------- */
 
 /** The engagement, as a plain `next/link` and deliberately not an `<EntityRef>`. */

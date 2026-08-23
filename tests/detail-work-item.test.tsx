@@ -249,8 +249,8 @@ describe("Prose renders four states and never collapses them", () => {
     const unreadable = proseFor(container, "description");
     const absent = proseFor(container, "raw_status");
 
-    expect(unreadable).toHaveAttribute("data-verify-prose-state", "unreadable");
-    expect(absent).toHaveAttribute("data-verify-prose-state", "absent");
+    expect(unreadable).toHaveAttribute("data-verify-state", "unreadable");
+    expect(absent).toHaveAttribute("data-verify-state", "absent");
     expect(unreadable?.textContent).toContain("unreadable");
     expect(absent?.textContent).not.toContain("unreadable");
     expect(unreadable?.innerHTML).not.toBe(absent?.innerHTML);
@@ -265,7 +265,7 @@ describe("Prose renders four states and never collapses them", () => {
     const notRequested = proseFor(container, "description");
 
     expect(notRequested).toHaveAttribute(
-      "data-verify-prose-state",
+      "data-verify-state",
       "not-requested",
     );
     expect(notRequested?.textContent).toContain("not read");
@@ -277,7 +277,7 @@ describe("Prose renders four states and never collapses them", () => {
   it("shows decrypted prose when it is present", () => {
     const { container } = render(<WorkItemDetailView detail={base()} />);
     const present = proseFor(container, "description");
-    expect(present).toHaveAttribute("data-verify-prose-state", "present");
+    expect(present).toHaveAttribute("data-verify-state", "present");
     expect(present?.textContent).toContain("Build the three detail routes.");
   });
 

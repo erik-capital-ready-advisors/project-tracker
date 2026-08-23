@@ -209,8 +209,8 @@ describe("Prose renders four states and never collapses them", () => {
     const unreadable = proseFor(container, "description");
     const absent = proseFor(container, "wont_fix_reason");
 
-    expect(unreadable).toHaveAttribute("data-verify-prose-state", "unreadable");
-    expect(absent).toHaveAttribute("data-verify-prose-state", "absent");
+    expect(unreadable).toHaveAttribute("data-verify-state", "unreadable");
+    expect(absent).toHaveAttribute("data-verify-state", "absent");
     expect(unreadable?.textContent).toContain("unreadable");
     expect(unreadable?.innerHTML).not.toBe(absent?.innerHTML);
   });
@@ -225,7 +225,7 @@ describe("Prose renders four states and never collapses them", () => {
 
     const { container } = render(<DefectDetailView detail={detail} />);
     expect(proseFor(container, "wont_fix_reason")).toHaveAttribute(
-      "data-verify-prose-state",
+      "data-verify-state",
       "unreadable",
     );
     expect(proseFor(container, "wont_fix_reason")?.textContent).toContain(

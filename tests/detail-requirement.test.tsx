@@ -427,14 +427,14 @@ describe("FR-83 — a reference to nothing is never a link", () => {
 describe("§7a — the requirement's own text has four states", () => {
   it("renders unreadable differently from absent, and says something was lost", () => {
     mount(requirement({ text: prose("unreadable") }));
-    const unreadable = byUnit("prose");
+    const unreadable = byUnit("detail-prose");
     const unreadableState = unreadable.getAttribute("data-verify-state");
     const unreadableText = unreadable.textContent;
 
     cleanup();
 
     mount(requirement({ text: prose("absent") }));
-    const absent = byUnit("prose");
+    const absent = byUnit("detail-prose");
 
     expect(unreadableState).toBe("unreadable");
     expect(absent.getAttribute("data-verify-state")).toBe("absent");
@@ -442,26 +442,35 @@ describe("§7a — the requirement's own text has four states", () => {
     // Rendering ciphertext-that-did-not-decrypt as blank would state "there is
     // nothing here" about a spec paragraph that was lost.
     expect(unreadableText).toContain("unreadable");
-    expect(absent.textContent).toContain("not recorded");
+    // B33: "not recorded" was this copy's own wording and it lost the
+    // consolidation — four of the five copies already rendered absent as `—`
+    // via the shared `Absent` primitive, which is the idiom this product uses
+    // everywhere else a value is genuinely absent, so that is what the merged
+    // `ProseValue` renders now.
+    expect(absent.textContent).toBe("—");
   });
 
   it("renders not-requested distinctly from both of them", () => {
     mount(requirement({ text: prose("not-requested") }));
-    expect(byUnit("prose").getAttribute("data-verify-state")).toBe("not-requested");
-    expect(byUnit("prose").textContent).toContain("not read");
+    expect(byUnit("detail-prose").getAttribute("data-verify-state")).toBe(
+      "not-requested",
+    );
+    expect(byUnit("detail-prose").textContent).toContain("not read");
   });
 
   it("renders the decrypted text when it is present", () => {
     mount(requirement());
-    expect(byUnit("prose").getAttribute("data-verify-state")).toBe("present");
-    expect(byUnit("prose").textContent).toContain(
+    expect(byUnit("detail-prose").getAttribute("data-verify-state")).toBe("present");
+    expect(byUnit("detail-prose").textContent).toContain(
       "The ledger reports what is blocked.",
     );
   });
 
   it("records the contradiction when the loader reports present and returns nothing", () => {
     mount(requirement({ text: prose("present", null) }));
-    expect(byUnit("prose").getAttribute("data-verify-state")).toBe("contradiction");
+    expect(byUnit("detail-prose").getAttribute("data-verify-state")).toBe(
+      "contradiction",
+    );
   });
 
   it("publishes no decrypted text into any data-verify attribute", () => {

@@ -207,7 +207,7 @@ describe("Prose renders four states and never collapses them", () => {
     const unreadable = render(<BlockerDetailView detail={unreadableDetail} />);
     const unreadableHtml = prose(unreadable.container)?.innerHTML;
     expect(prose(unreadable.container)).toHaveAttribute(
-      "data-verify-prose-state",
+      "data-verify-state",
       "unreadable",
     );
     expect(prose(unreadable.container)?.textContent).toContain("unreadable");
@@ -217,7 +217,7 @@ describe("Prose renders four states and never collapses them", () => {
     absentDetail.description = { text: null, state: "absent" };
     const absent = render(<BlockerDetailView detail={absentDetail} />);
     expect(prose(absent.container)).toHaveAttribute(
-      "data-verify-prose-state",
+      "data-verify-state",
       "absent",
     );
     expect(prose(absent.container)?.innerHTML).not.toBe(unreadableHtml);
@@ -229,7 +229,7 @@ describe("Prose renders four states and never collapses them", () => {
 
     const { container } = render(<BlockerDetailView detail={detail} />);
     expect(prose(container)).toHaveAttribute(
-      "data-verify-prose-state",
+      "data-verify-state",
       "not-requested",
     );
     expect(prose(container)?.textContent).toContain("not read");

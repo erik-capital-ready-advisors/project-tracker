@@ -306,7 +306,7 @@ describe("notes — four Prose states, four renderings", () => {
     );
     const { container } = await show();
 
-    const prose = byUnit(container, "prose");
+    const prose = byUnit(container, "detail-prose");
     expect(prose).toHaveAttribute("data-verify-state", "unreadable");
     expect(prose.textContent).toBe("unreadable");
   });
@@ -317,22 +317,28 @@ describe("notes — four Prose states, four renderings", () => {
     );
     const { container } = await show();
 
-    expect(byUnit(container, "prose")).toHaveAttribute(
+    expect(byUnit(container, "detail-prose")).toHaveAttribute(
       "data-verify-state",
       "not-requested",
     );
   });
 
-  it("renders absent through DetailField, distinctly from the other three", async () => {
+  it("renders absent through the shared detail-prose contract, distinctly from the other three — B33", async () => {
+    // Before B33, `absent` was the one state this page's prose renderer drew
+    // with NO `data-verify-*` attribute at all: `renderProse` returned
+    // `undefined` and let `DetailField`'s own fallback draw it, which
+    // publishes nothing. That gap — "no single selector covers all eight
+    // views" — is the defect B33 exists to close. `ProseValue` now wraps
+    // every state, `absent` included, in the same
+    // `[data-verify-unit='detail-prose']` element the other five detail views
+    // use, so the same selector finds it here too.
     readContractMilestoneDetail.mockResolvedValue(
       milestone({ notes: { text: null, state: "absent" } }),
     );
     const { container } = await show();
 
-    expect(
-      container.querySelectorAll("[data-verify-unit='prose']"),
-      "an absent field borrowed the unreadable marker",
-    ).toHaveLength(0);
+    const prose = byUnit(container, "detail-prose");
+    expect(prose).toHaveAttribute("data-verify-state", "absent");
     expect(byUnit(container, "contract-milestone-detail")).toHaveAttribute(
       "data-verify-notes-state",
       "absent",
