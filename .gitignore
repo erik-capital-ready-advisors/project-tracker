@@ -34,3 +34,6 @@ fixtures-local/
 # Manual-writing screenshots: reproducible, and 6 MB of them. The .txt dumps beside
 # them are the evidence that matters and stay tracked.
 .fleet/manual-traces/*.png
+
+# Word lock files, created when a .docx is open
+~$*
