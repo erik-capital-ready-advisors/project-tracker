@@ -29,6 +29,96 @@ This file is the **build log**. It tracks the live state of development: what's 
 
 > ### Read this first — resume note for 2026-08-24
 >
+> **Branch: `agent-build/2026-08-23-9a320b`, tip `dc21837`.** Tree clean apart from
+> `docs/Delivery-Ledger-User-Guide.docx`, which is **open in Word** — it is generated output, so
+> anything typed into it is lost on the next regeneration. Edit `docs/user-guide.md` and rebuild.
+>
+> #### The fleet run was STOPPED, not finished — and that changes what exists
+>
+> **Run `9a320b` (M2.8) was killed mid-Wave-B at Erik's 15% credit mark**, deliberately: running dry
+> mid-run leaves a half-built branch with no report and no writeback, which is the worst shape.
+>
+> **So run `9a320b` has NO `report-`, NO `audit-`, and NO `learnings-` file, and it never will.**
+> Do not go looking for them and do not run `run-audit.sh 9a320b` expecting a pass — it will fail on
+> a record that was never completed, correctly. This is the one run in this repo's history whose
+> `.fleet/` record is deliberately partial. Everything before it (`b0952e`, `eb2490`, `29b583`) has a
+> full set.
+>
+> **`.fleet/questions-9a320b.jsonl` WAS written — by the dispatching session, not the orchestrator.**
+> 8 questions, i1 ×4, u1 ×2, u2 ×2, fanned in by hand after the run died so nothing was stranded.
+>
+> #### What was rescued, and why it nearly was not
+>
+> **Both specialists finished AFTER the orchestrator was killed, and both left their work
+> UNCOMMITTED in gitignored worktrees.** No git object held roughly 475k tokens of finished,
+> verified work; a `git worktree prune` would have destroyed it silently. Enumerated with
+> `git status --porcelain`, never `git diff` — which cannot see a unit's new files and would have
+> shown one modified `nav.ts`.
+>
+> - **`a188823` — u1, `/runs` list route.** Appends its `OPERATOR_ROUTES` entry and reads it back
+>   **by href**, not a seventh positional index (B44's fix for the new entry only).
+> - **`dc21837` — u2, `/runs/[run-id]` detail route.** Nine components. Renders `ambiguous` with every
+>   match listed and none chosen (FR-95), states the defect gap on screen rather than showing an empty
+>   list, and renders an empty `gates` `{}` as "recorded no gates" and explicitly not "all gates passed".
+>
+> Re-verified in the shared checkout rather than quoted: **typecheck 0, lint 0, `gate:m27` 5/5,
+> `pnpm test` 1472 → 1544 passed / 6 skipped** (u1's 37 + u2's 35, nothing else changed state).
+>
+> #### M2.8 is code-complete and NOT Complete. Three things stand between.
+>
+> 1. **`manual-gate.sh` FAILS right now.** Served page routes went **28 → 30** and
+>    `docs/user-guide.md` covers 28. It needs two sections plus two rows in
+>    `.fleet/manual-evidence-29b583.json`. **Do not re-dispatch `docs-writer` for this** — it cost
+>    ~157k tokens for the full guide and this is two routes. Hand-edit, then re-run the gate.
+> 2. **Neither screen has ever been rendered.** Both units report `NOT VERIFIED — cannot render an
+>    authenticated screen from an isolated worktree`, and **neither copied a credential to work
+>    around it**, which was right. **This is §7c in a new shape: the session being alive does not
+>    make it reachable from a worktree.** Fold it into the §7c refinement. u1 names nine columns at
+>    375px and the two-line verdict cell; u2 names the questions table's `section` column at 96 rows.
+> 3. **Two of i1's questions are defects in the APPROVED requirement text, not implementation
+>    choices, and they need Erik before any more of M2.8 is built:**
+>    - **FR-93 promises "the defects it opened" and no such link exists.** `defect` has no run column;
+>      its only path, `fixing_work_item_id → work_item → fleet_run`, is NULL on all 13 rows.
+>    - **`fleet_run` is `unique (engagement_id, run_id)`**, so a run id is unique *within* an
+>      engagement while FR-92 makes `/runs` cross-engagement — **`/runs/[run-id]` cannot address a run
+>      unambiguously.** Same shape as M2.7's `u4` ambiguity: an id unique only within a tuple cannot
+>      key a global route. Likely fixes: key the route on the row UUID, or on `engagement/run-id`.
+>
+> #### Worktrees: 3 remain, 1.9 GB, deliberately NOT pruned
+>
+> Left in place because verifying them properly costs commands Erik did not have. One cheap check was
+> run: the worktree holding its own commit has an **empty** `git diff` against the branch, so nothing
+> unique is stranded. Before removing any, follow the standing rule — `git cherry` plus a file-set
+> comparison, never a bare `git diff HEAD <branch>` — then `git worktree remove` and keep the branches.
+>
+> #### Live session state, which decays
+>
+> - **`pnpm dev` was running** at `http://localhost:3000`. Probably still is; probably not by morning.
+> - **The `aal2` operator session at `.playwright-auth/operator.json` was alive** at 18:00. It is a
+>   perishable credential and **local inspection cannot tell you whether it still works** — round-trip
+>   it (`/blocked` should render `h1: "Blocked"`, not the sign-in gate) rather than decoding it.
+>   Re-mint with `pnpm dev` then `node scripts/save-operator-session.mjs` — needs a human at an
+>   authenticator, so no agent can do it.
+> - **An agent token with `ingest:write` and `answer:read` is in `.env.local`.** Verified by
+>   authentication with negative controls, not by presence.
+>
+> #### The rest of the board, unchanged
+>
+> | Item | Who | Note |
+> |---|---|---|
+> | **Click sign-out** | **Erik, 2 seconds** | Closes **B40**, the last claim no test can make. Destroys the session — so do it last, or re-mint after |
+> | **B46 — command palette crashes the page** | Erik or fleet | ⌘K / Ctrl+K / Jump to… → `Cannot read properties of undefined (reading 'subscribe')`, screen replaced. Reproduced twice. Suspect `src/components/ui/command.tsx` wrapping `cmdk` in a Radix `Dialog`. **Not verified against a production build** |
+> | **8 questions from `9a320b`** | **Erik** | `.fleet/questions-9a320b.jsonl`. The two FR-93 defects above are the load-bearing ones |
+> | **4 questions from `29b583`** | **Erik** | `.fleet/questions-29b583.jsonl`. Still open |
+> | **B44** | fleet | Five pages read `OPERATOR_ROUTES` positionally. `tests/nav-routes.test.ts` pins the indices as a tripwire — delete that test when the refactor lands |
+> | **§7a `/questions` select** | fleet | Adding `question, best_guess, answer` to the select leaves the suite green |
+> | **CR-005 §3.1 / §3.3** | **Erik** | Unapproved. Q12–Q15 open. **§3.1 must not start before Q13** — a guessed reconciliation key produces a wrong `done` |
+> | **§2's proposed bar** | **Erik** | Approving §3.2 did not adopt it. Still needs its own yes |
+> | **PR / deploy** | **Erik** | Nothing pushed. A **Production deployment already exists** (Ready, 2026-08-22) — `prod.md` said "nothing deployed" and that was wrong; still unconfirmed as serving |
+
+
+> ### Read this first — resume note for 2026-08-24
+>
 > **One thing gates almost everything else, and it costs two commands:**
 >
 > ```
