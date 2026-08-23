@@ -138,9 +138,9 @@ BLOCKED-with-0-critical is not treated as a stop.
 
 | ID | Type | Phase | Wave | Description | Dispatched-to | Depends-on | Status |
 |----|------|-------|------|-------------|---------------|-----------|--------|
-| i1 | integration | 1 | A | Read layer for `fleet_run`: list query + per-run detail query + pure display/derivation helpers + tests. No route, no component. | api-integrator | — | pending |
-| u1 | ui | 1 | B | `/runs` list route (FR-92, FR-94, FR-95) + `OPERATOR_ROUTES` append at index `[6]` | ui-designer | i1 | pending |
-| u2 | ui | 1 | B | `/runs/[run-id]` detail route (FR-93, FR-94, FR-95) incl. the rendered `gates` payload | ui-designer | i1 | pending |
+| i1 | integration | 1 | A | Read layer for `fleet_run`: list query + per-run detail query + pure display/derivation helpers + tests. No route, no component. | api-integrator | — | **done** — report gate PASS (run id matched). 11 files, +63 tests (1409 -> 1472). Merged as `444cb33`. 4 questions queued. |
+| u1 | ui | 1 | B | `/runs` list route (FR-92, FR-94, FR-95) + `OPERATOR_ROUTES` append at index `[6]` | ui-designer | i1 | in_progress |
+| u2 | ui | 1 | B | `/runs/[run-id]` detail route (FR-93, FR-94, FR-95) incl. the rendered `gates` payload | ui-designer | i1 | in_progress |
 | q1 | qa | 1 | C | Independent review of the merged branch: build, lint, typecheck, tests, Playwright against the live `aal2` session, security pass, trajectory grading | qa-reviewer | u1, u2 | pending |
 | d1 | docs | 1 | D | `mode: manual` — extend `docs/user-guide.md` and `.fleet/manual-evidence-*.json` from 28 to 30 routes so `manual-gate.sh` is green | docs-writer | q1 | pending |
 
@@ -181,7 +181,7 @@ Per-unit files at `.fleet/questions-<unit-id>-9a320b.jsonl`, fanned into
 
 | Unit | Question file | Lines |
 |---|---|---|
-| i1 | `.fleet/questions-i1-9a320b.jsonl` | pending |
+| i1 | `.fleet/questions-i1-9a320b.jsonl` | **4** |
 | u1 | `.fleet/questions-u1-9a320b.jsonl` | pending |
 | u2 | `.fleet/questions-u2-9a320b.jsonl` | pending |
 | q1 | `.fleet/questions-q1-9a320b.jsonl` | pending |
