@@ -1,0 +1,50 @@
+URL /bottleneck
+STATUS 200
+LANDED /bottleneck
+LINKS ["/","/blocked","/next","/committed","/untested","/bottleneck","/broken","/registry","/work-items","/waits","/settings/tokens","/settings/export","/questions","https://nextjs.org/docs/messages/version-staleness","https://nextjs.org/telemetry#error-feedback"]
+---
+Command palette
+
+Jump to any screen.
+
+Delivery Ledger
+THE SIX ANSWERS
+Blocked
+Next
+Committed
+Untested
+Bottleneck
+Broken
+RECORDS
+Registry
+Work items
+Waits
+Agent tokens
+Export
+Questions
+Jump to...
+⌘K
+0 unparsed
+Bottleneck
+FR-56 · FR-40 · FR-29 · FR-30 · FR-58
+
+What is waiting on Erik personally?
+
+Engagement
+Rows
+25
+50
+100
+250
+500
+Apply
+0 unparsed in the ledger
+0 work items
+0 defects
+0 test results
+
+Nothing is waiting on Erik.
+
+Work whose executor is Erik or an Erik-gate appears here, ranked by how much other work it releases and by the nearest milestone at risk.
+
+0 Erik-owned items whose status could not be classified

@@ -1,0 +1,67 @@
+### Dates @ /registry/delivery-ledger  (dialog_dates.png)
+Submitted and paid are recorded independently, each in one action (FR-11).
+The day the work went to the client for acceptance.
+Record
+Empty clears it.
+The day the money arrived. Independent of submission.
+Record
+Empty clears it.
+Close
+
+### Add milestone @ /registry/delivery-ledger  (dialog_add-milestone.png)
+Add a contract milestone
+A name, an amount, a due date, and the requirement references that constitute acceptance (FR-10).
+Milestonerequired
+Encrypted at rest. Stored per milestone, never aggregated in SQL.
+Currencyrequired
+Three-letter code.
+Acceptance
+The requirement references that constitute acceptance. Matched by reference, never by text. A reference naming a requirement this engagement has not ingested is saved and reported, not rejected (FR-12).
+Notes
+Encrypted at rest.
+Close
+
+### Issue a token @ /settings/tokens  (dialog_issue-token.png)
+Issue an agent token
+The token value is shown once, on the next screen, and is stored only as a hash. Have a destination for it before continuing.
+Label
+What tells this token apart from the others.
+Capabilities
+read the six answer endpoints
+post artifacts, sessions and waits
+Neither reaches contract amounts. An agent has no reason to read what a client is charged.
+Expires on
+Tokens expire. Rotate before this date rather than after it.
+Cancel
+Issue token
+Close
+
+### Declare a wait @ /waits  (dialog_declare-wait.png)
+Declare an external wait
+Something outside the studio is holding work up. Record who owns it and when it is expected back, so the delay shows on Blocked and moves the milestone's projected date.
+Engagement
+choose…
+delivery-ledger — delivery-ledger
+Owner
+The person or organisation outside the studio.
+Label
+Short and stable — re-declaring the same label updates the wait instead of creating a second one.
+Owner type
+Started
+Expected by
+Leave blank if nobody has given a date.
+Resolution method
+probe
+`probe` names a check for Phase 2 automation; `manual` is the honest value where nobody can check it programmatically.
+Probe target
+Required when the method is a probe.
+Blocks
+Work-item unit keys, separated by commas or spaces. A key naming nothing is reported back rather than dropped.
+Reason
+Cancel
+Declare wait
+Close
+
+### Archive @ /registry/delivery-ledger  (dialog_archive.png)
+archived
+Restore from archive

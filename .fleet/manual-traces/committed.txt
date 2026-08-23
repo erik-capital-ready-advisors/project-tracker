@@ -1,0 +1,63 @@
+URL /committed
+STATUS 200
+LANDED /committed
+LINKS ["/","/blocked","/next","/committed","/untested","/bottleneck","/broken","/registry","/work-items","/waits","/settings/tokens","/settings/export","/questions","/milestones/e4a9008b-f665-4c41-bcb5-b96983a58cc1","/registry/delivery-ledger","/requirements/6617db0e-75ad-4492-8364-f9918b6774d9","/requirements/f01ead67-c3dc-462f-b869-91b45583903a","/requirements/938cb222-1db6-468e-abea-bd35ee8c28f2","https://nextjs.org/docs/messages/version-staleness","https://nextjs.org/telemetry#error-feedback"]
+---
+Command palette
+
+Jump to any screen.
+
+Delivery Ledger
+THE SIX ANSWERS
+Blocked
+Next
+Committed
+Untested
+Bottleneck
+Broken
+RECORDS
+Registry
+Work items
+Waits
+Agent tokens
+Export
+Questions
+Jump to...
+⌘K
+0 unparsed
+Committed
+FR-54 · FR-75 · FR-51 · FR-79 · FR-58
+
+What was promised to a client, for how much, and by when?
+
+Engagement
+State
+any
+open
+claimed
+billable
+Shipped to
+Apply
+0 unparsed in the ledger
+0 work items
+0 defects
+0 test results
+committed
+$0.00
+billable
+$0.00
+submitted
+$0.00
+paid
+$0.00
+milestone	due	amount	state	covered	shipped	invoice
+
+Phase 1 — ingest and the six answers
+delivery-ledger · delivery-ledger
+3 acceptance requirements
+	2026-08-22	—	
+open
+	0/3	0/3	
+not submitted
+not paid
+What these states mean

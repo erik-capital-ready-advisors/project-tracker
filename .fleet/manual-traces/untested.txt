@@ -1,0 +1,695 @@
+URL /untested
+STATUS 200
+LANDED /untested
+LINKS ["/","/blocked","/next","/committed","/untested","/bottleneck","/broken","/registry","/work-items","/waits","/settings/tokens","/settings/export","/questions","/registry/delivery-ledger","/requirements/01f18ca0-5eb8-40d9-923a-f2edeeca5fdf","/work-items/28d2bd5e-06d5-4ee5-8b01-27296da6d1dd","/requirements/0563caa2-f4cf-4d76-8821-d81686211328","/work-items/0a5bfb11-91c5-4da3-9722-d7c205382ca5","/work-items/b1b9fac5-dd20-4642-8b3c-8110cb99ff4c","/requirements/05be1ee6-2acf-4f41-959f-b40f4ffe0a7d","/work-items/0e65b025-b4fe-4d4b-9918-0445ae8ede9d","/requirements/0bbe16da-486f-4a49-8e26-4490c5dae2ea","/work-items/0c4914ad-1b19-4b1a-993d-90af94ddaf61","/work-items/48ae4646-4fcc-4c4a-84f3-cd4a550174be","/requirements/0c50074a-044d-4d39-86f8-2a87a3174189","/requirements/0feb058b-c4ee-4700-8131-0d3a62ce517e","/requirements/150361aa-6e20-43d3-8199-4d763d8b8fc0","/requirements/16aa02b4-f4ad-4993-b92b-2b744b403ca9","/work-items/1d743ed9-46ad-4849-9e63-7970e4bec321","/requirements/17449b9a-cc5a-4781-8d3e-5560021fc055","/work-items/955daadf-84ca-46d7-a9cc-40be17dacde0","/work-items/eec0c6a8-2c13-4caa-9bdc-8879978792ef","/requirements/21bcb6ef-177e-4db6-8afb-5adc4815304f","/requirements/27cd2195-84b4-43d8-b913-880fd074236f","/work-items/2b9cb3ba-40b2-44e6-a34a-807623b70eae","/requirements/29d2cef9-5a3a-4942-99fb-dcd49bc5ed70","/requirements/3209976b-86c7-454d-9831-e824ef7900d0","/requirements/3a386739-ba57-4ea5-9347-8dc4d9c6dec9","/requirements/3a58c992-4cd2-4fec-8f74-c9dc5c8306e4","/requirements/3b21f107-474c-4fbb-8c28-a388ce6aeb61","/requirements/3c2ac435-da11-467e-9609-c7c0e9c06c46","/requirements/467fb3b1-7d40-4d0d-9afb-40892871cd3a","/requirements/487c0c86-61a7-4658-9f72-ad0a61d1333d","/requirements/4e014741-1257-4457-92e6-620502ccdca9","/work-items/aeaa117e-4514-4379-95ff-9bcba2a89958","/requirements/4e39bec4-e03a-492f-8bb4-bd222b671f9f","/requirements/579be45a-726b-4281-9be8-1bad6723376e","/requirements/58edc48e-10e3-4ecb-a283-4d04966e7da2","/requirements/5bd33050-9efb-40fb-8045-0c780fb9d807","/requirements/5f9cd5e8-b2a2-4b3c-9470-6a931f73a9c1","/requirements/61e14ed1-87c2-4121-988f-006f5f395424","/work-items/8a3cda74-de10-4a11-a66b-44a3a9690873","/requirements/6202aede-8e38-4d57-810c-dc20d08e6137","/requirements/629ce384-f0b6-4592-a5d7-437c66ff71ae","/requirements/64f1dbcc-6ad7-421f-82c7-9ca4c4906dc2","/requirements/6617db0e-75ad-4492-8364-f9918b6774d9","/requirements/66af6be0-d3b6-442b-9b25-5b103023ca88","/requirements/68668e68-6750-4fa3-9bf8-cb59eada08bc","/requirements/6c6be79a-6b04-45a4-8480-9e272ab596b0","/requirements/754e7078-6c4e-4bdd-b2fb-f6238f125388","/requirements/78bb2611-0fdb-411b-b0cc-004428668ff9","/requirements/7a2fc423-0902-4742-8276-a007b97b5f43","/requirements/7b968406-7c6a-4ab8-98d2-1d016c2d90d2","/requirements/7e7d366b-e52c-483a-a339-06e611d0a4ee","/requirements/80620ec1-0259-4d96-8642-da7a04eaef1c","/requirements/8801c78f-7a98-4ac9-8c9a-2054e2bd7753","/requirements/8981fd7f-9fda-4ca9-ba56-8beda50bea9e","/requirements/89a69705-2ab7-463b-a0c0-418d9102de1c","/requirements/89c7fea0-946d-44a5-933c-27b5e5d7f12a","/requirements/8aba4ebe-9abe-474d-8ae5-f551e342113f","/requirements/8f83c9c2-757e-4691-894d-c1de65b7d047","/requirements/90964ebb-06bd-443e-92fc-15f7e7e1e22f","/requirements/91d515f7-f541-4058-bc47-19bd13e50188","/requirements/938cb222-1db6-468e-abea-bd35ee8c28f2","/requirements/990b1e1c-cb76-4ccd-a5e9-7d3413aa87f1","/requirements/a2c1bc2c-183b-4a11-b1cd-0fab1a85e58c","/requirements/a47d231b-8421-47d4-8495-64431855745b","/requirements/a53a6f22-e2eb-4c04-8bf2-69ea44943f38","/requirements/ab036b67-e807-4cf7-aa63-1a36a1387b2a","/requirements/b77fce93-9f6d-4b59-99a6-ce4c96a756d6","/requirements/c1956037-d6f8-4e0d-8939-4152b99c569f","/requirements/c25e5d23-787f-4b70-a424-a50749ea1a5f","/requirements/c2865cdd-96f8-4bef-8ffb-ecd525de7bcd","/requirements/ce2061a4-4079-4368-afcd-301f1c54aec9","/requirements/cf6e8f31-1b00-4e4c-8dd4-f7806af386b9","/requirements/d3021eb3-e702-4345-bf25-1cbfd4077078","/requirements/d3269e9a-d41a-4cb2-a5cb-4ea847120f76","/requirements/d44c8b2c-03a8-43d7-87ec-774a06f837b7","/requirements/d4a667eb-2de9-42c0-9b36-25d7be8e1e51","/requirements/d7dc4852-8212-4fb6-be4c-55bdb82dfb8c","/requirements/d839fac1-6039-4a50-95a8-3058cfd555ea","/requirements/dcd72dad-21c2-4d93-83ce-608576ed3aa7","/requirements/dcdbb417-29a6-45f6-9628-e7782f470046","/requirements/de20329b-8f37-4af4-be33-c3e7dc4d19d0","/requirements/dff18852-f1dd-4689-b0cd-5edb26faea63","/requirements/e10a57d1-643a-49f1-a6c4-ebd9555871a6","/requirements/e6b6c42b-588f-4b90-b554-a886cfd0574d","/requirements/e83c930e-166f-463b-b834-82d64cab0c2b","/requirements/e90957b1-3c8e-47f1-bd38-2e612f7c1b3d","/requirements/eae6f554-4c34-4bf0-a75a-0b97c475b668","/requirements/eda8f6f1-778a-4092-81ea-41e74c8dcd0b","/requirements/f01ead67-c3dc-462f-b869-91b45583903a","/requirements/f2e73e39-ec52-4f11-bd4e-28e6ed9489cd","/requirements/f4928f0d-f3a4-4d67-be4f-640c0af67460","/requirements/fbe1d77b-e000-4f5e-88f1-bfbeeb9dc039","/registry/unassigned","https://nextjs.org/docs/messages/version-staleness","https://nextjs.org/telemetry#error-feedback"]
+---
+Command palette
+
+Jump to any screen.
+
+Delivery Ledger
+THE SIX ANSWERS
+Blocked
+Next
+Committed
+Untested
+Bottleneck
+Broken
+RECORDS
+Registry
+Work items
+Waits
+Agent tokens
+Export
+Questions
+Jump to...
+⌘K
+0 unparsed
+Untested
+FR-55 · FR-48 · FR-49 · FR-43 · FR-47 · FR-58
+
+Which requirements has nothing independently proven?
+
+Engagement
+Apply
+0 unparsed in the ledger
+0 work items
+0 defects
+0 test results
+delivery-ledger
+delivery-ledger
+requirements
+79
+tests
+324
+mapped
+0
+covered
+0
+unproven
+0
+uncovered
+79
+self-certified tests
+0
+UNCOVERED REQUIREMENTS
+
+Nothing passing names these. The work items beside each one claim to implement it.
+
+requirement	state	implemented by
+FR-59	uncovered	
+i1
+done
+agent
+api-integrator
+
+FR-55	uncovered	
+i7
+done
+agent
+api-integrator
+u3
+done
+agent
+ui-designer
+
+FR-43	uncovered	
+i6
+done
+agent
+api-integrator
+
+FR-13	uncovered	
+i5
+done
+agent
+api-integrator
+u2
+done
+agent
+ui-designer
+
+FR-63	uncovered	no work item claims to implement this
+FR-40	uncovered	
+i6
+done
+agent
+api-integrator
+
+FR-42	uncovered	
+i6
+done
+agent
+api-integrator
+
+FR-20	uncovered	
+i5
+done
+agent
+api-integrator
+i2
+done
+agent
+api-integrator
+
+FR-7	uncovered	
+u4
+done
+agent
+ui-designer
+i4
+done
+agent
+api-integrator
+
+FR-30	uncovered	
+i6
+done
+agent
+api-integrator
+
+FR-69	uncovered	
+i3
+done
+agent
+api-integrator
+
+FR-18	uncovered	
+i5
+done
+agent
+api-integrator
+i2
+done
+agent
+api-integrator
+
+FR-15	uncovered	
+i5
+done
+agent
+api-integrator
+i2
+done
+agent
+api-integrator
+
+FR-62	uncovered	
+i1
+done
+agent
+api-integrator
+
+FR-31	uncovered	
+i6
+done
+agent
+api-integrator
+
+FR-33	uncovered	
+i6
+done
+agent
+api-integrator
+u4
+done
+agent
+ui-designer
+
+FR-64	uncovered	
+i3
+done
+agent
+api-integrator
+
+FR-39	uncovered	
+i6
+done
+agent
+api-integrator
+
+FR-35	uncovered	
+i6
+done
+agent
+api-integrator
+u4
+done
+agent
+ui-designer
+
+FR-74	uncovered	
+i3
+done
+agent
+api-integrator
+i8
+done
+agent
+api-integrator
+
+FR-57	uncovered	
+i7
+done
+agent
+api-integrator
+
+FR-28	uncovered	
+i6
+done
+agent
+api-integrator
+
+FR-78	uncovered	
+i1
+done
+agent
+api-integrator
+u2
+done
+agent
+ui-designer
+
+FR-54	uncovered	
+i7
+done
+agent
+api-integrator
+u3
+done
+agent
+ui-designer
+
+FR-9	uncovered	
+i5
+done
+agent
+api-integrator
+u2
+done
+agent
+ui-designer
+
+FR-60	uncovered	
+i9
+blocked
+unassigned
+NOT DISPATCHED
+
+FR-52	uncovered	
+i7
+done
+agent
+api-integrator
+u3
+done
+agent
+ui-designer
+
+FR-19	uncovered	
+i5
+done
+agent
+api-integrator
+i2
+done
+agent
+api-integrator
+
+FR-4	uncovered	
+u4
+done
+agent
+ui-designer
+i4
+done
+agent
+api-integrator
+
+FR-10	uncovered	
+i5
+done
+agent
+api-integrator
+u2
+done
+agent
+ui-designer
+
+FR-25	uncovered	
+i6
+done
+agent
+api-integrator
+
+FR-45	uncovered	
+i7
+done
+agent
+api-integrator
+i2
+done
+agent
+api-integrator
+
+FR-16	uncovered	
+i5
+done
+agent
+api-integrator
+i2
+done
+agent
+api-integrator
+
+FR-73	uncovered	
+i8
+done
+agent
+api-integrator
+
+FR-61	uncovered	
+i9
+blocked
+unassigned
+NOT DISPATCHED
+
+FR-1	uncovered	
+i4
+done
+agent
+api-integrator
+
+FR-58	uncovered	
+i7
+done
+agent
+api-integrator
+u3
+done
+agent
+ui-designer
+
+FR-32	uncovered	
+i6
+done
+agent
+api-integrator
+u4
+done
+agent
+ui-designer
+
+FR-65	uncovered	no work item claims to implement this
+FR-24	uncovered	
+i6
+done
+agent
+api-integrator
+
+FR-34	uncovered	
+i6
+done
+agent
+api-integrator
+u4
+done
+agent
+ui-designer
+
+FR-27	uncovered	
+i6
+done
+agent
+api-integrator
+
+FR-79	uncovered	
+i3
+done
+agent
+api-integrator
+
+FR-77	uncovered	
+i1
+done
+agent
+api-integrator
+u2
+done
+agent
+ui-designer
+
+FR-44	uncovered	
+i6
+done
+agent
+api-integrator
+u4
+done
+agent
+ui-designer
+
+FR-17	uncovered	
+i5
+done
+agent
+api-integrator
+i2
+done
+agent
+api-integrator
+
+FR-67	uncovered	no work item claims to implement this
+FR-12	uncovered	
+i5
+done
+agent
+api-integrator
+u2
+done
+agent
+ui-designer
+
+FR-72	uncovered	
+i7
+done
+agent
+api-integrator
+
+FR-47	uncovered	
+i7
+done
+agent
+api-integrator
+i2
+done
+agent
+api-integrator
+
+FR-48	uncovered	
+i7
+done
+agent
+api-integrator
+i2
+done
+agent
+api-integrator
+
+FR-71	uncovered	
+i7
+done
+agent
+api-integrator
+u3
+done
+agent
+ui-designer
+
+FR-36	uncovered	
+i6
+done
+agent
+api-integrator
+u4
+done
+agent
+ui-designer
+
+FR-8	uncovered	
+i4
+done
+agent
+api-integrator
+
+FR-26	uncovered	
+i6
+done
+agent
+api-integrator
+u4
+done
+agent
+ui-designer
+
+FR-2	uncovered	
+i4
+done
+agent
+api-integrator
+
+FR-68	uncovered	no work item claims to implement this
+FR-21	uncovered	
+i5
+done
+agent
+api-integrator
+i2
+done
+agent
+api-integrator
+
+FR-38	uncovered	
+i6
+done
+agent
+api-integrator
+
+FR-23	uncovered	
+i5
+done
+agent
+api-integrator
+i2
+done
+agent
+api-integrator
+
+FR-70	uncovered	no work item claims to implement this
+FR-75	uncovered	
+i7
+done
+agent
+api-integrator
+u3
+done
+agent
+ui-designer
+
+FR-76	uncovered	
+i8
+done
+agent
+api-integrator
+
+FR-51	uncovered	
+i7
+done
+agent
+api-integrator
+i2
+done
+agent
+api-integrator
+
+FR-50	uncovered	
+i7
+done
+agent
+api-integrator
+i2
+done
+agent
+api-integrator
+
+FR-5	uncovered	
+i4
+done
+agent
+api-integrator
+
+FR-46	uncovered	
+i7
+done
+agent
+api-integrator
+i2
+done
+agent
+api-integrator
+
+FR-29	uncovered	
+i6
+done
+agent
+api-integrator
+
+FR-6	uncovered	
+i4
+done
+agent
+api-integrator
+
+FR-14	uncovered	
+i5
+done
+agent
+api-integrator
+i2
+done
+agent
+api-integrator
+
+FR-66	uncovered	
+i3
+done
+agent
+api-integrator
+
+FR-22	uncovered	
+i5
+done
+agent
+api-integrator
+i2
+done
+agent
+api-integrator
+
+FR-41	uncovered	
+i6
+done
+agent
+api-integrator
+
+FR-37	uncovered	
+i6
+done
+agent
+api-integrator
+
+FR-56	uncovered	
+i7
+done
+agent
+api-integrator
+u3
+done
+agent
+ui-designer
+
+FR-11	uncovered	
+i5
+done
+agent
+api-integrator
+u2
+done
+agent
+ui-designer
+
+FR-3	uncovered	
+i4
+done
+agent
+api-integrator
+
+FR-49	uncovered	
+i7
+done
+agent
+api-integrator
+i2
+done
+agent
+api-integrator
+
+FR-53	uncovered	
+i7
+done
+agent
+api-integrator
+u3
+done
+agent
+ui-designer
+unassigned
+Unassigned
+requirements
+0
+tests
+0
+mapped
+0
+covered
+0
+unproven
+0
+uncovered
+0
+self-certified tests
+0
+
+No requirements are recorded for this engagement, so there is nothing to cover. This is not a clean coverage report.
+
+The four evidence scopes, and the two coverage states they produce

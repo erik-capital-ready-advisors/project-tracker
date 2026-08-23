@@ -1,0 +1,60 @@
+URL /milestones/e4a9008b-f665-4c41-bcb5-b96983a58cc1
+STATUS 200
+LANDED /milestones/e4a9008b-f665-4c41-bcb5-b96983a58cc1
+LINKS ["/","/blocked","/next","/committed","/untested","/bottleneck","/broken","/registry","/work-items","/waits","/settings/tokens","/settings/export","/questions","/registry/delivery-ledger","/requirements/938cb222-1db6-468e-abea-bd35ee8c28f2","/requirements/f01ead67-c3dc-462f-b869-91b45583903a","/requirements/6617db0e-75ad-4492-8364-f9918b6774d9","https://nextjs.org/docs/messages/version-staleness","https://nextjs.org/telemetry#error-feedback"]
+---
+Command palette
+
+Jump to any screen.
+
+Delivery Ledger
+THE SIX ANSWERS
+Blocked
+Next
+Committed
+Untested
+Bottleneck
+Broken
+RECORDS
+Registry
+Work items
+Waits
+Agent tokens
+Export
+Questions
+Jump to...
+⌘K
+0 unparsed
+Phase 1 — ingest and the six answers
+FR-81 · FR-10 · FR-11 · FR-12
+
+One thing committed to a client: what it is worth, when it is due, and which requirements constitute its acceptance.
+
+Phase 1 — ingest and the six answers
+contract milestone
+← Engagement
+The milestone
+FR-10 · FR-11
+Engagement
+delivery-ledger delivery-ledger
+Amount
+not recorded
+Currency
+USD
+Due
+2026-08-22
+Submitted
+—
+Paid
+—
+Notes
+FR-11
+Notes
+—
+Acceptance
+FR-12 · FR-83
+FR-12
+FR-11
+FR-10
+
+Whether these are covered — and therefore whether this milestone is open, claimed or billable — is derived once, on Committed. It is not recomputed here, because two answers to “may I invoice this” is one answer too many.

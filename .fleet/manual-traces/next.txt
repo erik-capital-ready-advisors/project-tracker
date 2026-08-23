@@ -1,0 +1,52 @@
+URL /next
+STATUS 200
+LANDED /next
+LINKS ["/","/blocked","/next","/committed","/untested","/bottleneck","/broken","/registry","/work-items","/waits","/settings/tokens","/settings/export","/questions","https://nextjs.org/docs/messages/version-staleness","https://nextjs.org/telemetry#error-feedback"]
+---
+Command palette
+
+Jump to any screen.
+
+Delivery Ledger
+THE SIX ANSWERS
+Blocked
+Next
+Committed
+Untested
+Bottleneck
+Broken
+RECORDS
+Registry
+Work items
+Waits
+Agent tokens
+Export
+Questions
+Jump to...
+⌘K
+0 unparsed
+Next
+FR-53 · FR-58
+
+What can be worked on right now with nothing in its way?
+
+Engagement
+Rows
+25
+50
+100
+250
+500
+Apply
+0 unparsed in the ledger
+0 work items
+0 defects
+0 test results
+
+Nothing is startable.
+
+Work whose dependencies are all done and which no open blocker or wait holds appears here, nearest dated milestone first. The counts below say what was set aside and why.
+
+0 held by a dependency
+0 held by a blocker or wait
+0 status could not be classified

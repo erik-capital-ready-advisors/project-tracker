@@ -1,0 +1,132 @@
+URL /questions
+STATUS 200
+LANDED /questions
+LINKS ["/","/blocked","/next","/committed","/untested","/bottleneck","/broken","/registry","/work-items","/waits","/settings/tokens","/settings/export","/questions","/questions?answered=1","/questions/d7d0dbe7-ed3b-4616-b942-f958ed43ab93","/registry/delivery-ledger","/questions/a780c0ba-01a2-408a-ab5c-4ea6fab7c520","/questions/3fb9ad04-56bd-4225-b792-dbff74c59aef","/questions/5d4f8116-0745-4bb0-9a3a-623ab3237a47","/questions/475bde71-2f52-43a3-8147-c7a63a423426","/questions/52320375-987e-41f3-8aea-f4e744627791","/questions/56f66501-d73d-456b-a917-afbd16190fd1","/questions/d98eb557-0041-4d89-b510-fa3c08235880","/questions/b860ac98-f522-448d-b3b8-2e3db16e6d34","/questions/dd540cac-e569-431d-be1b-5d4b6466d10d","/questions/d6c12fb7-836b-451a-bca9-4949e628099e","/questions/9b69e963-01d7-4c4b-9124-97bea9abb9cf","/questions/61547ccc-b2e0-44e8-adaa-ce121aae9632","/questions/371a0e16-e7c1-44e7-a975-bf54971ea826","/questions/376fe19a-e8da-488a-874c-1735a034ba4b","/questions/ef48e174-ec73-4fc9-9416-335bfe75e618","/questions/2613515c-ee0d-4f26-89f7-2a95bc8a1890","/questions/efabf59e-db2a-4149-a0c6-655b106c5acf","/questions/bf555eed-ab0b-49ad-b292-f64927f050da","/questions/14358b23-eae7-4c79-bbb3-c3c2dd4f259b","/questions/bdd3f9c8-6f03-4d9e-8c99-c4a856f7f957","/questions/f60680cc-ceaf-4123-86b1-3455e43a050e","/questions/d780cdfa-77c4-4b3d-846e-cbbbbd6974a1","/questions/cfce5663-9564-4334-9f9c-b888edfd36eb","/questions/8b180a50-289b-4d03-b7da-4dd246516186","/questions/b5e60059-abe5-466a-8824-82ec548cbeca","/questions/48e61284-9297-4f50-a693-5fbd825293aa","/questions/96620ec0-fa5f-4896-82f1-1b1ed2c77e37","/questions/c326fc1e-489a-4f75-aa9e-6e0c4e7de976","/questions/bd3a0704-fd23-42ac-be25-ac972e6db138","/questions/8346d5ad-aa15-4d67-9f66-e50e3f0c8ac5","/questions/c3d50d24-f126-4b77-8678-0dda2d87dce1","/questions/49145bab-0451-41c1-8af4-219789b19933","/questions/020333c9-5a90-43ff-9850-79e96fb616dc","/questions/8177e44b-5ae3-43f7-9319-76465f71f69f","/questions/9306cafe-eb2b-49b8-8fa2-92150389626e","/questions/87c107b8-b235-4c39-893d-4cf5ede7636f","/questions/de025511-a40f-42c1-a7b4-264c2c4c0c85","/questions/4f1d73e3-eaec-415d-bbb3-b526967152c2","/questions/82cf31c4-dfca-4ffd-a876-e1059e6c35fb","/questions/7ef11034-83ad-4b85-86ba-0f37a67fa5f6","/questions/cface00d-7bd7-48fb-9e51-d71acce9f9aa","/questions/fcd25ef0-861c-43c8-b38c-9556dfd08722","/questions/086eefac-e264-4787-9c6f-a072c85e771e","/questions/e582bb37-cb97-4473-83f1-a966eb25da49","/questions/f860775a-ae2e-4699-b8c5-9ac09beef544","/questions/56f4ace2-9132-4f3b-9e02-6268bd6b6580","/questions/ec38e9fa-3456-4cb1-ad6c-47a903f7bd7b","/questions/e9e616ea-2a12-450f-9c3a-519b10dc981c","/questions/d8df4312-1ac2-4fc0-b439-7cc539e30e37","/questions/1bf6de27-1d71-4f3c-a7f1-9bd7a637a153","/questions/6f45569b-5e05-4dc0-9815-fb9dd0b97c73","/questions/bcac3e7f-2204-4194-ab79-d4da13ca41db","/questions/8834cd0e-f193-422f-b13f-efbda4fcf957","/questions/dd599a6d-dc04-48fe-bde6-9dfcc04fec3a","/questions/c01c8fbf-bfc3-437c-8c4e-1cef70f5bcbf","/questions/0d0ffb4c-4b7c-448d-b11f-3e112c4d7859","/questions/24be8f08-1637-4381-8179-3c20c2426264","/questions/f6719596-3c0a-4d1b-b736-70277c161406","/questions/b2ff5858-8c76-4b75-86df-54d5b6a09958","/questions/01368650-5e87-4891-b76e-ba2c847bdbb8","/questions/963bdd2d-564f-4d22-8c32-61c7186102a8","/questions/bbfea029-c2f6-4637-9224-c44d0c9824f6","/questions/1faa3d44-fd23-4887-a9c2-00583a0dc793","/questions/ddd1324a-fe44-4160-8133-8231b2a8ae10","/questions/93568909-7498-4dc4-b7b4-903a8b120f0d","/questions/9c3cdb0d-5495-4499-9963-2e11b962c66c","/questions/4129707d-686c-4b8e-b8e9-aa52ff8df1dd","/questions/8ba0ebd1-7233-4e34-8c3e-74d014e29d84","/questions/b5300b4d-dcbc-4e08-aa42-ded77c6a1738","/questions/a73d2c80-0b39-4d0c-be23-677e533a29d6","/questions/dab76881-71df-42ce-943e-d48919dc46ed","/questions/ffa89e38-02d2-454c-be05-a88de9d6bf92","/questions/19561c11-5ab9-4dbc-ba78-3489271d7817","/questions/ff75a6cc-ec26-46d4-b1ff-1944119de921","/questions/dda34675-0c64-465f-89de-8f94910a4d8a","/questions/91dcc328-0ae9-42ff-b3e3-dc57fd247fb8","/questions/96c61a58-4358-4762-bfee-bb95434833bf","/questions/b208ab25-7184-497e-badc-9fa8e411ca6f","/questions/b52368bf-b7b1-402f-9e23-77e94b34cbf3","/questions/626003dc-1a07-43f8-bfe6-4fb78d665411","/questions/edbd720e-6802-43e1-83d0-55fbb2fd5230","/questions/4f2a8b9b-b0b5-4dde-98a4-11929453054b","/questions/46d56bae-617a-47bd-bd90-21e638987241","/questions/6295d100-685b-4816-a26e-132c1094f3fd","/questions/e4984b82-69ff-4e59-84d3-dcf26767d239","/questions/6e590670-5589-4c65-bcd7-c5ae806ab69f","/questions/9cdda054-363d-4ff3-80f1-f296bbc60f73","/questions/791c8bd1-9954-4794-a686-355028f8f128","/questions/15557e6e-8973-49e6-95f7-e9e2252441ba","/questions/b7012c00-73ea-4fec-b247-8d36759bc989","/questions/9137b820-2769-4bfa-9c46-15c9810d7a28","/questions/28a7aae4-b59c-4d80-a004-bef368e6796f","/questions/8e807418-4233-42ad-83f2-b35b9bb30297","/questions/7b324e58-0a55-4a42-a0bc-2ae4fb1b902b","/questions/1e1caec3-ac4e-450c-8339-cca0302a6c1e","https://nextjs.org/docs/messages/version-staleness","https://nextjs.org/telemetry#error-feedback"]
+---
+Command palette
+
+Jump to any screen.
+
+Delivery Ledger
+THE SIX ANSWERS
+Blocked
+Next
+Committed
+Untested
+Bottleneck
+Broken
+RECORDS
+Registry
+Work items
+Waits
+Agent tokens
+Export
+Questions
+Jump to...
+⌘K
+0 unparsed
+Questions
+FR-18 · FR-81 · FR-83
+
+Every question the fleet queued for Erik, answered or not.
+
+96 open
+4 with unclassified confidence
+Include answered
+question	engagement	confidence	status	answered by	answered at
+b0952e:c1 §§7a operator refusals — operator-gate.tsx vs operator-load-notice.tsx	delivery-ledger delivery-ledger	med	open	—	—
+b0952e:c1 §FR-58 shell badge at 375px	delivery-ledger delivery-ledger	high	open	—	—
+b0952e:c1 §FR-44 work-item filter — the `blocked` URL parameter	delivery-ledger delivery-ledger	med	open	—	—
+b0952e:d1 §Vercel env vars / .env.example	delivery-ledger delivery-ledger	unparsed	open	—	—
+b0952e:d1 §FR-76 / FR-73	delivery-ledger delivery-ledger	unparsed	open	—	—
+b0952e:d1 §spec 7a / FR-1 / M1.0	delivery-ledger delivery-ledger	high	open	—	—
+b0952e:d1 §Vercel deployment protection	delivery-ledger delivery-ledger	unparsed	open	—	—
+b0952e:d1 §Vercel Preview env vars / spec 7a	delivery-ledger delivery-ledger	unparsed	open	—	—
+b0952e:doc1 §CLAUDE.md names a fixture directory that does not exist	delivery-ledger delivery-ledger	high	open	—	—
+b0952e:doc1 §Operator sign-in	delivery-ledger delivery-ledger	high	open	—	—
+b0952e:doc1 §Vercel Preview service-role key	delivery-ledger delivery-ledger	high	open	—	—
+b0952e:doc1 §Agent-token issuance is unreachable	delivery-ledger delivery-ledger	med	open	—	—
+b0952e:doc1 §next.config.ts comment contradicts i4's measurement	delivery-ledger delivery-ledger	high	open	—	—
+b0952e:doc1 §Unparsed rate is unmonitored	delivery-ledger delivery-ledger	low	open	—	—
+b0952e:doc1 §B4 session-hook install scope	delivery-ledger delivery-ledger	high	open	—	—
+b0952e:doc1 §B5 specialist ingest token	delivery-ledger delivery-ledger	high	open	—	—
+b0952e:doc1 §SessionStart hook	delivery-ledger delivery-ledger	med	open	—	—
+b0952e:i1 §7. Data Model	delivery-ledger delivery-ledger	high	open	—	—
+b0952e:i1 §7a Authentication posture (FR-3)	delivery-ledger delivery-ledger	high	open	—	—
+b0952e:i1 §7a. Security & Data Classification	delivery-ledger delivery-ledger	med	open	—	—
+b0952e:i1 §6.9 Records, export and retention (FR-61) vs 7a append-only	delivery-ledger delivery-ledger	med	open	—	—
+b0952e:i1 §6.1 Operator access (FR-5) / 7a authentication posture	delivery-ledger delivery-ledger	med	open	—	—
+b0952e:i10 §FR-32 to FR-36 — /api/waits body contract (extends question 2)	delivery-ledger delivery-ledger	med	open	—	—
+b0952e:i10 §FR-73 / FR-24 — ingest wire contracts	delivery-ledger delivery-ledger	high	open	—	—
+b0952e:i10 §FR-14 to FR-23, FR-24, FR-73 — request bodies	delivery-ledger delivery-ledger	med	open	—	—
+b0952e:i10 §7a vs FR-24 — engagement.repo_path (sharpens i6's open question)	delivery-ledger delivery-ledger	med	open	—	—
+b0952e:i2 §6. FR-52 / Flow A1 vs plan.md Task 6	delivery-ledger delivery-ledger	low	open	—	—
+b0952e:i2 §plan.md Task 13 -- Tier 2 corpus	delivery-ledger delivery-ledger	high	open	—	—
+b0952e:i3 §6.10 Defects — FR-64	delivery-ledger delivery-ledger	high	open	—	—
+b0952e:i3 §6.15 Contested milestones — FR-79	delivery-ledger delivery-ledger	med	open	—	—
+b0952e:i3 §6.13 Releases — FR-74/FR-75	delivery-ledger delivery-ledger	med	open	—	—
+b0952e:i3 §6.10 Defects — FR-64	delivery-ledger delivery-ledger	high	open	—	—
+b0952e:i4 §7a Security & Data Classification — audit_log, 'no record contents'	delivery-ledger delivery-ledger	high	open	—	—
+b0952e:i4 §7a Security & Data Classification — classification per table, `engagement` row	delivery-ledger delivery-ledger	med	open	—	—
+b0952e:i4 §7a Security & Data Classification — abuse and cost controls; FR-8	delivery-ledger delivery-ledger	med	open	—	—
+b0952e:i4 §6.1 Operator access and agent credentials — FR-7, and M1.2 'Operator sign-in'	delivery-ledger delivery-ledger	med	open	—	—
+b0952e:i5 §FR-20 / spec 7a classification table	delivery-ledger delivery-ledger	med	open	—	—
+b0952e:i5 §CLAUDE.md 'where two artifacts disagree, record both'	delivery-ledger delivery-ledger	low	open	—	—
+b0952e:i5 §FR-21 reported test counts	delivery-ledger delivery-ledger	med	open	—	—
+b0952e:i6 §FR-24 / B4 session hook install scope	delivery-ledger delivery-ledger	high	open	—	—
+b0952e:i6 §§7a engagement row vs FR-24/FR-26	delivery-ledger delivery-ledger	low	open	—	—
+b0952e:i6 §FR-31 stack attribution	delivery-ledger delivery-ledger	med	open	—	—
+b0952e:i6 §FR-36 external wait resolution	delivery-ledger delivery-ledger	med	open	—	—
+b0952e:i6 §FR-30 disposition default for mode-2 work items	delivery-ledger delivery-ledger	med	open	—	—
+b0952e:i7 §FR-53	delivery-ledger delivery-ledger	med	open	—	—
+b0952e:i7 §7a + FR-54 + FR-57	delivery-ledger delivery-ledger	high	open	—	—
+b0952e:i7 §M1.8 / FR-45 / FR-46	delivery-ledger delivery-ledger	high	open	—	—
+b0952e:i7 §FR-46 / FR-47	delivery-ledger delivery-ledger	med	open	—	—
+b0952e:i7 §FR-58	delivery-ledger delivery-ledger	med	open	—	—
+b0952e:i7 §FR-58 + FR-57	delivery-ledger delivery-ledger	med	open	—	—
+b0952e:i7 §FR-49 / FR-43	delivery-ledger delivery-ledger	med	open	—	—
+b0952e:i7 §FR-52	delivery-ledger delivery-ledger	med	open	—	—
+b0952e:i7 §FR-56	delivery-ledger delivery-ledger	low	open	—	—
+b0952e:i7 §FR-57	delivery-ledger delivery-ledger	med	open	—	—
+b0952e:i7 §FR-58 + FR-44	delivery-ledger delivery-ledger	high	open	—	—
+b0952e:i7 §FR-54	delivery-ledger delivery-ledger	med	open	—	—
+b0952e:i8 §6.13 Releases - FR-74 (with FR-12 / FR-65)	delivery-ledger delivery-ledger	med	open	—	—
+b0952e:i8 §6.6 Sessions FR-26 vs 6.13 Releases FR-73	delivery-ledger delivery-ledger	med	open	—	—
+b0952e:i8 §7a / FR-78 - secret-shaped identifiers	delivery-ledger delivery-ledger	med	open	—	—
+b0952e:i8 §6.9 FR-58 - the unparsed count on an endpoint	delivery-ledger delivery-ledger	low	open	—	—
+b0952e:qa1	delivery-ledger delivery-ledger	high	open	—	—
+b0952e:qa1	delivery-ledger delivery-ledger	high	open	—	—
+b0952e:qa1	delivery-ledger delivery-ledger	high	open	—	—
+b0952e:qa1	delivery-ledger delivery-ledger	low	open	—	—
+b0952e:qa1	delivery-ledger delivery-ledger	med	open	—	—
+b0952e:qa1	delivery-ledger delivery-ledger	med	open	—	—
+b0952e:qa1	delivery-ledger delivery-ledger	high	open	—	—
+b0952e:u1 §FR-58 / shell	delivery-ledger delivery-ledger	high	open	—	—
+b0952e:u1 §Pinned versions / toolchain	delivery-ledger delivery-ledger	med	open	—	—
+b0952e:u1 §Toolchain / pnpm build trust	delivery-ledger delivery-ledger	high	open	—	—
+b0952e:u1 §5a Design Direction	delivery-ledger delivery-ledger	med	open	—	—
+b0952e:u2 §§7a contract_milestone — notes	delivery-ledger delivery-ledger	med	open	—	—
+b0952e:u2 §i5 surface — reads per render	delivery-ledger delivery-ledger	med	open	—	—
+b0952e:u2 §§7a / FR-2 — operator screens and the gate	delivery-ledger delivery-ledger	med	open	—	—
+b0952e:u2 §5a colour direction / FR-12	delivery-ledger delivery-ledger	med	open	—	—
+b0952e:u2 §FR-10 / registry list density	delivery-ledger delivery-ledger	high	open	—	—
+b0952e:u3 §§5a colour direction / FR-63	delivery-ledger delivery-ledger	med	open	—	—
+b0952e:u3 §§5a design direction / FR-52-FR-71 layout	delivery-ledger delivery-ledger	med	open	—	—
+b0952e:u3 §FR-58 / app shell	delivery-ledger delivery-ledger	high	open	—	—
+b0952e:u3 §§7a / FR-54	delivery-ledger delivery-ledger	med	open	—	—
+b0952e:u3 §app shell / mobile	delivery-ledger delivery-ledger	high	open	—	—
+b0952e:u3 §FR-58 / API envelope	delivery-ledger delivery-ledger	high	open	—	—
+b0952e:u3 §FR-53 / FR-56	delivery-ledger delivery-ledger	low	open	—	—
+b0952e:u3 §FR-71 density	delivery-ledger delivery-ledger	low	open	—	—
+b0952e:u4 §FR-44 / §7a	delivery-ledger delivery-ledger	low	open	—	—
+b0952e:u4 §FR-44	delivery-ledger delivery-ledger	med	open	—	—
+b0952e:u4 §FR-4 / §7a	delivery-ledger delivery-ledger	low	open	—	—
+b0952e:u4 §security-baseline / sign-in	delivery-ledger delivery-ledger	med	open	—	—
+b0952e:u4 §src/proxy.ts	delivery-ledger delivery-ledger	high	open	—	—
+b0952e:u4 §FR-26	delivery-ledger delivery-ledger	med	open	—	—
+b0952e:u4 §5a design direction / work-item list	delivery-ledger delivery-ledger	med	open	—	—
+b0952e:u4 §5a design direction / work-item list	delivery-ledger delivery-ledger	med	open	—	—
+b0952e:u4 §src/proxy.ts / route protection	delivery-ledger delivery-ledger	med	open	—	—
+b0952e:u4 §FR-1 / sign-in	delivery-ledger delivery-ledger	med	open	—	—
+b0952e:u4 §FR-1 / sign-in	delivery-ledger delivery-ledger	med	open	—	—
+b0952e:u4 §FR-2 / MFA enrolment	delivery-ledger delivery-ledger	low	open	—	—

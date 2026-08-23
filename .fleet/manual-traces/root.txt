@@ -1,0 +1,93 @@
+URL /
+STATUS 200
+LANDED /
+LINKS ["/","/blocked","/next","/committed","/untested","/bottleneck","/broken","/registry","/work-items","/waits","/settings/tokens","/settings/export","/questions","https://nextjs.org/docs/messages/version-staleness","https://nextjs.org/telemetry#error-feedback"]
+---
+Command palette
+
+Jump to any screen.
+
+Delivery Ledger
+THE SIX ANSWERS
+Blocked
+Next
+Committed
+Untested
+Bottleneck
+Broken
+RECORDS
+Registry
+Work items
+Waits
+Agent tokens
+Export
+Questions
+Jump to...
+⌘K
+0 unparsed
+Delivery Ledger
+FR-52 · FR-58 · FR-71
+
+Six questions answered in thirty seconds, without opening a repo or reading a manifest.
+
+THE SIX ANSWERS
+Blocked
+FR-52
+
+What is stopped, who owns it, and for how long?
+
+Next
+FR-53
+
+What can be worked on right now with nothing in its way?
+
+Committed
+FR-54 · FR-75
+
+What was promised to a client, for how much, and by when?
+
+Untested
+FR-55 · FR-48 · FR-49
+
+Which requirements has nothing independently proven?
+
+Bottleneck
+FR-56 · FR-40
+
+What is waiting on Erik personally?
+
+Broken
+FR-71 · FR-69
+
+What is defective or has regressed?
+
+RECORDS
+Registry
+FR-8 · FR-77
+
+Engagements, contract milestones and acceptance criteria.
+
+Work items
+FR-44 · FR-39
+
+Every work item across every engagement and all three modes.
+
+Waits
+FR-35 · FR-36
+
+External waits on people outside the studio.
+
+Agent tokens
+FR-4 · FR-5
+
+Credentials an agent uses to read and write the ledger.
+
+Export
+FR-60
+
+Every record in one file, for the day this system is not here.
+
+Questions
+FR-18 · FR-81 · FR-83
+
+Every question the fleet queued for Erik, answered or not.

@@ -1,0 +1,38 @@
+URL /work-items/unassigned
+STATUS 200
+LANDED /work-items/unassigned
+LINKS ["/","/blocked","/next","/committed","/untested","/bottleneck","/broken","/registry","/work-items","/waits","/settings/tokens","/settings/export","/questions","/work-items/unassigned","https://nextjs.org/docs/messages/version-staleness","https://nextjs.org/telemetry#error-feedback"]
+---
+Command palette
+
+Jump to any screen.
+
+Delivery Ledger
+THE SIX ANSWERS
+Blocked
+Next
+Committed
+Untested
+Bottleneck
+Broken
+RECORDS
+Registry
+Work items
+Waits
+Agent tokens
+Export
+Questions
+Jump to...
+⌘K
+0 unparsed
+Unassigned sessions
+FR-26
+
+Which sessions could not be placed against an engagement, and where does each belong?
+
+All work items
+Unassigned sessions0
+
+Nothing is waiting to be attributed.
+
+A session whose working directory matches no engagement lands here instead of being discarded. The queue is empty, which means every recorded session has an engagement.

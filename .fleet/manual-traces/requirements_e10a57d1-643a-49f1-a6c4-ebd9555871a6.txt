@@ -1,0 +1,78 @@
+URL /requirements/e10a57d1-643a-49f1-a6c4-ebd9555871a6
+STATUS 200
+LANDED /requirements/e10a57d1-643a-49f1-a6c4-ebd9555871a6
+LINKS ["/","/blocked","/next","/committed","/untested","/bottleneck","/broken","/registry","/work-items","/waits","/settings/tokens","/settings/export","/questions","/registry/delivery-ledger","/work-items/0c4914ad-1b19-4b1a-993d-90af94ddaf61","/work-items/1d743ed9-46ad-4849-9e63-7970e4bec321","/defects/950a6899-634e-4876-a851-11a1c60181d1","https://nextjs.org/docs/messages/version-staleness","https://nextjs.org/telemetry#error-feedback"]
+---
+Command palette
+
+Jump to any screen.
+
+Delivery Ledger
+THE SIX ANSWERS
+Blocked
+Next
+Committed
+Untested
+Bottleneck
+Broken
+RECORDS
+Registry
+Work items
+Waits
+Agent tokens
+Export
+Questions
+Jump to...
+⌘K
+0 unparsed
+FR-14
+FR-81 · FR-82 · FR-83 · FR-85
+
+Everything recorded against one requirement: what implements it, what tests it, what violates it, and where it shipped.
+
+FR-14
+requirement
+← delivery-ledger
+The requirement
+FR-81
+
+- **FR-14** The system parses a fleet run's `manifest-<run-id>.md` work-unit table into work items, preserving id, type, phase, description, dispatched-to, depends-on and the raw status text.
+
+uncovered
+not shipped
+Reference
+FR-14
+Spec section
+—
+Engagement
+delivery-ledger delivery-ledger
+Implemented by
+FR-19 · FR-82
+work item	unit	status	executor
+i5	i5	done	agent
+api-integrator
+
+i2	i2	done	agent
+api-integrator
+Tested by
+FR-45 · FR-47 · FR-82
+
+A test has no detail view of its own: `test_case` is not one of FR-81's eight kinds, so these are shown rather than linked. FR-83 refuses a link this product cannot honestly build.
+
+No test names this requirement. Nothing has been claimed about it either way — this is FR-48's finding, not a failure.
+
+Violated by
+FR-65 · FR-82
+defect	title	severity	status
+D-2	Mode-1 ingest is inoperable: `service_role` cannot execute `app.gates_are_closed_set`	critical	fixed
+Shipped in
+FR-74 · FR-75 · FR-82
+
+No release names this requirement. Being covered by a passing test is a different claim and is shown separately above — FR-75: built and deployed are never collapsed.
+
+Contract acceptance
+FR-81 · FR-10
+
+Contract milestones whose acceptance criteria name this requirement. This is FR-81's inbound side and not one of FR-82's four relationships — it says what was promised to a client, not what implements, tests, violates or ships the requirement. Names only: §7a refuses contract_milestone to agent tokens entirely and no amount is read on this page.
+
+—

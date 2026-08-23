@@ -1,0 +1,83 @@
+URL /registry/new
+STATUS 200
+LANDED /registry/new
+LINKS ["/","/blocked","/next","/committed","/untested","/bottleneck","/broken","/registry","/work-items","/waits","/settings/tokens","/settings/export","/questions","https://nextjs.org/docs/messages/version-staleness","https://nextjs.org/telemetry#error-feedback"]
+---
+Command palette
+
+Jump to any screen.
+
+Delivery Ledger
+THE SIX ANSWERS
+Blocked
+Next
+Committed
+Untested
+Bottleneck
+Broken
+RECORDS
+Registry
+Work items
+Waits
+Agent tokens
+Export
+Questions
+Jump to...
+⌘K
+0 unparsed
+Register engagement
+FR-9 · FR-13 · FR-77 · FR-78
+
+Who the work is for, where its artifacts live, and which accounts it was provisioned into.
+
+← All engagements
+ENGAGEMENT
+
+Who the work is for, and on what terms.
+
+Clientrequired
+
+The display and grouping key everywhere else in the product.
+
+Slugrequired
+
+Lowercase, digits and single hyphens. This is the URL key on every screen.
+
+Status
+
+Free text — deliberately not a fixed list.
+
+Contract type
+Sourced how
+
+How the work arrived. Free text.
+
+WHERE THE WORK LIVES
+
+The paths ingest reads. Everything derived from this engagement is found through them.
+
+Repository path
+Spec path
+
+Requirements are ingested from here, and acceptance references resolve against them (FR-12).
+
+Fleet artifact directory
+Stacks
+
+Comma or newline separated. Duplicates are dropped.
+
+PROVISIONING IDENTIFIERS
+
+Which accounts this engagement was actually provisioned into, so the wrong-account failure mode is one lookup rather than an incident (FR-77). These are identifiers, never secrets. A value shaped like a key or a token is refused by the database and reported here, because a credential pasted where an identifier belongs is a credential in the database (FR-78).
+
+Database organisation
+Database project ref
+Hosting team
+Hosting project
+Production URL
+
+Must begin with https:// — this is where client data is served from.
+
+Register engagement
+
+Nothing is saved unless this succeeds.

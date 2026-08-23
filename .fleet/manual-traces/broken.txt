@@ -1,0 +1,201 @@
+URL /broken
+STATUS 200
+LANDED /broken
+LINKS ["/","/blocked","/next","/committed","/untested","/bottleneck","/broken","/registry","/work-items","/waits","/settings/tokens","/settings/export","/questions","/registry/delivery-ledger","/defects/950a6899-634e-4876-a851-11a1c60181d1","/requirements/e10a57d1-643a-49f1-a6c4-ebd9555871a6","/defects/61fdb4d7-6bc7-4ce3-8fe4-ca922bc41172","/defects/d45d9ae5-b485-4ffc-b75a-403cc202ff72","/requirements/754e7078-6c4e-4bdd-b2fb-f6238f125388","/defects/764bb58a-07c4-4c51-8d44-deb4be826182","/defects/0dc24b8a-f6be-4cee-b542-2959a0256ebe","/requirements/e83c930e-166f-463b-b834-82d64cab0c2b","/defects/31bad5e4-2fba-4746-867e-797c4edefe47","/requirements/3b21f107-474c-4fbb-8c28-a388ce6aeb61","/defects/efa9708e-9b65-4f98-a3c5-4675cb6f4536","/defects/554019cb-f4e2-424c-bb90-d347673cd5c6","/defects/18a5b0ba-ccdf-4583-ae92-26353ba1f7f3","/defects/16ca0b2a-d7d5-46e8-a90e-91550c46fb93","/defects/902407df-8bee-400d-97ff-ba970beae23c","/defects/ce3d3e41-9844-43e8-85b7-12b418337821","/defects/776de45e-2baf-4bf7-b5b7-6f10cd803441","/registry/unassigned","https://nextjs.org/docs/messages/version-staleness","https://nextjs.org/telemetry#error-feedback"]
+---
+Command palette
+
+Jump to any screen.
+
+Delivery Ledger
+THE SIX ANSWERS
+Blocked
+Next
+Committed
+Untested
+Bottleneck
+Broken
+RECORDS
+Registry
+Work items
+Waits
+Agent tokens
+Export
+Questions
+Jump to...
+⌘K
+0 unparsed
+Broken
+FR-71 · FR-69 · FR-66 · FR-67 · FR-58
+
+What is defective or has regressed?
+
+Engagement
+Severity
+any
+critical
+major
+minor
+unparsed
+Apply
+0 unparsed in the ledger
+0 work items
+0 defects
+0 test results
+
+A defect title is the only part of a defect stored unencrypted, because it is what this list is made of. Keep it a short label — checkout 500s on submit. Reproduction detail, data samples and anything specific to a client belong in the description, which is encrypted at rest.
+
+delivery-ledger
+delivery-ledger
+13 open · 0 regressed
+critical
+1 open
+defect	status	why still open	requirement	work item	tests	reported
+
+D-2
+Mode-1 ingest is inoperable: `service_role` cannot execute `app.gates_are_closed_set`
+qa_agent
+	
+fixed
+	no passing test names this defect	FR-14	—	—	2026-08-20
+major
+5 open
+defect	status	why still open	requirement	work item	tests	reported
+
+D-3
+`pnpm e2e` is red on any correctly configured machine
+qa_agent
+	
+fixed
+	no passing test names this defect	—	—	—	2026-08-20
+
+D-5
+Unrecognised request-body keys are silently accepted; `deployedAt` loses the deploy date
+qa_agent
+	
+fixed
+	no passing test names this defect	FR-73	—	—	2026-08-20
+
+D-6
+`app.rate_limit_counters` shipped with no §7a classification
+qa_agent
+	
+open
+	no passing test names this defect	—	—	—	2026-08-20
+
+D-7
+i5's FR-22 evidence was measured in the wrong role — an unsound trajectory, and it is how C1 shipped green
+qa_agent
+	
+open
+	no passing test names this defect	FR-22	—	—	2026-08-20
+
+D-8
+`/api/waits` still accepts unrecognised body keys in silence
+qa_agent
+	
+open
+	no passing test names this defect	FR-33	—	—	2026-08-20
+minor
+7 open
+defect	status	why still open	requirement	work item	tests	reported
+
+D-10
+Mutation-harness scratchpad collision.
+qa_agent
+	
+open
+	no passing test names this defect	—	—	—	2026-08-20
+
+D-11
+`CLAUDE.md` names a fixture directory that does not exist.
+qa_agent
+	
+open
+	no passing test names this defect	—	—	—	2026-08-20
+
+D-12
+The three ingest endpoints mix body-key casing.
+qa_agent
+	
+open
+	no passing test names this defect	—	—	—	2026-08-20
+
+D-13
+i4's report says "Six security controls were mutation-tested" while its own table lists seven.
+qa_agent
+	
+open
+	no passing test names this defect	—	—	—	2026-08-20
+
+D-14
+u4 left a dev server running.
+qa_agent
+	
+open
+	no passing test names this defect	—	—	—	2026-08-20
+
+D-15
+Playwright MCP artifacts landed in the main repo root.
+qa_agent
+	
+open
+	no passing test names this defect	—	—	—	2026-08-20
+
+D-9
+Unknown-key rejection does not reach nested entries on `/api/ingest/run`.
+qa_agent
+	
+open
+	no passing test names this defect	—	—	—	2026-08-20
+unparsed
+0 open
+
+None open at this severity.
+
+TEST REGRESSIONS0
+
+Each of these has a passing result in its history and a failing latest result.
+
+No test that used to pass is failing now.
+
+REQUIREMENT REGRESSIONS0
+
+Each of these was covered under FR-47 and is not covered now. This can happen with no test going red at all — if the only passing evidence turns out to be self-certified, the coverage goes and nothing fails.
+
+No requirement has lost coverage it previously had.
+
+unassigned
+Unassigned
+0 open · 0 regressed
+critical
+0 open
+
+None open at this severity.
+
+major
+0 open
+
+None open at this severity.
+
+minor
+0 open
+
+None open at this severity.
+
+unparsed
+0 open
+
+None open at this severity.
+
+TEST REGRESSIONS0
+
+Each of these has a passing result in its history and a failing latest result.
+
+No test that used to pass is failing now.
+
+REQUIREMENT REGRESSIONS0
+
+Each of these was covered under FR-47 and is not covered now. This can happen with no test going red at all — if the only passing evidence turns out to be self-certified, the coverage goes and nothing fails.
+
+No requirement has lost coverage it previously had.

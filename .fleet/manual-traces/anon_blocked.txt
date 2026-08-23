@@ -1,0 +1,51 @@
+URL /blocked
+STATUS 200
+LANDED /blocked
+---
+Command palette
+
+Jump to any screen.
+
+Delivery Ledger
+THE SIX ANSWERS
+Blocked
+Next
+Committed
+Untested
+Bottleneck
+Broken
+RECORDS
+Registry
+Work items
+Waits
+Agent tokens
+Export
+Questions
+Jump to...
+⌘K
+unparsed count unavailable
+Blocked
+FR-52 · FR-30 · FR-58
+
+What is stopped, who owns it, and for how long?
+
+Engagement
+Owner
+Disposition
+any
+carried
+closed
+Apply
+unparsed count unavailable
+— work items
+— defects
+— test results
+Nothing was counted, so this is not a claim that everything classified.
+
+Sign in to read this screen.
+
+There is no public signup. The operator account is provisioned by hand.
+
+Nothing was read, so nothing here is a statement about what the ledger holds.
+
+Go to sign-in

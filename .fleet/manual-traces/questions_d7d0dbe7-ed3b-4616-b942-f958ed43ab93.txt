@@ -1,0 +1,71 @@
+URL /questions/d7d0dbe7-ed3b-4616-b942-f958ed43ab93
+STATUS 200
+LANDED /questions/d7d0dbe7-ed3b-4616-b942-f958ed43ab93
+LINKS ["/","/blocked","/next","/committed","/untested","/bottleneck","/broken","/registry","/work-items","/waits","/settings/tokens","/settings/export","/questions","/registry/delivery-ledger","/work-items/23836479-30d2-491e-9e5f-93a168362097","https://nextjs.org/docs/messages/version-staleness","https://nextjs.org/telemetry#error-feedback"]
+---
+Command palette
+
+Jump to any screen.
+
+Delivery Ledger
+THE SIX ANSWERS
+Blocked
+Next
+Committed
+Untested
+Bottleneck
+Broken
+RECORDS
+Registry
+Work items
+Waits
+Agent tokens
+Export
+Questions
+Jump to...
+⌘K
+0 unparsed
+open question d7d0dbe7
+FR-18 · FR-81 · FR-83 · FR-85
+
+One question the fleet could not answer for itself: what it asked, what it assumed in the meantime, and what was decided.
+
+b0952e:c1 §§7a operator refusals — operator-gate.tsx vs operator-load-notice.tsx
+open question
+← delivery-ledger
+open
+confidence med
+The question
+FR-18 · FR-81
+
+Two components say different sentences for the same four refusal conditions: u2's registry OperatorGatePanel ("This deployment is not configured to reach its database") and u4's OperatorLoadNotice ("This screen could not be read."), which every other screen uses. Should they be unified, and onto which vocabulary?
+
+BEST GUESS
+
+What the unit proceeded on rather than blocking. It is what shipped if nobody answered — so it is shown beside the question and not behind it.
+
+Left both. Only u4's strings carried COPY markers; unifying means rewriting unmarked strings in another unit's component, which is a scope decision rather than a writing one. I sharpened u4's and left u2's untouched.
+
+The answer
+FR-18
+—
+Answered by
+—
+Answered at
+—
+Status
+open
+Where it came from
+FR-80 · FR-83
+Work item
+c1
+Run
+b0952e
+Unit
+c1
+Spec section
+§7a operator refusals — operator-gate.tsx vs operator-load-notice.tsx
+Engagement
+delivery-ledger delivery-ledger
+Source key
+questions-c1-b0952e.jsonl#0

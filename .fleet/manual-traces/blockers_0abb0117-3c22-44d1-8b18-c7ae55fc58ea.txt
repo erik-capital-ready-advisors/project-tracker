@@ -1,0 +1,56 @@
+URL /blockers/0abb0117-3c22-44d1-8b18-c7ae55fc58ea
+STATUS 200
+LANDED /blockers/0abb0117-3c22-44d1-8b18-c7ae55fc58ea
+LINKS ["/","/blocked","/next","/committed","/untested","/bottleneck","/broken","/registry","/work-items","/waits","/settings/tokens","/settings/export","/questions","/registry/delivery-ledger","https://nextjs.org/docs/messages/version-staleness","https://nextjs.org/telemetry#error-feedback"]
+---
+Command palette
+
+Jump to any screen.
+
+Delivery Ledger
+THE SIX ANSWERS
+Blocked
+Next
+Committed
+Untested
+Bottleneck
+Broken
+RECORDS
+Registry
+Work items
+Waits
+Agent tokens
+Export
+Questions
+Jump to...
+⌘K
+0 unparsed
+B14
+FR-81 · FR-83 · FR-85
+
+What this blocker is, who owns it, and what it is holding.
+
+B14
+blocker
+← Blocked
+Identity
+FR-30 · FR-52
+Engagement
+delivery-ledger
+delivery-ledger
+Owner
+erik
+Disposition
+closed
+Opened
+Resolved
+Prose
+FR-81
+Description
+
+FR-61 hard deletion conflicts with §7a append-only. FR-61 requires hard deletion as an audited administrative action; §7a marks audit_log and test_result append-only and indefinite, and i1's triggers refuse UPDATE/DELETE/TRUNCATE for every role including the owner. A hard delete cannot cascade into test_result
+
+What this is holding
+FR-52 · FR-80 · FR-83
+Blocks
+—

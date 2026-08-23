@@ -1,0 +1,65 @@
+URL /waits/ce152c78-a840-4210-aa87-35a19bd44c65
+STATUS 200
+LANDED /waits/ce152c78-a840-4210-aa87-35a19bd44c65
+LINKS ["/","/blocked","/next","/committed","/untested","/bottleneck","/broken","/registry","/work-items","/waits","/settings/tokens","/settings/export","/questions","/registry/delivery-ledger","https://nextjs.org/docs/messages/version-staleness","https://nextjs.org/telemetry#error-feedback"]
+---
+Command palette
+
+Jump to any screen.
+
+Delivery Ledger
+THE SIX ANSWERS
+Blocked
+Next
+Committed
+Untested
+Bottleneck
+Broken
+RECORDS
+Registry
+Work items
+Waits
+Agent tokens
+Export
+Questions
+Jump to...
+⌘K
+0 unparsed
+§5a design approval
+FR-81 · FR-33 · FR-35 · FR-36
+
+One dependency on somebody outside the studio: who owns it, when it started, when it is expected back, and what it is holding.
+
+§5a design approval
+external wait
+← All waits
+The wait
+FR-33 · FR-35
+Engagement
+delivery-ledger delivery-ledger
+Owner
+Erik
+Owner type
+client
+Reason
+—
+Dates
+FR-34 · FR-36
+Started
+2026-08-20
+Expected by
+—
+Resolved
+—
+Resolved by
+—
+Method
+manual
+Probe target
+—
+
+Whether this wait is overdue is derived once, on Waits, from the expected-by date above. It is not recomputed here.
+
+Work items this wait holds
+FR-81 · FR-83
+—

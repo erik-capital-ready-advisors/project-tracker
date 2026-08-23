@@ -1,0 +1,93 @@
+URL /registry/delivery-ledger
+STATUS 200
+LANDED /registry/delivery-ledger
+LINKS ["/","/blocked","/next","/committed","/untested","/bottleneck","/broken","/registry","/work-items","/waits","/settings/tokens","/settings/export","/questions","/registry/delivery-ledger/edit","/milestones/e4a9008b-f665-4c41-bcb5-b96983a58cc1","/requirements/6617db0e-75ad-4492-8364-f9918b6774d9","/requirements/f01ead67-c3dc-462f-b869-91b45583903a","/requirements/938cb222-1db6-468e-abea-bd35ee8c28f2","https://nextjs.org/docs/messages/version-staleness","https://nextjs.org/telemetry#error-feedback"]
+---
+Command palette
+
+Jump to any screen.
+
+Delivery Ledger
+THE SIX ANSWERS
+Blocked
+Next
+Committed
+Untested
+Bottleneck
+Broken
+RECORDS
+Registry
+Work items
+Waits
+Agent tokens
+Export
+Questions
+Jump to...
+⌘K
+0 unparsed
+delivery-ledger
+FR-10 · FR-11 · FR-12 · FR-77 · FR-61
+
+Contract milestones, acceptance criteria and provisioning identifiers.
+
+delivery-ledger
+active
+not recorded · sourced not recorded
+← All engagements
+Edit
+Contract milestones
+FR-10 · FR-11 · FR-12
+Add milestone
+Milestone & acceptance	Amount	Due	Submitted	Paid	
+Actions
+
+
+Phase 1 — ingest and the six answers
+FR-10
+FR-11
+FR-12
+	unreadable	2026-08-22	—	—	
+Dates
+Edit
+Where the work lives
+Repository
+not recorded
+Spec
+not recorded
+Fleet artifacts
+not recorded
+Stacks
+not recorded
+Committed
+$0.00
+Submitted
+$0.00
+Paid
+$0.00
+
+One milestone amount could not be read and contributes nothing to these totals — it is not zero.
+
+Provisioning
+FR-77 · FR-78
+0/5 recorded
+Database organisation
+not recorded
+Database project ref
+not recorded
+Hosting team
+not recorded
+Hosting project
+not recorded
+Production URL
+not recorded
+
+Identifiers, never secrets. The database refuses a value shaped like a key or a token, which is what keeps these columns classified as identifiers rather than credentials (FR-78).
+
+Archive and deletion
+
+FR-61. Archiving is reversible. Deletion is not, and it stops at the audit boundary.
+
+Archive
+Delete permanently
+
+Archive it first — that step is reversible and this one is not.

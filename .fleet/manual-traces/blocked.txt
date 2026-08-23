@@ -1,0 +1,91 @@
+URL /blocked
+STATUS 200
+LANDED /blocked
+LINKS ["/","/blocked","/next","/committed","/untested","/bottleneck","/broken","/registry","/work-items","/waits","/settings/tokens","/settings/export","/questions","/waits/ce152c78-a840-4210-aa87-35a19bd44c65","/work-items/132181d5-5c0f-4b07-8d8c-dbb2b9da418a","/registry/delivery-ledger","/work-items/184eabaf-3504-4ad2-b237-228d0abfd67f","/work-items/23836479-30d2-491e-9e5f-93a168362097","/work-items/42057754-97dd-4e58-9daa-b2f02d4c46ec","/work-items/8a3cda74-de10-4a11-a66b-44a3a9690873","https://nextjs.org/docs/messages/version-staleness","https://nextjs.org/telemetry#error-feedback"]
+---
+Command palette
+
+Jump to any screen.
+
+Delivery Ledger
+THE SIX ANSWERS
+Blocked
+Next
+Committed
+Untested
+Bottleneck
+Broken
+RECORDS
+Registry
+Work items
+Waits
+Agent tokens
+Export
+Questions
+Jump to...
+⌘K
+0 unparsed
+Blocked
+FR-52 · FR-30 · FR-58
+
+What is stopped, who owns it, and for how long?
+
+Engagement
+Owner
+Disposition
+any
+carried
+closed
+Apply
+0 unparsed in the ledger
+0 work items
+0 defects
+0 test results
+5 blocked work items
+1 open waits
+2 owners
+Erik
+0 blocked · 1 waiting
+longest 3 days
+OPEN EXTERNAL WAITS
+wait	owner type	started	expected by	blocks	waiting
+§5a design approval	client	2026-08-20	—	—	3 days
+erik
+5 blocked · 0 waiting
+BLOCKED WORK ITEMS
+unit	engagement	type	held by	status	disposition	started	elapsed
+man1
+
+End-user manual `docs/user-guide.md` (`mode: manual`), gated on qa1 PASS
+
+	delivery-ledger	docs	
+status
+	blocked	carried	—	—
+d1
+
+Vercel preview env vars (the Preview service-role key dropped when Production was hardened to `Sensitive`) + preview deploy verification of this branch
+
+	delivery-ledger	deploy	
+status
+	blocked	carried	—	—
+c1
+
+All UI copy — empty states, error messages, microcopy, reason-class and disposition labels, the `defect.title` operator rule from §7a, evidence-scope wording that never collapses the four states
+
+	delivery-ledger	copy	
+status
+	blocked	carried	—	—
+qa1
+
+Final review pass on the merged branch: build, lint, type-check, Playwright flows, a11y, security pass against §7a, trajectory grading from specialist traces
+
+	delivery-ledger	qa	
+status
+	blocked	carried	—	—
+i9
+
+**M1.10 export and handover — FR-60 export through one DB function, FR-61 archive + hard deletion**
+
+	delivery-ledger	integration	
+status
+	blocked	carried	—	—
