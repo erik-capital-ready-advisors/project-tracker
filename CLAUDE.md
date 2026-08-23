@@ -248,3 +248,9 @@ Behavioral rules earned on this project. Append one line per lesson, in the mome
   wiring from a stale attempt, which would have been reported as pre-existing state instead of the
   worktree's actual pre-B40 file. Only the run-scoped `.fleet/` report path is exempt, and only
   because the brief spells out the worktree-relative form explicitly.
+- When sweeping a UI for dialogs, match trigger elements by `[aria-haspopup]` / `[data-state]`
+  rather than by button label, and hold an explicit deny-list of destructive labels (Archive,
+  Delete, Revoke, Rotate, Resolve). On run `29b583` a label-matched click sweep **archived the
+  live `delivery-ledger` engagement** while writing the user guide. It was caught in the same
+  output, reversed with Restore, and confirmed against the database rather than the UI that had
+  just been used — but the next one may hit a control with no Restore beside it.
