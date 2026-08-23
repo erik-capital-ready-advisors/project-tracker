@@ -1,7 +1,7 @@
 # CR-005 — Planned work, fleet run history, and the limits of "all-in-one"
 
 **Date drafted:** 2026-08-23
-**Status:** **DRAFT — NOT APPROVED.** Written at Erik's direction after he asked whether the ledger
+**Status:** **§3.2 APPROVED 2026-08-23 by Erik — fleet run history, FR-92 to FR-95, as milestone M2.8.** The rest of this CR (§3.1 planned work, §3.3 engagement scoping, FR-87 to FR-91 and FR-96) remains **DRAFT — NOT APPROVED**, and Q12 to Q15 are unanswered. Written at Erik's direction after he asked whether the ledger
 shows "what has been built from a `plan.md` and what still needs to be built", and then asked for
 three things: multiple concurrent client projects, an easy view of what each fleet run did, and
 "an all-in-one solution for everything I could ever need when developing apps as a one man
@@ -183,7 +183,8 @@ questions that shape it.
 - **Q15 — Does a planned row expire?** Per §2's bar, a typed row should carry its own expiry. A plan
   item untouched for N days could surface as stale rather than sitting silently in `Next` forever.
   *Recommendation:* yes, and surface staleness rather than deleting anything.
-- **Q16 — Does `/runs` show runs from other clients' repos?** Every ingested run today comes from this
+- **Q16 — Does `/runs` show runs from other clients' repos?** **RESOLVED at approval, 2026-08-23: yes.** This question belonged to the approved §3.2 and the drafting summary wrongly called §3.2 question-free. It needed no separate ruling in the end because **FR-92 already says "across every engagement"** — approving §3.2 approved that reading. Recorded rather than quietly dropped, because a question that dissolves on inspection and one that was never asked look identical later.
+  *Original text and recommendation:* Every ingested run today comes from this
   repo. A run belonging to another engagement carries that engagement's branch names and unit
   descriptions. *Recommendation:* yes, scoped by engagement, since cross-engagement in one view is
   the product's existing posture.
@@ -192,8 +193,15 @@ questions that shape it.
 
 ## 7. Approval
 
-Unapproved. Nothing in this document is built, and no code or schema changes on its account until
-Erik rules on Q12 to Q16 and on §2's proposed bar.
+**§3.2 — APPROVED 2026-08-23 by Erik.** FR-92 to FR-95, built as **M2.8**. Additive, no schema
+change, no new entity, and it renders `fleet_run` data that has been ingested and unused since it
+first landed. Q16 resolves by construction through FR-92's own wording.
 
-Two things are worth ruling on separately, because they are severable: **§3.2 needs none of the
-questions answered** and could be approved on its own today; **§3.1 should not start before Q13**.
+**Everything else — still unapproved.** §3.1 (planned work, FR-87 to FR-91) and §3.3 (engagement
+scoping, FR-96) are not built and no code or schema changes on their account until Erik rules on
+Q12 to Q15. **§3.1 should not start before Q13** — reconciling a planned row against an ingested
+work unit on a guessed key produces a wrong `done`, and a double-counted work item makes `Next` and
+`Committed` both lie.
+
+**§2's proposed bar is also still unruled.** Approving §3.2 does not adopt it; it is offered as the
+test for future scope requests and needs its own yes.
