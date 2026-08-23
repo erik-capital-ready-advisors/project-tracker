@@ -101,8 +101,8 @@ which is the shape `prod.md` names as what avoids the three-way merge that block
 |----|------|-------|------|-------------|---------------|-----------|--------|
 | u1 | ui | 1 | A | **B33** — hoist the four-state prose renderer from five copies into one component with one verification contract | ui-designer | — | **done** — report gate PASS; +17 tests, 8 call sites adopt one contract; merged in `4a90be8` |
 | u2 | ui | 1 | A | **B36** — `/questions/[id]` is unreachable: add a `/questions` list route and a nav entry so an open question is linked from somewhere | ui-designer | — | **done** — report gate PASS; +15 tests, 41→42 routes; found a positional-index landmine in 5 sibling pages |
-| u3 | ui | 1 | A | **B32** — the money-formatter split: `formatAmount` `$111.00` vs `money` `111.00 USD`, one click apart since M2.7 | ui-designer | — | in_progress — returned, **report gate FAIL**, resumed to fix (see note) |
-| u4 | ui | 1 | B | **B40** — no sign-out control exists anywhere in the signed-in app | ui-designer | u1 | in_progress (dispatched 2026-08-23T13:10Z, based on `4a90be8`) |
+| u3 | ui | 1 | A | **B32** — the money-formatter split: `formatAmount` `$111.00` vs `money` `111.00 USD`, one click apart since M2.7 | ui-designer | — | **done** — gate FAIL adjudicated, reworded by the specialist, **re-gate PASS**; merged in `dcba416` |
+| u4 | ui | 1 | B | **B40** — no sign-out control exists anywhere in the signed-in app | ui-designer | u1 | in_progress — first dispatch stopped at step zero (worktree cut from `master`), produced nothing; **re-dispatched** from `dcba416` |
 | qa1 | qa | final | C | Independent review of the merged branch, incl. trajectory grading | qa-reviewer | u1,u2,u3,u4 | pending |
 
 ### Owned files, per unit
@@ -216,3 +216,26 @@ branch. Within one run it cut three worktrees at the branch tip and a fourth at 
 step-zero guard is therefore load-bearing rather than ceremonial, and an orchestrator must be
 prepared to adjudicate its second check with a containment proof rather than re-dispatching blindly
 or telling the unit to "just reset".
+
+## Questions fan-in
+
+Per-unit files concatenated to `.fleet/questions-29b583.jsonl` — **3 questions total**:
+
+| Unit | Lines | Note |
+|---|---|---|
+| u1 | 0 (no file) | Report declares none; gate confirmed the report and the disk agree |
+| u2 | 2 | Both sound, both surfaced to Erik; see the report's Open questions |
+| u3 | 1 | `formatAmount`'s unrecognised-currency inconsistency |
+| u4 | — | pending |
+
+Run `eb2490` failed its audit on exactly this step — five questions stranded in an uncollected
+worktree, recorded in `prod.md` as decisions Erik never got to make. Fanning in before synthesis,
+not after.
+
+## Merge log (continued)
+
+- **`dcba416`** — u3 merged. Measured on the merged tree: typecheck 0, lint 0,
+  `pnpm test` **1394 passed / 6 skipped**, `pnpm gate:m27` **5/5**, build exit 0 with `/questions`
+  and `/questions/[id]` both present in the route tree. `src/lib/money-display.ts` is gone and no
+  import of it survives — the three remaining textual references are two doc comments and one
+  `describe` string.

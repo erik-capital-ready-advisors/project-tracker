@@ -7,6 +7,7 @@ import {
 } from "@/components/command-palette";
 import { MainNav } from "@/components/main-nav";
 import { MobileNav } from "@/components/mobile-nav";
+import { SignOutButton } from "@/components/sign-out-button";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { UnparsedCount } from "@/components/unparsed-count";
 
@@ -62,6 +63,11 @@ export function AppShell({
               {/* FR-58: stated on every surface, because the shell wraps them all. */}
               <UnparsedCount count={unparsedCount ?? null} />
               <ThemeToggle />
+              {/* B40: the header renders on every route and breakpoint (the
+                  sidebar rail is desktop-only, `hidden md:block`; this is
+                  not), so mounting the control here is what makes it reach
+                  mobile without a second copy in MobileNav. */}
+              <SignOutButton />
             </div>
           </header>
 

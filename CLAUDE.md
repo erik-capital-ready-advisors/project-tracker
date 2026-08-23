@@ -241,3 +241,10 @@ Behavioral rules earned on this project. Append one line per lesson, in the mome
   as the branch's "additions" and answers a question you did not ask. Then remove with
   `git worktree remove` and leave the branch in place — it frees the disk and clears the leak while
   keeping the per-unit history, which is the reversible half of the operation.
+- Read and write source files under the agent's OWN worktree path, never the `repo_path` handed
+  down as the shared-checkout value. The two can hold different content at the same relative path,
+  and nothing about a successful `Read` signals which tree it came from — on run 29b583, `u4` read
+  `app-shell.tsx` from the shared checkout and it already contained a finished `SignOutButton`
+  wiring from a stale attempt, which would have been reported as pre-existing state instead of the
+  worktree's actual pre-B40 file. Only the run-scoped `.fleet/` report path is exempt, and only
+  because the brief spells out the worktree-relative form explicitly.
