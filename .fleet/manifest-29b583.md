@@ -102,8 +102,8 @@ which is the shape `prod.md` names as what avoids the three-way merge that block
 | u1 | ui | 1 | A | **B33** — hoist the four-state prose renderer from five copies into one component with one verification contract | ui-designer | — | **done** — report gate PASS; +17 tests, 8 call sites adopt one contract; merged in `4a90be8` |
 | u2 | ui | 1 | A | **B36** — `/questions/[id]` is unreachable: add a `/questions` list route and a nav entry so an open question is linked from somewhere | ui-designer | — | **done** — report gate PASS; +15 tests, 41→42 routes; found a positional-index landmine in 5 sibling pages |
 | u3 | ui | 1 | A | **B32** — the money-formatter split: `formatAmount` `$111.00` vs `money` `111.00 USD`, one click apart since M2.7 | ui-designer | — | **done** — gate FAIL adjudicated, reworded by the specialist, **re-gate PASS**; merged in `dcba416` |
-| u4 | ui | 1 | B | **B40** — no sign-out control exists anywhere in the signed-in app | ui-designer | u1 | in_progress — first dispatch stopped at step zero (worktree cut from `master`), produced nothing; **re-dispatched** from `dcba416` |
-| qa1 | qa | final | C | Independent review of the merged branch, incl. trajectory grading | qa-reviewer | u1,u2,u3,u4 | pending |
+| u4 | ui | 1 | B | **B40** — no sign-out control exists anywhere in the signed-in app | ui-designer | u1 | **done** — dispatched TWICE (see below); canonical report is the isolated agent's, gate PASS; merged in `eec250f` |
+| qa1 | qa | final | C | Independent review of the merged branch, incl. trajectory grading | qa-reviewer | u1,u2,u3,u4 | **done** — **BLOCKED, 0 critical, 6 important**; `.fleet/qa-report-29b583.md` |
 
 ### Owned files, per unit
 
