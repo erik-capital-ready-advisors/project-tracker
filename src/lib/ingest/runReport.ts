@@ -58,7 +58,11 @@ const GATE_LABELS = new Map<string, string>([
  * time, not at review time.
  */
 function gateOutcome(value: string): GateOutcome {
-  const upper = value.trim().toUpperCase();
+  // B58, second layer. Every real report bolds the outcome word, so the raw
+  // value arrives as `**PASS**, exit 0` and /^PASS\b/ never matches it. This
+  // reads THROUGH the emphasis to the same word; it does not widen what counts
+  // as a pass.
+  const upper = stripEmphasis(value).toUpperCase();
   if (/^PASS\b/.test(upper)) return "PASS";
   if (/^FAIL\b/.test(upper)) return "FAIL";
   if (/^NOT[ _-]RUN\b/.test(upper)) return "NOT_RUN";
@@ -127,7 +131,54 @@ export interface QaGateReport {
 const STATUS_LINE = /^\*\*Status:\*\*\s*(.+?)\s*$/m;
 const SEVERITY_LINE =
   /\*\*Critical:\*\*\s*(\d+)[^\n]*?\*\*Important:\*\*\s*(\d+)[^\n]*?\*\*Minor:\*\*\s*(\d+)/;
-const GATE_LINE = /^-\s+([A-Za-z][A-Za-z -]*?)(?:\s*\([^)]*\))?:\s*(.+?)\s*$/;
+/**
+ * B58. Every real QA report bolds its gate labels, and the single unbolded
+ * pattern this file used to carry matched **0 of 103** non-empty lines across
+ * all four tracked reports -- silently, because the non-match was dropped by a
+ * `continue` above the unparsed counter.
+ *
+ * These are the shapes the artifacts actually use, in the order they must be
+ * tried. They were read off the corpus, not invented:
+ *
+ *   1. `- **Build (pnpm):** PASS`      colon INSIDE the bold span
+ *   2. `- **Build** (pnpm): **PASS**`  colon OUTSIDE the bold span
+ *   3. `- Build (pnpm): PASS`          the unbolded shape the template documents
+ *
+ * Shape 1 must be tried first: shape 2 would otherwise claim a shape-1 line and
+ * take the value from the wrong side of the colon.
+ */
+const GATE_BULLET = /^[-*]\s+(.+)$/;
+const GATE_SHAPES: readonly RegExp[] = [
+  /^\*\*(.+?):\*\*\s*(.+?)\s*$/,
+  /^\*\*(.+?)\*\*\s*(?:\([^)]*\))?\s*:\s*(.+?)\s*$/,
+  /^([A-Za-z][A-Za-z -]*?)(?:\s*\([^)]*\))?:\s*(.+?)\s*$/,
+];
+
+/** Markdown emphasis and code ticks, removed so a WORD can be read. */
+function stripEmphasis(value: string): string {
+  return value.replace(/\*\*/g, "").replace(/`/g, "").trim();
+}
+
+/**
+ * A label as `GATE_LABELS` keys it: emphasis gone, a trailing parenthetical
+ * qualifier gone (`Build (pnpm)` and `Playwright (mine)` are the same gates as
+ * `Build` and `Playwright`), lowercased.
+ *
+ * A label this does not reduce to a known key is NOT guessed at -- it lands in
+ * `unparsed`, which is the point. `Unit tests` and `pnpm gate:m27:e2e` are both
+ * real gates in the corpus and both stay loud until someone decides to add them.
+ */
+function normaliseLabel(raw: string): string {
+  return stripEmphasis(raw).replace(/\s*\([^)]*\)\s*$/, "").trim().toLowerCase();
+}
+
+function matchGateLine(body: string): { label: string; value: string } | null {
+  for (const shape of GATE_SHAPES) {
+    const found = shape.exec(body);
+    if (found) return { label: found[1], value: found[2] };
+  }
+  return null;
+}
 
 /** `6 flows authored, 5 passed, 1 failed` — the template's own wording. */
 const PASSED = /(\d+)\s+passed/i;
@@ -173,11 +224,23 @@ export function parseQaGates(text: string): QaGateReport {
   let testsSkipped: number | null = null;
 
   for (const line of verificationLines(text)) {
-    const match = GATE_LINE.exec(line.trim());
-    if (!match) continue;
+    const bullet = GATE_BULLET.exec(line.trim());
+    // Not a bullet at all -- prose, a blank, a table row. The heading holds
+    // those too and they were never gate lines.
+    if (!bullet) continue;
 
-    const label = match[1].trim().toLowerCase();
-    const value = match[2];
+    const match = matchGateLine(bullet[1]);
+    if (match === null) {
+      // B58's silent half. A bullet under this heading that states no
+      // `label: value` used to vanish here, ABOVE the counter meant to notice
+      // it, so a report whose every gate line failed to parse reported
+      // `unparsed: 0`. It is counted now.
+      unparsed += 1;
+      continue;
+    }
+
+    const label = normaliseLabel(match.label);
+    const value = stripEmphasis(match.value);
     const key = GATE_LABELS.get(label);
 
     if (key === undefined) {

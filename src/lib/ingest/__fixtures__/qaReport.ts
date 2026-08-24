@@ -139,3 +139,40 @@ export const QA_REPORT_EDITED_IN_PLACE = `# QA report b0952e
 
 - Nothing further.
 `;
+
+/**
+ * The gate-line shapes the REAL corpus uses, none of which the synthetic
+ * fixtures above exercise. Copied from the four tracked QA reports rather than
+ * typed from memory of the format -- which is the whole reason B58 survived
+ * 1817 green tests: the one committed fixture wrote `- Build (pnpm): PASS`
+ * unbolded, and every real report bolds the label.
+ *
+ * Two independent shapes are folded in here, and B58 needed BOTH fixed:
+ *
+ *   1. the LABEL is bold, with the colon either inside the bold span
+ *      (`**Build (pnpm):**`) or outside it (`**Build** (pnpm):`), and is
+ *      sometimes a backticked command containing its own colons
+ *      (`` **`pnpm gate:m27:e2e`:** ``);
+ *   2. the VALUE is bold too (`**PASS**, exit 0`), so reading the outcome word
+ *      off the raw value fails even once the label parses.
+ *
+ * Sources, in order: 29b583 (1-5), b0952e (6-8), d4000f (9-10). Trimmed for
+ * length after the outcome word, never edited before it.
+ */
+export const QA_REPORT_REAL_GATE_LINES = `# QA report real-shapes
+
+**Status:** PASS
+
+## Verification performed
+
+- **Build (pnpm):** PASS — \`✓ Compiled successfully in 761ms\`, exit 0.
+- **Type-check:** PASS — \`tsc --noEmit\`, exit 0, no output.
+- **Lint:** PASS — \`oxlint\`, exit 0, no output.
+- **Unit tests:** PASS — **97 files passed / 1 skipped; 1400 passed / 6 skipped (1406)**, exit 0.
+- **\`pnpm gate:m27:e2e\`:** **NOT RUN** — §7c row 2 unreachable (storage state expired).
+- **Build** (pnpm): **PASS**, exit 0, 31 routes — re-run after my additions, still exit 0
+- **Type-check**: **PASS**, exit 0
+- **Playwright, authored by me**: 21 tests × 2 projects = **42 passed**, plus a valid negative control
+- **Lint** (oxlint): **PASS** — exit 0
+- **Playwright (mine)**: **19 flows authored, 19 passed** — FR-96c on all 11 screens
+`;
