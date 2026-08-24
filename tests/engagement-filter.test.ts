@@ -110,7 +110,36 @@ describe("FR-96 engagement filter — which screens honour it", () => {
     );
   });
 
-  it("FR-96 is every navigable screen except the two settings pages", () => {
+  /**
+   * Screens that are navigable and deliberately NOT filterable, each with the
+   * reason it is out.
+   *
+   * Every entry here is a decision someone made and wrote down, which is the
+   * whole point of the tripwire below.
+   */
+  const DELIBERATELY_UNFILTERED: readonly string[] = [
+    /*
+     * CR-007 §3 / M2.2. `/stacks` is a **ledger-wide register by construction**,
+     * and this is a decision rather than an omission.
+     *
+     * FR-104 asks for every stack the ledger has ever observed, and
+     * `readStackRegister()` takes no argument at all — `@/lib/stacks-load`
+     * documents the argument-free signature as load-bearing for its `cache()`
+     * memoisation. More importantly, FR-106 compares each row's **engagement
+     * count** against a threshold of two. Narrowing the register to one
+     * engagement would leave that threshold in place while making the number it
+     * is compared against mean something else entirely: every stack would show
+     * at most one engagement and nothing could ever cross the line. A filter
+     * that silently guarantees one half of a rule can never fire is worse than
+     * no filter, and it is the same class of error FR-96c exists to prevent.
+     *
+     * The screen states this in words rather than leaving the missing picker to
+     * be read as a gap (`data-verify-unit="ledger-wide-note"`).
+     */
+    "/stacks",
+  ];
+
+  it("FR-96 is every navigable screen except the settings pages and the ledger-wide ones", () => {
     /*
      * A tripwire, not a derivation. The list above is written out literally so
      * that appending a nav entry does NOT silently enrol a new screen into
@@ -118,12 +147,25 @@ describe("FR-96 engagement filter — which screens honour it", () => {
      * applying it is exactly FR-96c's lie. This test is what makes that
      * decision visible: add a route to `nav.ts` and it fails until someone says
      * which side of the line the new screen is on.
+     *
+     * It kept working. `/stacks` (M2.2) tripped it, and the answer is recorded
+     * in `DELIBERATELY_UNFILTERED` above rather than by widening the expectation.
      */
     const navigable = ALL_ROUTES.map((route) => route.href)
       .filter((href) => !href.startsWith("/settings/"))
+      .filter((href) => !DELIBERATELY_UNFILTERED.includes(href))
       .sort();
 
     expect([...ENGAGEMENT_FILTERABLE_PATHS].sort()).toEqual(navigable);
+  });
+
+  it("every deliberately-unfiltered screen is a real route, and really is unfiltered", () => {
+    // Without this, the exclusion list could hide a typo or outlive its screen
+    // and quietly stop protecting anything.
+    for (const href of DELIBERATELY_UNFILTERED) {
+      expect(ALL_ROUTES.map((route) => route.href)).toContain(href);
+      expect(isEngagementFilterable(href)).toBe(false);
+    }
   });
 
   it("FR-96 matches paths exactly, so no detail view is enrolled by prefix", () => {

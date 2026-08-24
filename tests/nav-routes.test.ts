@@ -22,6 +22,26 @@ describe("nav routes (B36, B43)", () => {
     expect(questions?.label).toBe("Questions");
   });
 
+  /**
+   * CR-007 §3 / M2.2. Same tripwire as the `/questions` assertion above and for
+   * the same reason: `/stacks` is reachable only through this array — the
+   * sidebar, the mobile drawer and the command palette all enumerate it, and
+   * `stacks/page.tsx` reads its own entry from it with a non-null assertion.
+   * Deleting the entry would make the route unreachable AND throw at import, and
+   * without this assertion nothing would say which of those happened.
+   */
+  it("OPERATOR_ROUTES contains the /stacks entry (CR-007, Q26)", () => {
+    const stacks = OPERATOR_ROUTES.find((item) => item.href === "/stacks");
+
+    expect(stacks).toBeDefined();
+    expect(stacks?.label).toBe("Stacks");
+    // Q26 RULED: `coverage` is not reused on this surface.
+    expect(stacks?.label.toLowerCase()).not.toContain("coverage");
+    expect(stacks?.question.toLowerCase()).not.toContain("coverage");
+    expect(stacks?.requirements).toContain("FR-104");
+    expect(stacks?.requirements).toContain("FR-109");
+  });
+
   it("every route carries the metadata the shell renders", () => {
     for (const item of ALL_ROUTES) {
       expect(item.href.startsWith("/")).toBe(true);

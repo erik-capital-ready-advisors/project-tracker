@@ -141,6 +141,38 @@ export const OPERATOR_ROUTES: readonly NavItem[] = [
     question: "Every fleet run ingested, and what each one claimed about itself.",
     requirements: ["FR-92", "FR-94", "FR-95"],
   },
+  {
+    // CR-007 §3 / M2.2. The register of every stack the ledger has observed,
+    // the hours on each, and whether a fleet agent covers it.
+    //
+    // Appended at the END, index `[7]`.
+    //
+    // CORRECTION, run 9b85cd, measured rather than inherited. The two comments
+    // above claim SIX pages read this array by POSITIONAL INDEX. That is FALSE
+    // as of this commit and was already false at this run's merge base: all
+    // eight app pages read their own entry with `.find((item) => item.href ===
+    // ...)`. The only positional readers left in the repo are two TEST files --
+    // `tests/nav-routes.test.ts` pins `[0]`-`[4]` and `tests/runs-list.test.tsx`
+    // pins `[5]` -- and both are deliberate tripwires against silent reordering.
+    //
+    // The claim survived because every `OPERATOR_ROUTES[n]` occurrence in `src/`
+    // is INSIDE A COMMENT, so a grep for the indexing form matches prose that
+    // describes the hazard rather than code that has it. That is this repo's own
+    // standing lesson: confirm at the return site, never on a bare identifier.
+    //
+    // Appending is still correct -- it is order-independent and it keeps the two
+    // test tripwires green -- but it is correct for a weaker reason than the one
+    // stated above, and B44 should not be held open on this sentence.
+    //
+    // Q26 RULED: the label is "Stacks" and the word `coverage` is not reused
+    // anywhere on this surface. `src/lib/ingest/coverage.ts` already means
+    // requirement and test coverage (FR-45 to FR-51).
+    href: "/stacks",
+    label: "Stacks",
+    question:
+      "Every technology the ledger has seen, the hours on it, and whether a fleet agent covers it.",
+    requirements: ["FR-104", "FR-105", "FR-106", "FR-107", "FR-108", "FR-109"],
+  },
 ] as const;
 
 export const ALL_ROUTES: readonly NavItem[] = [
