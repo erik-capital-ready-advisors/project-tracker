@@ -91,8 +91,8 @@ in-run and the deviation is reported. Recorded here **before** `i1` was dispatch
 |----|------|-------|-------------|---------------|-----------|--------|
 | i1 | integration | 1 | Stacks read layer: per-stack aggregation, FR-106 limb-one trigger evaluation, FR-108 blindness counts, FR-109 operator write path for `agent_covering`. Zero migrations expected. | api-integrator | — | **done** — `report-gate.sh` PASS (run id matched, 6/6 sections, 13 file lines, 3 questions on disk). Merged `4f19e14` (true fast-forward). **Zero migrations, as predicted.** 12 files, +2019 lines, 57 new tests. |
 | u1 | ui | 2 | `/stacks` screen titled "Stacks": FR-104 table, FR-106 rule stated on screen, FR-107 actionable state visually distinct, FR-108 blindness + no-data treatment, Q25 Mode-2 sentence, Q27 limb-two UNMET notice, FR-109 operator control. | ui-designer | i1 | **done** — `report-gate.sh` PASS (run id matched, 6/6 sections, 17 file lines, 4 questions on disk). Merged `9f92f25` (true fast-forward). 14 files, +3135/-1. **Routes 31 → 32.** |
-| qa1 | qa | final | Independent review of the merged branch + trajectory grading | qa-reviewer | i1, u1 | pending |
-| doc1 | docs | final | `docs/user-guide.md` covers `/stacks` (routes 31 → 32); **all rows re-opened per B57, not copied forward** | docs-writer (mode: manual) | u1, qa1 PASS | pending |
+| qa1 | qa | final | Independent review of the merged branch + trajectory grading | qa-reviewer | i1, u1 | **done** — **ISSUES: 0 critical, 1 important, 5 minor** (+1 important / 1 minor pre-existing, counted separately). `.fleet/qa-report-9b85cd.md`. Trajectory: i1 **SOUND** 5/5, u1 **UNSOUND** on 1 of 5. |
+| doc1 | docs | final | `docs/user-guide.md` covers `/stacks` (routes 31 → 32); **all rows re-opened per B57, not copied forward** | docs-writer (mode: manual) | u1, qa1 | **done** — `report-gate.sh` PASS. **`manual-gate.sh` PASS 32/32, re-run independently by me.** 32 rows re-observed, **12 changed**, **18 guide claims corrected, 2 of them false**. Commit `b8644ce`. |
 
 ## Defer list — decisions, not gaps
 
@@ -196,3 +196,145 @@ entry with `.find(...)`, which is B44's prescribed fix applied to the one call s
 
 Baseline before the run was **1853 passed / 6 skipped**, measured by me at Phase 0 and independently
 by i1. Net new this run: **+134 tests** (i1 57, u1 77).
+
+
+## QA fan-in — qa1
+
+**Status: ISSUES — 0 critical, 1 important, 5 minor.** Nothing blocks the merge. Because there is no
+`critical`, this run's status is not forced below SUCCESS by the review; because there IS an
+important finding that this run introduced, the status is **SUCCESS WITH ISSUES** and the finding is
+carried verbatim rather than summarised into something softer.
+
+### The important finding: a false claim, not a code defect — and I had propagated it
+
+u1 shipped the sentence *"six pages read `OPERATOR_ROUTES` positionally `[0]`–`[5]`"* into
+`src/lib/nav.ts`, `src/app/stacks/page.tsx`, its own report, **and this manifest**, where I repeated
+it as fact in the u1 fan-in section.
+
+**I verified it myself rather than swapping u1's unchecked claim for QA's.** It is false, and was
+already false at this run's merge base:
+
+- **Zero** positional reads exist in `src/`. Every `OPERATOR_ROUTES[n]` occurrence there is **inside a
+  comment**.
+- All **eight** app pages read by href: `.find((item) => item.href === ...)`.
+- The only positional readers in the repo are **two test files** — `tests/nav-routes.test.ts` pins
+  `[0]`–`[4]`, `tests/runs-list.test.tsx` pins `[5]` — and both are deliberate tripwires against
+  silent reordering.
+
+**Why it survived:** because the hazard is described in comments, a grep for the indexing form
+matches **prose about the hazard** rather than code that has it. This is the project's own standing
+lesson landing again — confirm at the return site, never on a bare identifier — and the same shape as
+the `defect.source_key` claim that reached `prod.md` and an approved CR on run `d4000f`.
+
+**Consequence that matters: B44 is being held open on false evidence.** Its premise is that six pages
+need refactoring to href lookups. They already do.
+
+**Fixed:** the two comments **this run introduced** (`5dc9898`), with the correction stating what was
+measured. **Not fixed, deliberately reported instead:** the pre-existing false comments at
+`nav.ts:107`, `nav.ts:126`, `runs/page.tsx:20`, `questions/page.tsx:22` and `nav-lookup.test.ts:10`.
+Rewriting five files' comments is a change Erik should choose, not one this run makes on its way past.
+This manifest section is itself the correction of my own propagation.
+
+### Trajectory grading
+
+- **i1 — SOUND on all five checks.** Every quantitative claim traces to observed output: five
+  mutations killed 3/1/2/4/3, the `'use server'` reachability probe genuinely created and deleted,
+  two `execute_sql` calls. Its prior-learnings reads actually ran — **the opposite of B45**.
+- **u1 — UNSOUND on one check of five**, the `OPERATOR_ROUTES` claim only. Its 11/11 mutations, three
+  consecutive 1987/6 runs, route count and a `15→14` self-correction are all in the trace and all
+  reproduce.
+
+### What QA corroborated independently rather than restating
+
+FR-108 is **load-bearing, not a footer** — the panel precedes the table (`compareDocumentPosition`),
+both denominator identities hold on the rendered DOM, and **all nine rendered figures match the live
+database exactly**. Limb two is **structurally** unevaluated: QA planted `blockingMilestone.met` and
+`tsc` returned `TS2339: Property 'met' does not exist on type 'UnevaluatedClause'`, exit 1. §7a holds:
+`summary` appears in no non-test file, **no `.rpc(` call site exists anywhere in the new surface**,
+and both live `audit_log` rows carry a target id and no value, inspected column by column.
+
+### QA's verdict on the `undetermined` deviation I referred to it
+
+**Not a deviation.** FR-107's normative sentence imposes no vocabulary on the non-actionable states —
+"unearned" sits in the trailing gloss. FR-106 is a **disjunction**, so `¬(A ∨ B)` cannot follow from
+`¬A` while `B` is unevaluated. QA's recommendation, which I have taken: record it as a Decisions-log
+amendment to FR-107's gloss, **not** as a defect.
+
+
+## Manual pass fan-in — doc1
+
+**Gating decision, stated:** my standing rule dispatches the manual pass on `qa-reviewer` **PASS** and
+forbids it on **FAIL**. QA returned **ISSUES — 0 critical**, with "nothing blocks the merge". I read
+that as not-FAIL and dispatched, because the guide update is a **gate on this milestone** (CR-007 §4)
+rather than an optional extra, and because no finding touched what the screen claims. Recorded here
+rather than left as an unexplained judgement.
+
+**`manual-gate.sh` — my own run, not doc1's, verbatim:**
+
+```
+ok    docs/user-guide.md present (10352 words)
+ok    evidence file manual-evidence-d4000f.json carries 32 route row(s)
+ok    branch serves 32 route(s)
+ok    32 of 32 served route(s) covered, all observed
+
+MANUAL GATE PASS - .
+```
+
+**The evidence-file trap was avoided, and it would have cost the whole pass.** `manual-gate.sh`
+selects `sorted(glob(".fleet/manual-evidence-*.json"))[-1]` — the **lexicographically last**, not the
+newest. `9b85cd` sorts **below** the existing `d4000f`, so a correctly-written
+`manual-evidence-9b85cd.json` would have been **silently ignored**, leaving the gate reading
+`d4000f`'s 31 rows and failing on route coverage while pointing at the wrong cause. I verified the
+selection empirically before dispatch and briefed doc1 to amend `manual-evidence-d4000f.json`
+**in place** with an `amendments` note — M2.8's recorded pattern. It did, and the gate reads 32 rows.
+
+### B57 earned its keep: 12 of 32 rows changed, and two guide claims were FALSE
+
+B57 says the manual gate cannot tell a fresh observation from a copied one, so rows are re-opened
+rather than carried forward. **32 re-observed, 12 changed, 18 claims corrected.** Two were false
+rather than merely stale:
+
+1. **The guide told Erik "nothing critical is currently open."** The screen says **`13 open`,
+   `critical 1 open`.** `broken.ts:177` with `defects.ts:441` settle it: `isUnresolved(status)` is
+   `status !== "verified" && status !== "wont_fix"`, so a defect marked `fixed` is **still open**.
+   A guide that tells the operator no critical defect is open, while one is, is exactly the
+   wrong-`done` this product exists to refuse — and only a re-observation could find it.
+2. **`/work-items/new` carried `UNVERIFIED: submitting the form`** while `prod.md` 818–825 records run
+   `d4000f` submitting that same form and creating `b53-seed`, confirmed against the database. The
+   guide also contradicted itself elsewhere.
+
+**Safety held.** No destructive control was clicked; every trigger was matched by `data-verify-unit`,
+never by label — the discipline that exists because a label-matched sweep **archived the live
+`delivery-ledger` engagement** during this very task on run `29b583`. Two dialogs were opened and
+closed with Escape. **Save was never pressed**, and the row read `data-verify-covered="false"` before
+and after, so the reversible write I had offered went unused and needs no reverting. No record was
+created, modified or deleted. The credential was read from the environment only and no Playwright run
+failed, so **B38 did not fire**.
+
+## Questions — 13 queued, none blocking
+
+Per-unit line counts: **i1 = 3, u1 = 4, doc1 = 6, run total = 13**, concatenated into
+`.fleet/questions-9b85cd.jsonl` from the three per-unit files.
+
+**Two that doc1 raised are product findings, not documentation ambiguities**, and they are the most
+useful things in the queue:
+
+- **`Broken` labels a group `N open` while the rows beneath read `fixed`.** Intended by the code, and
+  now explained in the guide — but anyone who has not read that new paragraph will misread the screen.
+- **One milestone amount renders three different ways on three screens** — `unreadable` on the
+  engagement, `not recorded` on the milestone, a dash on Committed. **Two of the three are false under
+  the product's own vocabulary.** doc1 recorded all three as a disagreement rather than picking one,
+  per the standing rule that where two artifacts disagree you emit both.
+
+## Final state
+
+| Check | Result |
+|---|---|
+| `pnpm test` | **1987 passed / 6 skipped / 1993**, 131 files (baseline 1853, **+134**) |
+| `pnpm typecheck` / `pnpm lint` / `pnpm build` | exit 0 |
+| Served page routes | **31 → 32** |
+| `manual-gate.sh` | **PASS 32/32, all observed** (re-run by me) |
+| `security-gate.sh` (resolved spec) | PASS |
+| QA | ISSUES — 0 critical, 1 important, 5 minor |
+| Migrations | **0** |
+| Dispatches used | **4 of 20** |
