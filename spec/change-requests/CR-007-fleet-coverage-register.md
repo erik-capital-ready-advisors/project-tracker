@@ -1,7 +1,7 @@
 # CR-007 — The fleet-coverage register
 
 **Date drafted:** 2026-08-24
-**Status:** **DRAFT — NOT APPROVED.** Erik approves or rejects; nothing here is built until he does.
+**Status:** **APPROVED 2026-08-24 by Erik — §3 approved and Q25, Q26, Q27 all RULED** (he took the drafter's recommendation on all three). Dispatched to the fleet as **M2.2** the same day. This CR has no open questions left.
 **Amends:** `spec-approved.md` §4.3 (promotes bullet 2 out of Deferred), §10 Q6. Adds FR-104 through
 FR-109. Adds Q25 through Q27.
 **Depends on:** **B61, which is closed.** Nothing else. Independent of CR-006 entirely — the two can
@@ -140,7 +140,18 @@ satisfy a rule nothing has exercised yet.
 milestone possible. It amends the approved spec and needs Erik's explicit approval, recorded here
 with a date, before any part of it is dispatched.
 
-- [ ] §3 (M2.2, FR-104 to FR-109) approved — date, Erik
-- [ ] Q25 ruled — date
-- [ ] Q26 ruled — date
-- [ ] Q27 ruled — date
+- [x] **§3 (M2.2, FR-104 to FR-109) APPROVED 2026-08-24 — Erik.**
+- [x] **Q25 RULED 2026-08-24 — count every `work_session` row, and say on the screen that they are
+      all Mode 2 capture.** The claim is written where a reader sees it, so the day something else
+      begins writing sessions the sentence is **visibly** wrong rather than quietly wrong. Erik took
+      the drafter's recommendation.
+- [x] **Q26 RULED 2026-08-24 — the route is `/stacks` and the screen is titled "Stacks".** It names
+      the entity rather than the judgement, and it cannot be confused with FR-45's coverage index.
+      **`coverage` is not to be reused as a filename or a screen title** — `src/lib/ingest/coverage.ts`
+      already means requirement and test coverage.
+- [x] **Q27 RULED 2026-08-24 — ship limb one, record limb two as visibly unmet.** The trigger's
+      second limb (*one engagement where the missing agent blocks a dated contract milestone*) needs
+      a `stack`→`blocker` link the schema does not have. It is **not** built, **not** silently
+      dropped, and **not** worked around with new schema: it is listed as an unmet clause on the
+      screen and in `prod.md`, the way M2.8's three clauses were ratified as-built. Adding a column
+      to satisfy a rule nothing has yet exercised was rejected.
