@@ -1,0 +1,50 @@
+URL /registry
+STATUS 200
+LANDED /registry
+LINKS ["/","/blocked","/next","/committed","/untested","/bottleneck","/broken","/registry","/work-items","/waits","/settings/tokens","/settings/export","/questions","/registry/new","/registry/delivery-ledger","/registry/unassigned","https://nextjs.org/docs/messages/version-staleness","https://nextjs.org/telemetry#error-feedback"]
+---
+Command palette
+
+Jump to any screen.
+
+Delivery Ledger
+THE SIX ANSWERS
+Blocked
+Next
+Committed
+Untested
+Bottleneck
+Broken
+RECORDS
+Registry
+Work items
+Waits
+Agent tokens
+Export
+Questions
+Jump to...
+⌘K
+0 unparsed
+Registry
+FR-9 · FR-10 · FR-13 · FR-77
+
+Engagements, contract milestones and acceptance criteria.
+
+Engagements and their contract milestones are the only records typed by hand. Everything else in the ledger is captured or derived.
+
+Register engagement
+Client	Status	Contract	Stacks	Database	Hosting	Production
+delivery-ledger
+delivery-ledger
+	active	not recorded	not recorded	not recorded
+not recorded
+	not recorded
+not recorded
+	not recorded
+Unassigned
+unassigned
+	active	not recorded	not recorded	not recorded
+not recorded
+	not recorded
+not recorded
+	not recorded

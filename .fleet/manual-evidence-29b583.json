@@ -1,0 +1,166 @@
+{
+  "run_id": "29b583",
+  "work_unit_id": "man1",
+  "branch": "agent-build/2026-08-23-29b583",
+  "instance": "http://localhost:3000 (dev server supplied by the dispatcher), signed in with the saved aal2 operator session",
+  "non_screen_sections": [
+    "Before you start",
+    "Moving around",
+    "How the fleet's work gets into the ledger"
+  ],
+  "routes": [
+    {
+      "route": "/",
+      "covered_in_guide": "The home screen",
+      "observed": "Opened signed in; screenshot .fleet/manual-traces/root.png. Directory of twelve destinations, each with its question. No counts on the page."
+    },
+    {
+      "route": "/blocked",
+      "covered_in_guide": "Blocked",
+      "observed": "Opened signed in; screenshot .fleet/manual-traces/blocked.png. 5 blocked work items, 1 open wait, 2 owners, longest 3 days. Also opened signed out (anon_blocked.png) to observe the 'Sign in to read this screen' notice."
+    },
+    {
+      "route": "/next",
+      "covered_in_guide": "Next",
+      "observed": "Opened signed in; screenshot .fleet/manual-traces/next.png. Empty state 'Nothing is startable.' with 0/0/0 accounting counts beneath."
+    },
+    {
+      "route": "/committed",
+      "covered_in_guide": "Committed",
+      "observed": "Opened signed in; screenshot .fleet/manual-traces/committed.png. One milestone 'Phase 1 - ingest and the six answers', state open, 0/3 covered, all four totals $0.00. Read the 'What these states mean' disclosure."
+    },
+    {
+      "route": "/untested",
+      "covered_in_guide": "Untested",
+      "observed": "Opened signed in; screenshot .fleet/manual-traces/untested.png. 79 requirements, 324 tests, 0 mapped, 79 uncovered, 0 self-certified."
+    },
+    {
+      "route": "/bottleneck",
+      "covered_in_guide": "Bottleneck",
+      "observed": "Opened signed in; screenshot .fleet/manual-traces/bottleneck.png. Empty state 'Nothing is waiting on Erik.' with a zero unclassified count."
+    },
+    {
+      "route": "/broken",
+      "covered_in_guide": "Broken",
+      "observed": "Opened signed in; screenshot .fleet/manual-traces/broken.png. 13 open, 0 regressed, 1 critical. Read the unencrypted-defect-title notice at the top."
+    },
+    {
+      "route": "/work-items",
+      "covered_in_guide": "Work items",
+      "observed": "Opened signed in; screenshots work-items.png and work-items_filtered.png. 20 rows on page 1, 0 unparsed. Applied the status=blocked filter and watched the list narrow to 5 rows with the filter written into the page address."
+    },
+    {
+      "route": "/work-items/[id]",
+      "covered_in_guide": "Opening one work item",
+      "observed": "Opened /work-items/132181d5-5c0f-4b07-8d8c-dbb2b9da418a (unit man1); screenshot work-items_132181d5-5c0f-4b07-8d8c-dbb2b9da418a.png. Identity, Prose with full raw status text, Run and stack, References out and References in."
+    },
+    {
+      "route": "/work-items/unassigned",
+      "covered_in_guide": "Unassigned sessions",
+      "observed": "Opened signed in; screenshot work-items_unassigned.png. Empty queue, 'Nothing is waiting to be attributed.', tab count 0."
+    },
+    {
+      "route": "/waits",
+      "covered_in_guide": "Waits",
+      "observed": "Opened signed in; screenshots waits.png and dialog_declare-wait.png. 1 open, 0 overdue. Opened the 'Declare a wait' form and read every field; did not submit it."
+    },
+    {
+      "route": "/waits/[id]",
+      "covered_in_guide": "Opening one wait",
+      "observed": "Opened /waits/ce152c78-a840-4210-aa87-35a19bd44c65 (the open '§5a design approval' wait); screenshot waits_ce152c78-a840-4210-aa87-35a19bd44c65.png. Did not press Resolve."
+    },
+    {
+      "route": "/registry",
+      "covered_in_guide": "The registry",
+      "observed": "Opened signed in; screenshots registry.png and registry_after_restore.png. Two engagements, delivery-ledger and Unassigned, both active."
+    },
+    {
+      "route": "/registry/[slug]",
+      "covered_in_guide": "One engagement",
+      "observed": "Opened /registry/delivery-ledger; screenshots registry_delivery-ledger.png, dialog_dates.png, dialog_add-milestone.png, dialog_archive.png. Opened the Dates and Add milestone panels without submitting. Pressed Archive (unintended), then Restore from archive, and confirmed the engagement is active again with all counts unchanged."
+    },
+    {
+      "route": "/registry/new",
+      "covered_in_guide": "Registering an engagement",
+      "observed": "Opened signed in; screenshots registry_new.png and registry_new_validation.png. Submitted empty and saw the required-field stop on clientName and slug; submitted with productionUrl=http://insecure.example and saw 'Not saved' plus '`productionUrl` must begin with https://.'. No engagement was created."
+    },
+    {
+      "route": "/registry/[slug]/edit",
+      "covered_in_guide": "Editing an engagement",
+      "observed": "Opened /registry/delivery-ledger/edit; screenshot registry_delivery-ledger_edit.png. Same three-part form pre-filled, submit button reads 'Save engagement'. Did not save."
+    },
+    {
+      "route": "/milestones/[id]",
+      "covered_in_guide": "One contract milestone",
+      "observed": "Opened /milestones/e4a9008b-f665-4c41-bcb5-b96983a58cc1; screenshot milestones_e4a9008b-f665-4c41-bcb5-b96983a58cc1.png. Amount shown as 'not recorded' while the engagement screen shows the same milestone as 'unreadable'."
+    },
+    {
+      "route": "/requirements/[id]",
+      "covered_in_guide": "One requirement",
+      "observed": "Opened /requirements/e10a57d1-643a-49f1-a6c4-ebd9555871a6 (FR-14); screenshot requirements_e10a57d1-643a-49f1-a6c4-ebd9555871a6.png. Implemented by, Tested by, Violated by, Shipped in, Contract acceptance."
+    },
+    {
+      "route": "/defects/[id]",
+      "covered_in_guide": "One defect",
+      "observed": "Opened /defects/950a6899-634e-4876-a851-11a1c60181d1 (D-2, critical, status fixed); screenshot defects_950a6899-634e-4876-a851-11a1c60181d1.png. Full multi-paragraph description, and 'No test in this engagement names this defect's reference'."
+    },
+    {
+      "route": "/blockers/[id]",
+      "covered_in_guide": "One blocker",
+      "observed": "Opened /blockers/0abb0117-3c22-44d1-8b18-c7ae55fc58ea (B14); screenshot blockers_0abb0117-3c22-44d1-8b18-c7ae55fc58ea.png. Identity, Prose, 'What this is holding'. Reached it by id, having confirmed no listing screen links to it."
+    },
+    {
+      "route": "/releases/[id]",
+      "covered_in_guide": "Releases",
+      "unobserved_reason": "No release exists to open. The export reports the release table holding 0 rows, so there is no id that renders the screen; requesting /releases/00000000-0000-0000-0000-000000000000 returned a 404 not-found page, which confirms routing but shows nothing of the release view itself."
+    },
+    {
+      "route": "/questions",
+      "covered_in_guide": "Questions",
+      "observed": "Opened signed in; screenshot questions.png. 96 open, 4 with unclassified confidence. Toggled 'Include answered' and watched the page address change to /questions?answered=1."
+    },
+    {
+      "route": "/questions/[id]",
+      "covered_in_guide": "Opening one question",
+      "observed": "Opened /questions/d7d0dbe7-ed3b-4616-b942-f958ed43ab93; screenshot questions_d7d0dbe7-ed3b-4616-b942-f958ed43ab93.png. Question text, Best guess block, empty answer, and the provenance block."
+    },
+    {
+      "route": "/settings/tokens",
+      "covered_in_guide": "Agent tokens",
+      "observed": "Opened signed in; screenshots settings_tokens.png and dialog_issue-token.png. 4 tokens listed by label with capabilities, status and expiry; revoked ones marked 'kept for audit'. Opened the 'Issue a token' form and read it; did not issue, rotate or revoke. No token value was displayed or recorded."
+    },
+    {
+      "route": "/settings/export",
+      "covered_in_guide": "Getting your data out",
+      "observed": "Opened signed in; screenshot settings_export.png. 1125 rows across 21 tables, per-table counts, and the two named omissions. Pressed Download export and received delivery-ledger-export-2026-08-23T20-57-07Z.json, 531055 bytes, top-level keys counts/format/tables/omitted/version/encryption/exported_at. The downloaded file was deleted immediately and its contents were not read or retained."
+    },
+    {
+      "route": "/sign-in",
+      "covered_in_guide": "Signing in",
+      "observed": "Opened in a clean browser context with no saved session; screenshot anon_sign-in.png. Email and password fields, Sign in button, and the notice that there is no account creation and no self-service reset."
+    },
+    {
+      "route": "/sign-in/verify",
+      "covered_in_guide": "Signing in",
+      "unobserved_reason": "The second-factor code screen renders only mid-sign-in, between a correct password and a verified code. Signed out it redirects to /sign-in; with the saved aal2 operator session it redirects to /. Reaching it needs a fresh password sign-in, and the operator password was not available. Signing out to force the state was forbidden, because it would destroy the session this guide was written from."
+    },
+    {
+      "route": "/sign-in/enroll",
+      "covered_in_guide": "Signing in",
+      "unobserved_reason": "The authenticator setup screen renders only for an operator with no second factor attached yet. The one operator account already has one enrolled, so the state is unreachable; signed out it redirects to /sign-in and with the saved session it redirects to /."
+    },
+    {
+      "route": "/runs",
+      "covered_in_guide": "Fleet runs",
+      "observed": "Opened signed in on branch agent-build/2026-08-23-9a320b; screenshot .fleet/manual-traces/runs.png. Heading 'Fleet runs', FR-92 / FR-94 / FR-95. Summary line reads '1 run' and '1 reported no test counts'. One row, b0952e, engagement delivery-ledger, branch agent-build/2026-08-19-b0952e, mode full, verdict 'unparsed' with the sub-line 'one source, uncorroborated', duration 0m, dispatches 'not recorded', tests 'not recorded', unparsed 1. The dispatch-producer note renders beneath the table. Nine columns overflow 1280px width -- the unparsed column is clipped and the table scrolls horizontally, which is stated in the guide. No engagement filter is present, which matches FR-96 being unapproved."
+    },
+    {
+      "route": "/runs/[run-id]",
+      "covered_in_guide": "Opening one fleet run",
+      "observed": "Opened /runs/b0952e signed in on branch agent-build/2026-08-23-9a320b; screenshot .fleet/manual-traces/run-detail.png. Heading is the run id with an 'All runs' back link. Reads '1 unparsed in this run' broken down as 0 work units / 0 gate outcomes / the run's own verdict, while the shell badge reads 0 -- both observed on the same page load. The not-counted-here note for defects and test results renders. Six blocks observed: Run, Gates (build_after_phase1 PASS), Work units (20 rows, i9p2 reading unassigned / NOT DISPATCHED), Questions queued (96 rows with section and confidence), Defects (renders the 'not recorded' gap, and 'Fixed by this run's work' empty), Requirements touched (74). The not-found branch was exercised separately: /runs/zzzzzz rendered the product's Not found page, 'That route does not exist in this build'. The ambiguous-match screen was NOT observed -- one run exists and nothing can collide with it -- and the guide marks that screen UNVERIFIED in its own body."
+    }
+  ],
+  "amendments": [
+    "2026-08-24, by hand, NOT by docs-writer and NOT by run 29b583. Run 9a320b (M2.8) added /runs and /runs/[run-id], taking served routes 28 -> 30 and failing manual-gate.sh with two FORWARD errors. The two rows below were observed on branch agent-build/2026-08-23-9a320b at tip dc21837, against a dev server on http://localhost:3000 using the saved aal2 operator session. Everything above this line is run 29b583's original evidence and is unchanged. The file keeps its 29b583 name because it is the guide's single evidence file, which the gate resolves by glob."
+  ]
+}

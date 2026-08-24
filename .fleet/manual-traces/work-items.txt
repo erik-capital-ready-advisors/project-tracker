@@ -1,0 +1,165 @@
+URL /work-items
+STATUS 200
+LANDED /work-items
+LINKS ["/","/blocked","/next","/committed","/untested","/bottleneck","/broken","/registry","/work-items","/waits","/settings/tokens","/settings/export","/questions","/work-items/unassigned","/work-items?sort=unit&dir=desc","/work-items?sort=execution_mode&dir=desc","/work-items?sort=executor_kind&dir=desc","/work-items?sort=status&dir=desc","/work-items?sort=not_verified_count&dir=desc","/work-items?sort=started_at&dir=asc","/work-items?sort=ended_at&dir=desc","/work-items/506160a1-944c-49ea-ada9-8c6e19d697b7","/registry/delivery-ledger","/work-items/c5015442-e51c-438a-8827-281530fb7d1a","/work-items/184eabaf-3504-4ad2-b237-228d0abfd67f","/work-items/42057754-97dd-4e58-9daa-b2f02d4c46ec","/work-items/1d743ed9-46ad-4849-9e63-7970e4bec321","/work-items/2b9cb3ba-40b2-44e6-a34a-807623b70eae","/work-items/28d2bd5e-06d5-4ee5-8b01-27296da6d1dd","/work-items/eec0c6a8-2c13-4caa-9bdc-8879978792ef","/work-items/0c4914ad-1b19-4b1a-993d-90af94ddaf61","/work-items/0e65b025-b4fe-4d4b-9918-0445ae8ede9d","/work-items/0a5bfb11-91c5-4da3-9722-d7c205382ca5","/work-items/aeaa117e-4514-4379-95ff-9bcba2a89958","/work-items/8a3cda74-de10-4a11-a66b-44a3a9690873","/work-items/48ae4646-4fcc-4c4a-84f3-cd4a550174be","/work-items/b1b9fac5-dd20-4642-8b3c-8110cb99ff4c","/work-items/955daadf-84ca-46d7-a9cc-40be17dacde0","/work-items/23836479-30d2-491e-9e5f-93a168362097","/work-items/805971c0-26d7-4ba5-a33a-25eba23b8286","/work-items/4d76f6ee-77f4-4e1c-b91b-19e354b933a1","/work-items/132181d5-5c0f-4b07-8d8c-dbb2b9da418a","https://nextjs.org/docs/messages/version-staleness","https://nextjs.org/telemetry#error-feedback"]
+---
+Command palette
+
+Jump to any screen.
+
+Delivery Ledger
+THE SIX ANSWERS
+Blocked
+Next
+Committed
+Untested
+Bottleneck
+Broken
+RECORDS
+Registry
+Work items
+Waits
+Agent tokens
+Export
+Questions
+Jump to...
+⌘K
+0 unparsed
+Work items
+FR-44 · FR-39 · FR-30 · FR-43
+
+Every work item across every engagement and all three modes.
+
+All work items
+Unassigned sessions
+Engagement
+Mode
+any
+fleet
+hand
+external
+Executor
+any
+agent
+Erik
+Erik gate
+client
+vendor
+unassigned
+Status
+any
+pending
+in flight
+done
+blocked
+superseded
+not dispatched
+unparsed
+Disposition
+any
+carried
+closed
+Evidence
+any
+observed live
+observed elsewhere
+asserted
+not verified
+Unautomated
+any
+no agent for stack
+credential absent
+human judgment
+client action
+out of scope
+budget
+Held by an external wait
+Apply
+20 on this page
+0 unparsed on this page
+0 only Erik can do
+unit	engagement	type	mode	executor	blocked by	status	disposition	evidence	not verified	started
+	ended
+r1p1	delivery-ledger	research	fleet	
+agent
+researcher
+	—	done	—	no scope recorded	0	—	—
+u1p1	delivery-ledger	ui	fleet	
+agent
+ui-designer
+	—	done	—	no scope recorded	0	—	—
+d1p2	delivery-ledger	deploy	fleet	
+agent
+devops
+	—	blocked	carried	no scope recorded	1	—	—
+qa1p2	delivery-ledger	qa	fleet	
+agent
+qa-reviewer
+	—	blocked	carried	no scope recorded	1	—	—
+i2p1	delivery-ledger	integration	fleet	
+agent
+api-integrator
+	—	done	—	no scope recorded	0	—	—
+i3p2	delivery-ledger	integration	fleet	
+agent
+api-integrator
+	—	done	—	no scope recorded	0	—	—
+i1p1	delivery-ledger	integration	fleet	
+agent
+api-integrator
+	—	done	—	no scope recorded	2	—	—
+i4p2	delivery-ledger	integration	fleet	
+agent
+api-integrator
+	—	done	—	no scope recorded	4	—	—
+i5p2	delivery-ledger	integration	fleet	
+agent
+api-integrator
+	—	done	—	no scope recorded	6	—	—
+i6p2	delivery-ledger	integration	fleet	
+agent
+api-integrator
+	—	done	—	no scope recorded	0	—	—
+i7p2	delivery-ledger	integration	fleet	
+agent
+api-integrator
+	—	done	—	no scope recorded	4	—	—
+i8p2	delivery-ledger	integration	fleet	
+agent
+api-integrator
+	—	done	—	no scope recorded	4	—	—
+i9p2	delivery-ledger	integration	fleet	
+unassigned
+NOT DISPATCHED
+	—	blocked	carried	no scope recorded	0	—	—
+u2p2	delivery-ledger	ui	fleet	
+agent
+ui-designer
+	—	done	—	no scope recorded	6	—	—
+u3p2	delivery-ledger	ui	fleet	
+agent
+ui-designer
+	—	done	—	no scope recorded	0	—	—
+u4p2	delivery-ledger	ui	fleet	
+agent
+ui-designer
+	—	done	—	no scope recorded	1	—	—
+c1p2	delivery-ledger	copy	fleet	
+agent
+copywriter
+	—	blocked	carried	no scope recorded	0	—	—
+doc1p2	delivery-ledger	docs	fleet	
+agent
+docs-writer
+	—	done	—	no scope recorded	0	—	—
+i10p2	delivery-ledger	integration	fleet	
+agent
+api-integrator
+	—	done	—	no scope recorded	0	—	—
+man1p2	delivery-ledger	docs	fleet	
+agent
+docs-writer
+	—	blocked	carried	no scope recorded	0	—	—
+page 1
+Previous
+Next

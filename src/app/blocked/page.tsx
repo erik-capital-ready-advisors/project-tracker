@@ -16,11 +16,18 @@ import { Field } from "@/components/native-select";
 import { DISPOSITIONS, PARAM, parseBlockedQuery } from "@/lib/answer-query";
 import type { SearchParams } from "@/lib/answer-query";
 import { readBlocked } from "@/lib/answer-load";
+import {
+  buildRefLookup,
+  collectRefQueries,
+  engagementIdsBySlug,
+} from "@/lib/answer-screen-refs";
+import { readRefResolution } from "@/lib/detail-load";
 import { ANSWER_ROUTES } from "@/lib/nav";
 import { loadForOperator } from "@/lib/operator-load";
+import { listEngagements } from "@/lib/server/registry/engagements";
 import { readUnparsedCensus } from "@/lib/unparsed-census";
 
-import { BlockedGroup } from "./_components/blocked-group";
+import { BlockedGroup, blockedGroupRefEntries } from "./_components/blocked-group";
 
 const NAV = ANSWER_ROUTES[0];
 
@@ -57,11 +64,30 @@ export default async function BlockedPage({
 }) {
   const query = parseBlockedQuery(await searchParams);
   const [result, census] = await Promise.all([
-    loadForOperator(() => readBlocked(query)),
+    // FR-80. The engagement read and the resolution run INSIDE the same
+    // `loadForOperator` as the answer, deliberately: a failed engagement read
+    // must not leave the screen rendering references in FR-12's dangling
+    // treatment, because that treatment claims "no such row has been ingested"
+    // and a read that failed has established no such thing. One failure, one
+    // load notice, no data — the same rule as the empty state.
+    loadForOperator(async () => {
+      const [answer, engagements] = await Promise.all([
+        readBlocked(query),
+        listEngagements(),
+      ]);
+      const engagementIds = engagementIdsBySlug(engagements);
+      const resolution = await readRefResolution(
+        collectRefQueries(
+          engagementIds,
+          answer.groups.flatMap(blockedGroupRefEntries),
+        ),
+      );
+      return { answer, refs: buildRefLookup(engagementIds, resolution) };
+    }),
     readUnparsedCensus(),
   ]);
 
-  const answer = result.ok ? result.data : null;
+  const loaded = result.ok ? result.data : null;
 
   return (
     <Screen
@@ -112,9 +138,9 @@ export default async function BlockedPage({
         />
       )}
 
-      {answer === null ? null : answer.engagementUnknown ? (
+      {loaded === null ? null : loaded.answer.engagementUnknown ? (
         <UnknownEngagementNotice slug={query.engagement as string} />
-      ) : answer.groups.length === 0 ? (
+      ) : loaded.answer.groups.length === 0 ? (
         <EmptyState
           headline={
             query.filtered
@@ -131,19 +157,23 @@ export default async function BlockedPage({
         <>
           <SetAsideCounts
             counts={[
-              { label: "blocked work items", value: answer.itemCount },
-              { label: "open waits", value: answer.waitCount },
-              { label: "owners", value: answer.groups.length },
+              { label: "blocked work items", value: loaded.answer.itemCount },
+              { label: "open waits", value: loaded.answer.waitCount },
+              { label: "owners", value: loaded.answer.groups.length },
             ]}
           />
 
           <div
             data-verify-unit="blocked-groups"
-            data-verify-groups={answer.groups.length}
+            data-verify-groups={loaded.answer.groups.length}
             className="flex flex-col gap-4"
           >
-            {answer.groups.map((group) => (
-              <BlockedGroup key={group.owner} group={group} />
+            {loaded.answer.groups.map((group) => (
+              <BlockedGroup
+                key={group.owner}
+                group={group}
+                refs={loaded.refs}
+              />
             ))}
           </div>
         </>

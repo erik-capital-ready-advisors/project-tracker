@@ -15,11 +15,18 @@ import { UnparsedBreakdown } from "@/components/unparsed-breakdown";
 import { parseNextQuery } from "@/lib/answer-query";
 import type { SearchParams } from "@/lib/answer-query";
 import { readNext } from "@/lib/answer-load";
+import {
+  buildRefLookup,
+  collectRefQueries,
+  engagementIdsBySlug,
+} from "@/lib/answer-screen-refs";
+import { readRefResolution } from "@/lib/detail-load";
 import { ANSWER_ROUTES } from "@/lib/nav";
 import { loadForOperator } from "@/lib/operator-load";
+import { listEngagements } from "@/lib/server/registry/engagements";
 import { readUnparsedCensus } from "@/lib/unparsed-census";
 
-import { NextTable } from "./_components/next-table";
+import { NextTable, nextTableRefEntries } from "./_components/next-table";
 
 const NAV = ANSWER_ROUTES[1];
 
@@ -61,11 +68,25 @@ export default async function NextPage({
 }) {
   const query = parseNextQuery(await searchParams);
   const [result, census] = await Promise.all([
-    loadForOperator(() => readNext(query)),
+    // FR-80. The engagement read and the resolution sit inside the same
+    // `loadForOperator` as the answer: a failed read must render the load
+    // notice, never a page of references in FR-12's dangling treatment, which
+    // claims something a failed read has not established.
+    loadForOperator(async () => {
+      const [answer, engagements] = await Promise.all([
+        readNext(query),
+        listEngagements(),
+      ]);
+      const engagementIds = engagementIdsBySlug(engagements);
+      const resolution = await readRefResolution(
+        collectRefQueries(engagementIds, nextTableRefEntries(answer)),
+      );
+      return { answer, refs: buildRefLookup(engagementIds, resolution) };
+    }),
     readUnparsedCensus(),
   ]);
 
-  const answer = result.ok ? result.data : null;
+  const loaded = result.ok ? result.data : null;
 
   return (
     <Screen
@@ -90,18 +111,18 @@ export default async function NextPage({
         />
       )}
 
-      {answer === null ? null : (
+      {loaded === null ? null : (
         <>
-          {answer.orderingUnavailableReason === null ? null : (
+          {loaded.answer.orderingUnavailableReason === null ? null : (
             <DegradedOrderNotice
-              reason={answer.orderingUnavailableReason}
+              reason={loaded.answer.orderingUnavailableReason}
               what="ordering"
             />
           )}
 
-          {answer.engagementUnknown ? (
+          {loaded.answer.engagementUnknown ? (
             <UnknownEngagementNotice slug={query.engagement as string} />
-          ) : answer.items.length === 0 ? (
+          ) : loaded.answer.items.length === 0 ? (
             <EmptyState
               headline={
                 query.filtered
@@ -111,7 +132,7 @@ export default async function NextPage({
               detail="Work whose dependencies are all done and which no open blocker or wait holds appears here, nearest dated milestone first. The counts below say what was set aside and why."
             />
           ) : (
-            <NextTable answer={answer} />
+            <NextTable answer={loaded.answer} refs={loaded.refs} />
           )}
 
           {/* Rendered even when the list is empty: an empty Next list with 11
@@ -120,17 +141,17 @@ export default async function NextPage({
               numbers tell them apart. */}
           <SetAsideCounts
             counts={[
-              { label: "held by a dependency", value: answer.heldByDependency },
-              { label: "held by a blocker or wait", value: answer.heldByBlocker },
+              { label: "held by a dependency", value: loaded.answer.heldByDependency },
+              { label: "held by a blocker or wait", value: loaded.answer.heldByBlocker },
               {
                 label: "status could not be classified",
-                value: answer.unparsedCandidates,
+                value: loaded.answer.unparsedCandidates,
                 unparsed: true,
               },
             ]}
           />
 
-          {answer.truncated ? (
+          {loaded.answer.truncated ? (
             <p
               data-verify-unit="next-truncated"
               className="text-state-carried text-xs"

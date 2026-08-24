@@ -4,6 +4,19 @@ const PORT = Number(process.env.PLAYWRIGHT_PORT ?? 3100);
 const BASE_URL = process.env.PLAYWRIGHT_BASE_URL ?? `http://127.0.0.1:${PORT}`;
 
 /**
+ * Acceptance gates for milestones that are not built yet. They need real rows
+ * and a signed-in operator, so they cannot run against the credential-free
+ * build `pnpm e2e` serves, and they are red by construction until the milestone
+ * ships. Kept out of the default projects and run with `pnpm gate:m27:e2e`.
+ *
+ * `M27_STORAGE_STATE` points at a saved operator session and IS A CREDENTIAL:
+ * gitignored, never committed, and produced by Erik signing in rather than by
+ * any agent.
+ */
+const GATE_SPECS = /m27-navigation\.spec\.ts/;
+const M27_BASE_URL = process.env.M27_BASE_URL;
+
+/**
  * The end-to-end harness. `qa-reviewer` authors the real flows here.
  *
  * It builds and serves the production app rather than running `next dev`,
@@ -24,12 +37,34 @@ export default defineConfig({
     trace: "on-first-retry",
   },
   projects: [
-    { name: "chromium", use: { ...devices["Desktop Chrome"] } },
+    { name: "chromium", use: { ...devices["Desktop Chrome"] }, testIgnore: GATE_SPECS },
     // Spec 5a describes ten-second glances between other work, which happen on
     // a phone as often as at a desk.
-    { name: "mobile", use: { ...devices["iPhone 13"] } },
+    { name: "mobile", use: { ...devices["iPhone 13"] }, testIgnore: GATE_SPECS },
+    // Present only when it can actually run. A project that is configured but
+    // unrunnable produces a row of skips, and a skipped gate is the same colour
+    // as a passing one from a distance — which is blocker B19, exactly.
+    ...(M27_BASE_URL
+      ? [
+          {
+            name: "m27-gate",
+            testMatch: GATE_SPECS,
+            use: {
+              ...devices["Desktop Chrome"],
+              baseURL: M27_BASE_URL,
+              storageState: process.env.M27_STORAGE_STATE,
+            },
+          },
+        ]
+      : []),
   ],
-  webServer: process.env.PLAYWRIGHT_BASE_URL
+  // No webServer when a base URL is supplied — for `pnpm e2e` against a preview,
+  // and for the M2.7 gate, which runs against an instance carrying real rows.
+  // Without the second condition the gate would still trigger `pnpm build &&
+  // pnpm start`, spending a build it never uses and aborting the run if that
+  // build cannot find its environment.
+  webServer:
+    process.env.PLAYWRIGHT_BASE_URL || M27_BASE_URL
     ? undefined
     : {
         command: `pnpm build && pnpm start --port ${PORT}`,

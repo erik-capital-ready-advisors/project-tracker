@@ -1,0 +1,70 @@
+URL /settings/export
+STATUS 200
+LANDED /settings/export
+LINKS ["/","/blocked","/next","/committed","/untested","/bottleneck","/broken","/registry","/work-items","/waits","/settings/tokens","/settings/export","/questions","/api/export","https://nextjs.org/docs/messages/version-staleness","https://nextjs.org/telemetry#error-feedback"]
+---
+Command palette
+
+Jump to any screen.
+
+Delivery Ledger
+THE SIX ANSWERS
+Blocked
+Next
+Committed
+Untested
+Bottleneck
+Broken
+RECORDS
+Registry
+Work items
+Waits
+Agent tokens
+Export
+Questions
+Jump to...
+⌘K
+0 unparsed
+Export
+FR-60
+
+Every record in one file, for the day this system is not here.
+
+1125 rows across 21 tables, read in one database function so no row cap can truncate it.
+
+Download export
+This file is decrypted. Treat it the way you treat the database.
+The twelve encrypted columns — contract amounts, client prose, blocker and defect descriptions, open questions — come out readable. That is deliberate: an export exists so this system is not a single point of failure, and ciphertext whose key died with the project is not a record of anything. The consequence is that the file is as sensitive as everything it came from.
+Row counts per table in this export
+Table	Rows
+acceptance_criterion	3
+agent_token	4
+audit_log	408
+blocker	26
+contract_milestone	1
+defect	13
+engagement	2
+external_wait	1
+fleet_run	1
+open_question	96
+operator	1
+release	0
+release_requirement	0
+requirement	79
+stack	0
+test_case	324
+test_result	0
+work_item	20
+work_item_dependency	30
+work_item_requirement	116
+work_session	0
+What this export withholds
+
+Named rather than dropped silently. An export that omits something without saying so is the same failure as a count that reads zero because nothing looked.
+
+agent_token.token_hash
+Spec 7a: agent_token is never returned by any read endpoint. The hash is one-way and reads back as nothing useful, so it costs the export nothing and would be an offline cracking target in a file. Every other column of the table is here.
+app.rate_limit_counters
+Ephemeral throttling state - a token id, a window and a count - meaningless an hour after it is written and describing no client and no delivery. It is also the unclassified 22nd table behind blocker B24, which this omission does not settle.
+
+format delivery-ledger-export · version 1 · taken 2026-08-23T20:47:08.912668+00:00

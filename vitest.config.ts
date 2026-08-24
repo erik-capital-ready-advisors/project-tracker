@@ -36,6 +36,12 @@ export default defineConfig({
     globals: false,
     setupFiles: ["./vitest.setup.ts"],
     include: ["tests/**/*.test.{ts,tsx}", "src/**/*.test.{ts,tsx}"],
+    // `tests/m27-gate.test.ts` was excluded here until M2.7 was dispatched, and
+    // the exclusion was deleted on the day the work began (run eb2490, u1). From
+    // now on the gate is an ordinary member of the suite and `pnpm test` is what
+    // says whether the detail views are navigable. `pnpm gate:m27` still runs it
+    // alone, which is useful for a fast read, but it is no longer the only way
+    // it runs.
     exclude: ["node_modules/**", ".next/**", "e2e/**"],
   },
 });

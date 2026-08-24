@@ -1,0 +1,76 @@
+URL /defects/950a6899-634e-4876-a851-11a1c60181d1
+STATUS 200
+LANDED /defects/950a6899-634e-4876-a851-11a1c60181d1
+LINKS ["/","/blocked","/next","/committed","/untested","/bottleneck","/broken","/registry","/work-items","/waits","/settings/tokens","/settings/export","/questions","/registry/delivery-ledger","/requirements/e10a57d1-643a-49f1-a6c4-ebd9555871a6","https://nextjs.org/docs/messages/version-staleness","https://nextjs.org/telemetry#error-feedback"]
+---
+Command palette
+
+Jump to any screen.
+
+Delivery Ledger
+THE SIX ANSWERS
+Blocked
+Next
+Committed
+Untested
+Bottleneck
+Broken
+RECORDS
+Registry
+Work items
+Waits
+Agent tokens
+Export
+Questions
+Jump to...
+⌘K
+0 unparsed
+Mode-1 ingest is inoperable: `service_role` cannot execute `app.gates_are_closed_set`
+FR-81 · FR-83 · FR-85
+
+Everything recorded about this defect, and what it points at.
+
+D-2
+defect
+← Broken
+Identity
+FR-63 · FR-64 · FR-67
+Engagement
+delivery-ledger
+delivery-ledger
+Status
+fixed
+Severity
+critical
+Graded as
+Critical
+Source
+qa_agent
+Source key
+qa-report#1
+Reported
+2026-08-20 13:31
+Reported by
+Verified
+Prose
+FR-81
+Description
+
+- What: line 82 is `revoke execute on function app.gates_are_closed_set(jsonb) from public, anon, authenticated;` and **no `grant … to service_role` follows it**. Line 89 adds `check (app.gates_are_closed_set(gates))` to `fleet_run`. A CHECK constraint evaluates in the **caller's** role, and every application write runs as `service_role`. `persistPlan` writes `fleet_run` first, so the whole plan aborts.
+   - Why it matters: FR-14–FR-23 — the reason this product exists — cannot store a row. `POST /api/ingest/run` returns `500` for every caller, forever. The route deliberately withholds the database message, so the log says only "The run could not be ingested (fleet_run)".
+   - Evidence: reproduced the exact upsert `persist.ts:108-115` emits, as `service_role`: `{"code":"42501","message":"permission denied for function gates_are_closed_set"}`. Route-level: two identical posts → `500`, `500`; work_item count `0 → 0`. My **negative control** (a different run id, which must increase the count) also stayed at `0`, which is how I knew the "idempotent: counts identical" result was a false green rather than a pass. Grant census: `has_function_privilege('service_role', 'app.gates_are_closed_set(jsonb)', 'EXECUTE')` → **false**.
+   - Blast radius, measured: exactly **one** CHECK constraint in the database calls an `app.*` function, so `fleet_run` is the only table affected. `app.looks_like_secret` is also unexecutable by `service_role` but is only reached through the SECURITY DEFINER trigger, which is why FR-78 works. `/api/ingest/release`, `/api/ingest/session`, `/api/waits` and all six answer endpoints are unaffected and were observed working.
+   - Fix: `grant execute on function app.gates_are_closed_set(jsonb) to service_role;`
+
+Won't-fix reason
+—
+References out
+FR-65 · FR-71 · FR-83
+Requirement
+FR-14
+Fixing work item
+—
+Tests naming this defect
+FR-66
+
+No test in this engagement names this defect's reference.

@@ -26,3 +26,14 @@ next-env.d.ts
 # corpus suite skips when this directory is absent.
 fixtures-local/
 .playwright-mcp/
+
+# A saved operator session at aal2 for the M2.7 acceptance gate. A CREDENTIAL.
+# Produced by Erik signing in; never by an agent, and never committed.
+.playwright-auth/
+
+# Manual-writing screenshots: reproducible, and 6 MB of them. The .txt dumps beside
+# them are the evidence that matters and stay tracked.
+.fleet/manual-traces/*.png
+
+# Word lock files, created when a .docx is open
+~$*

@@ -1,0 +1,34 @@
+URL /sign-in/verify
+STATUS 200
+LANDED /sign-in
+---
+Command palette
+
+Jump to any screen.
+
+Delivery Ledger
+THE SIX ANSWERS
+Blocked
+Next
+Committed
+Untested
+Bottleneck
+Broken
+RECORDS
+Registry
+Work items
+Waits
+Agent tokens
+Export
+Questions
+Jump to...
+⌘K
+unparsed count unavailable
+Sign in
+
+This ledger has no public surface. The operator account is provisioned by hand, and a second factor is required.
+
+Email
+Password
+Sign in
+There is no account creation here and no self-service reset. Recovery is done in the Supabase project, not on this screen.

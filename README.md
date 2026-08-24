@@ -239,7 +239,7 @@ recorded it.
 | [docs/env.md](docs/env.md) | Every environment variable: what it is, where it comes from, what breaks without it. |
 | [docs/deploy.md](docs/deploy.md) | Vercel and Supabase configuration, the migration path, and what to verify after a deploy. |
 | [docs/agent-tokens.md](docs/agent-tokens.md) | Minting, scoping, rotating and revoking agent tokens. |
-| [docs/session-hook.md](docs/session-hook.md) | Installing the mode-2 capture hook, and the two install-scope options Erik has not chosen between. |
+| [docs/session-hook.md](docs/session-hook.md) | Installing the mode-2 capture hook. Scope decided 2026-08-20 (B4): global, with a fail-closed allowlist enforced by the script. |
 | [docs/security.md](docs/security.md) | What was verified, what was built but not verified, and what was not built. |
 
 `docs/user-guide.md` is written by a separate pass after QA passes. It does not exist yet.

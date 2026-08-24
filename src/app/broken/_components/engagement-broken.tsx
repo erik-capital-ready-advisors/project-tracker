@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 import {
   Table,
   TableBody,
@@ -10,15 +12,49 @@ import {
   Absent,
   DefectSeverityChip,
   DefectStatusChip,
-  Ref,
-  RefList,
 } from "@/components/answer-chips";
+import { EntityRef, EntityRefList } from "@/components/entity-ref";
+import type { RefEntry, RefLookup } from "@/lib/answer-screen-refs";
 import { isoDay } from "@/lib/display-format";
+import { fallbackLabel } from "@/lib/server/detail/types";
 
 import type {
   BrokenEngagement as Broken,
   BrokenDefect,
 } from "@/lib/server/answers/broken";
+
+/**
+ * FR-80 — the text references on this screen, which are the requirement refs
+ * and nothing else.
+ *
+ * A defect is navigable by `defect.id`, the work item that fixes it by
+ * `workItem.id`, and the work items behind a requirement regression by their
+ * own ids. `requirementRef`, `covers` and a regression's `ref` are all `FR-nn`
+ * strings — `defect.requirement_ref` is a text column that names a requirement
+ * rather than a foreign key to one, which is precisely why FR-12 and FR-65
+ * require a ref naming nothing to be reported rather than dropped.
+ */
+export function engagementBrokenRefEntries(broken: Broken): RefEntry[] {
+  const requirement = (ref: string): RefEntry => ({
+    kind: "requirement",
+    engagement: broken.engagement,
+    ref,
+  });
+
+  return [
+    ...broken.bySeverity.flatMap((group) =>
+      group.defects.flatMap((defect) =>
+        defect.requirementRef === null ? [] : [requirement(defect.requirementRef)],
+      ),
+    ),
+    ...broken.testRegressions.flatMap((regression) =>
+      regression.covers.map(requirement),
+    ),
+    ...broken.requirementRegressions.map((regression) =>
+      requirement(regression.ref),
+    ),
+  ];
+}
 
 /**
  * FR-71 / FR-69 — one engagement's open defects and both kinds of regression.
@@ -61,7 +97,13 @@ import type {
  * key; `defect.description` is ciphertext and is never read. Every link runs on
  * `D-nn`, `FR-nn` and a work-item id. i3's finding, preserved.
  */
-export function EngagementBroken({ broken }: { broken: Broken }) {
+export function EngagementBroken({
+  broken,
+  refs,
+}: {
+  broken: Broken;
+  refs: RefLookup;
+}) {
   const regressions =
     broken.testRegressions.length + broken.requirementRegressions.length;
 
@@ -75,7 +117,18 @@ export function EngagementBroken({ broken }: { broken: Broken }) {
       className="border-border overflow-hidden rounded-lg border"
     >
       <header className="border-border bg-muted/40 flex flex-wrap items-baseline gap-x-3 gap-y-1 border-b px-3 py-2">
-        <h2 className="ident text-sm font-semibold">{broken.engagement}</h2>
+        <h2 className="ident text-sm font-semibold">
+          {/* FR-80's engagement slug. Not one of FR-81's eight kinds, so an
+              ordinary anchor to the detail view that already exists. */}
+          <Link
+            href={`/registry/${broken.engagement}`}
+            data-verify-unit="engagement-link"
+            data-verify-slug={broken.engagement}
+            className="rounded-sm underline-offset-2 hover:underline"
+          >
+            {broken.engagement}
+          </Link>
+        </h2>
         <span className="text-muted-foreground text-xs">
           {broken.clientName}
         </span>
@@ -123,7 +176,12 @@ export function EngagementBroken({ broken }: { broken: Broken }) {
                 </TableHeader>
                 <TableBody>
                   {group.defects.map((defect) => (
-                    <DefectRow key={defect.id} defect={defect} />
+                    <DefectRow
+                      key={defect.id}
+                      defect={defect}
+                      engagement={broken.engagement}
+                      refs={refs}
+                    />
                   ))}
                 </TableBody>
               </Table>
@@ -168,8 +226,12 @@ export function EngagementBroken({ broken }: { broken: Broken }) {
                     {regression.harness}
                   </TableCell>
                   <TableCell>
-                    <RefList
-                      refs={regression.covers}
+                    <EntityRefList
+                      refs={regression.covers.map((ref) => ({
+                        kind: "requirement" as const,
+                        label: ref,
+                        id: refs("requirement", broken.engagement, ref),
+                      }))}
                       empty="This test names no requirement."
                     />
                   </TableCell>
@@ -218,7 +280,15 @@ export function EngagementBroken({ broken }: { broken: Broken }) {
                   data-verify-failing={regression.failingTests.length}
                 >
                   <TableCell className="whitespace-nowrap">
-                    <Ref value={regression.ref} />
+                    <EntityRef
+                      kind="requirement"
+                      label={regression.ref}
+                      id={refs(
+                        "requirement",
+                        broken.engagement,
+                        regression.ref,
+                      )}
+                    />
                   </TableCell>
                   <TableCell className="max-w-sm">
                     {regression.failingTests.length === 0 ? (
@@ -251,11 +321,17 @@ export function EngagementBroken({ broken }: { broken: Broken }) {
                         {regression.implementedBy.map((item) => (
                           <span
                             key={item.id}
-                            className="ident text-xs whitespace-nowrap"
+                            className="text-xs whitespace-nowrap"
                           >
-                            {item.unit ?? item.id}
+                            <EntityRef
+                              kind="work_item"
+                              label={
+                                item.unit ?? fallbackLabel("work_item", item.id)
+                              }
+                              id={item.id}
+                            />
                             {item.executor === null ? null : (
-                              <span className="text-muted-foreground ml-1.5">
+                              <span className="ident text-muted-foreground ml-1.5">
                                 {item.executor}
                               </span>
                             )}
@@ -283,7 +359,15 @@ const BLOCKED_BY: Record<string, string> = {
   "self-certified": "the only passing test was certified by whoever fixed it",
 };
 
-function DefectRow({ defect }: { defect: BrokenDefect }) {
+function DefectRow({
+  defect,
+  engagement,
+  refs,
+}: {
+  defect: BrokenDefect;
+  engagement: string;
+  refs: RefLookup;
+}) {
   const disagrees = defect.status !== defect.recordedStatus;
 
   return (
@@ -307,7 +391,9 @@ function DefectRow({ defect }: { defect: BrokenDefect }) {
               unallocated
             </span>
           ) : (
-            <Ref value={defect.ref} />
+            /* FR-80. `defect.id` IS the defect's row id, so a `D-nn` on this
+               screen is navigable with no resolution at all. */
+            <EntityRef kind="defect" label={defect.ref} id={defect.id} />
           )}
           {/* CR-001 §4: `title` is clear by stated exception because it is the
               display key here. Reproduction detail, data samples and client
@@ -363,7 +449,11 @@ function DefectRow({ defect }: { defect: BrokenDefect }) {
         {defect.requirementRef === null ? (
           <Absent title="This defect names no requirement." />
         ) : (
-          <Ref value={defect.requirementRef} />
+          <EntityRef
+            kind="requirement"
+            label={defect.requirementRef}
+            id={refs("requirement", engagement, defect.requirementRef)}
+          />
         )}
       </TableCell>
 
@@ -372,7 +462,18 @@ function DefectRow({ defect }: { defect: BrokenDefect }) {
           <Absent title="No work item is recorded as fixing this defect." />
         ) : (
           <>
-            {defect.workItem.unit ?? defect.workItem.id}
+            {/* Until now this cell rendered a raw uuid whenever the fixing item
+                had no unit key. `fallbackLabel` is the fleet's one agreed label
+                for a row that carries no human reference, and the link is the
+                same either way. */}
+            <EntityRef
+              kind="work_item"
+              label={
+                defect.workItem.unit ??
+                fallbackLabel("work_item", defect.workItem.id)
+              }
+              id={defect.workItem.id}
+            />
             {defect.workItem.executor === null ? null : (
               <span className="text-muted-foreground ml-1.5">
                 {defect.workItem.executor}

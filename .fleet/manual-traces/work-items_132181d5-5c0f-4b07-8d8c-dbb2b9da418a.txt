@@ -1,0 +1,97 @@
+URL /work-items/132181d5-5c0f-4b07-8d8c-dbb2b9da418a
+STATUS 200
+LANDED /work-items/132181d5-5c0f-4b07-8d8c-dbb2b9da418a
+LINKS ["/","/blocked","/next","/committed","/untested","/bottleneck","/broken","/registry","/work-items","/waits","/settings/tokens","/settings/export","/questions","/registry/delivery-ledger","https://nextjs.org/docs/messages/version-staleness","https://nextjs.org/telemetry#error-feedback"]
+---
+Command palette
+
+Jump to any screen.
+
+Delivery Ledger
+THE SIX ANSWERS
+Blocked
+Next
+Committed
+Untested
+Bottleneck
+Broken
+RECORDS
+Registry
+Work items
+Waits
+Agent tokens
+Export
+Questions
+Jump to...
+⌘K
+0 unparsed
+man1
+FR-81 · FR-83 · FR-85
+
+Everything recorded about this work item, and everything that references it.
+
+man1
+work item
+← All work items
+Identity
+FR-39 · FR-40 · FR-43
+Engagement
+delivery-ledger
+delivery-ledger
+Execution mode
+fleet
+Status
+blocked
+Executor
+agent
+docs-writer
+Work type
+docs
+Phase
+2
+Disposition
+carried
+Evidence scope
+no scope recorded
+Not verified
+0
+Unautomated reason
+Started
+Ended
+Prose
+FR-81
+Description
+
+End-user manual `docs/user-guide.md` (`mode: manual`), gated on qa1 PASS
+
+Raw status
+
+**NOT DISPATCHED — the gate did not open.** `qa1` returned **FAIL**, and the rule is that a manual is not written for a build that failed review. This supersedes the earlier note in this row, which recorded man1 as dropped on a session-budget trade; that trade is moot, because budget was never the binding constraint at resume 3 (18 of 20 used, man1 would have been 19). **It is blocked a second and independent way, and this one survives a green QA:** the manual needs a signed-in, populated state, and none is reachable. `auth.users` = 0 rows and `public.operator` = 0 rows, both measured this run by d1 and again by qa1; `disable_signup` is correctly on, so **no agent can create the account**, and §7b states there is no seed script in Phase 1. `docs-writer` would have returned `BLOCKED` and I do not spend a dispatch on a `BLOCKED` I can predict. **§7b is NOT waived** — it requires this guide and names `docs/user-guide.md` as its home. I did not write that waiver and will not: an agent deciding a product has no end user reads exactly like a client agreeing it has none. Resolution is Erik's: provision one operator account, then re-run.
+
+Run and stack
+FR-16
+Run
+b0952e
+Branch
+agent-build/2026-08-19-b0952e
+Run mode
+full
+Verdict
+unparsed
+Stack
+References out
+FR-80 · FR-83
+Blocker
+—
+External wait
+—
+Depends on
+—
+Implements
+—
+References in
+FR-80 · FR-83
+Blocks
+—
+Fixes defects
+—

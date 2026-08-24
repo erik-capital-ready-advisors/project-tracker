@@ -13,11 +13,21 @@ import { UnparsedBreakdown } from "@/components/unparsed-breakdown";
 import { PARAM, SEVERITIES, parseBrokenQuery } from "@/lib/answer-query";
 import type { SearchParams } from "@/lib/answer-query";
 import { readBroken } from "@/lib/answer-load";
+import {
+  buildRefLookup,
+  collectRefQueries,
+  engagementIdsBySlug,
+} from "@/lib/answer-screen-refs";
+import { readRefResolution } from "@/lib/detail-load";
 import { ANSWER_ROUTES } from "@/lib/nav";
 import { loadForOperator } from "@/lib/operator-load";
+import { listEngagements } from "@/lib/server/registry/engagements";
 import { readUnparsedCensus } from "@/lib/unparsed-census";
 
-import { EngagementBroken } from "./_components/engagement-broken";
+import {
+  EngagementBroken,
+  engagementBrokenRefEntries,
+} from "./_components/engagement-broken";
 
 const NAV = ANSWER_ROUTES[5];
 
@@ -52,11 +62,28 @@ export default async function BrokenPage({
 }) {
   const query = parseBrokenQuery(await searchParams);
   const [result, census] = await Promise.all([
-    loadForOperator(() => readBroken(query)),
+    // FR-80. The engagement read and the resolution sit inside the same
+    // `loadForOperator` as the answer, so a failed read renders the load
+    // notice rather than references in FR-12's dangling treatment — which
+    // asserts something a failed read has not established.
+    loadForOperator(async () => {
+      const [answer, engagements] = await Promise.all([
+        readBroken(query),
+        listEngagements(),
+      ]);
+      const engagementIds = engagementIdsBySlug(engagements);
+      const resolution = await readRefResolution(
+        collectRefQueries(
+          engagementIds,
+          answer.engagements.flatMap(engagementBrokenRefEntries),
+        ),
+      );
+      return { answer, refs: buildRefLookup(engagementIds, resolution) };
+    }),
     readUnparsedCensus(),
   ]);
 
-  const answer = result.ok ? result.data : null;
+  const loaded = result.ok ? result.data : null;
 
   return (
     <Screen
@@ -94,9 +121,9 @@ export default async function BrokenPage({
         />
       )}
 
-      {answer === null ? null : answer.engagementUnknown ? (
+      {loaded === null ? null : loaded.answer.engagementUnknown ? (
         <UnknownEngagementNotice slug={query.engagement as string} />
-      ) : answer.engagements.length === 0 ? (
+      ) : loaded.answer.engagements.length === 0 ? (
         <EmptyState
           headline={
             query.filtered
@@ -108,11 +135,15 @@ export default async function BrokenPage({
       ) : (
         <div
           data-verify-unit="broken-engagements"
-          data-verify-engagements={answer.engagements.length}
+          data-verify-engagements={loaded.answer.engagements.length}
           className="flex flex-col gap-4"
         >
-          {answer.engagements.map((broken) => (
-            <EngagementBroken key={broken.engagement} broken={broken} />
+          {loaded.answer.engagements.map((broken) => (
+            <EngagementBroken
+              key={broken.engagement}
+              broken={broken}
+              refs={loaded.refs}
+            />
           ))}
         </div>
       )}

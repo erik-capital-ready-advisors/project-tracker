@@ -192,13 +192,26 @@ export function planRun(artifacts: RunArtifacts): RunPlan {
   const checkpoint =
     artifacts.checkpointText === null ? null : parseCheckpoint(artifacts.checkpointText);
   const qa = artifacts.qaReportText === null ? null : parseQaGates(artifacts.qaReportText);
-  // FR-64. The same report, read for its findings as well as its gates. The
-  // report name is the source-key namespace, so it must be stable across posts
-  // — `qa-report` rather than a filename the caller might vary.
+  // FR-64. The same report, read for its findings as well as its gates.
+  //
+  // The report name is the source-key namespace, and it must satisfy two things
+  // that pull in opposite directions: stable across re-posts of the SAME run, so
+  // re-ingesting updates rather than duplicates, and distinct across DIFFERENT
+  // runs, because `defect` is upserted on `(engagement_id, source_key)`.
+  //
+  // It was a bare `qa-report` and that met only the first. Two runs' reports in
+  // one engagement produced `qa-report#0`, `#1`, `#2` twice over, so the second
+  // run's findings overwrote the first run's defect rows instead of adding to
+  // them — every fleet run files a report against the engagement it ran on, so
+  // this was the normal case rather than an edge one. The run id is what makes
+  // the two runs distinct, and it is still a function of the artifacts alone, so
+  // FR-22's idempotency property is unchanged. Caller-varied filenames are still
+  // excluded: this is built, never taken from the payload.
+  const reportNamespace = `qa-report-${artifacts.runId}`;
   const findings =
     artifacts.qaReportText === null
       ? null
-      : parseQaFindings(artifacts.qaReportText, engagement, "qa-report");
+      : parseQaFindings(artifacts.qaReportText, engagement, reportNamespace);
 
   const unmappable: Unmappable[] = [];
   const note = (field: string, value: string) => unmappable.push({ field, value });
@@ -402,7 +415,10 @@ export function planRun(artifacts: RunArtifacts): RunPlan {
       // the array, and a positional key would then re-point every later defect
       // at its neighbour's row — silently rewriting D-9 with D-10's content on
       // the next post. `parseQaFindings` sets `id` to `<engagement>:<report>:<n>`.
-      source_key: `qa-report#${defect.id.split(":").at(-1) ?? "?"}`,
+      // Built from the same `reportNamespace` the parser was handed. These were
+      // two independent `qa-report` literals that had to agree and nothing made
+      // them; one const removes that seam.
+      source_key: `${reportNamespace}#${defect.id.split(":").at(-1) ?? "?"}`,
       severity: defect.severity,
       raw_severity: defect.rawSeverity,
       title: defect.title,

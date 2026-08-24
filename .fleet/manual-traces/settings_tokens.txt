@@ -1,0 +1,46 @@
+URL /settings/tokens
+STATUS 200
+LANDED /settings/tokens
+LINKS ["/","/blocked","/next","/committed","/untested","/bottleneck","/broken","/registry","/work-items","/waits","/settings/tokens","/settings/export","/questions","https://nextjs.org/docs/messages/version-staleness","https://nextjs.org/telemetry#error-feedback"]
+---
+Command palette
+
+Jump to any screen.
+
+Delivery Ledger
+THE SIX ANSWERS
+Blocked
+Next
+Committed
+Untested
+Bottleneck
+Broken
+RECORDS
+Registry
+Work items
+Waits
+Agent tokens
+Export
+Questions
+Jump to...
+⌘K
+0 unparsed
+Agent tokens
+FR-4 · FR-5 · FR-7
+
+Credentials an agent uses to read and write the ledger.
+
+4 tokens
+
+Issue a token
+label	capabilities	status	expires	last used	created	actions
+local-operator-2026-08-23	answer:read ingest:write	active	2026-11-21	never	2026-08-23	
+Rotate
+Revoke
+
+own-run ingest	ingest:write	active	2026-11-18	2026-08-20 13:58	2026-08-20	
+Rotate
+Revoke
+
+own-run ingest	ingest:write	revoked	2026-11-18	2026-08-20 12:34	2026-08-20	kept for audit
+delivery-ledger	answer:read ingest:write	revoked	2026-11-18	never	2026-08-20	kept for audit

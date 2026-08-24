@@ -13,11 +13,21 @@ import { UnparsedBreakdown } from "@/components/unparsed-breakdown";
 import { parseUntestedQuery } from "@/lib/answer-query";
 import type { SearchParams } from "@/lib/answer-query";
 import { readUntested } from "@/lib/answer-load";
+import {
+  buildRefLookup,
+  collectRefQueries,
+  engagementIdsBySlug,
+} from "@/lib/answer-screen-refs";
+import { readRefResolution } from "@/lib/detail-load";
 import { ANSWER_ROUTES } from "@/lib/nav";
 import { loadForOperator } from "@/lib/operator-load";
+import { listEngagements } from "@/lib/server/registry/engagements";
 import { readUnparsedCensus } from "@/lib/unparsed-census";
 
-import { EngagementCoverage } from "./_components/engagement-coverage";
+import {
+  EngagementCoverage,
+  engagementCoverageRefEntries,
+} from "./_components/engagement-coverage";
 
 const NAV = ANSWER_ROUTES[3];
 
@@ -51,11 +61,29 @@ export default async function UntestedPage({
 }) {
   const query = parseUntestedQuery(await searchParams);
   const [result, census] = await Promise.all([
-    loadForOperator(() => readUntested(query)),
+    // FR-80 / FR-55. The engagement read and the resolution sit inside the
+    // same `loadForOperator` as the answer, so a failed read renders the load
+    // notice rather than a page of references in FR-12's dangling treatment —
+    // which asserts "no such requirement has been ingested", a claim a failed
+    // read has not established.
+    loadForOperator(async () => {
+      const [answer, engagements] = await Promise.all([
+        readUntested(query),
+        listEngagements(),
+      ]);
+      const engagementIds = engagementIdsBySlug(engagements);
+      const resolution = await readRefResolution(
+        collectRefQueries(
+          engagementIds,
+          answer.engagements.flatMap(engagementCoverageRefEntries),
+        ),
+      );
+      return { answer, refs: buildRefLookup(engagementIds, resolution) };
+    }),
     readUnparsedCensus(),
   ]);
 
-  const answer = result.ok ? result.data : null;
+  const loaded = result.ok ? result.data : null;
 
   return (
     <Screen
@@ -79,9 +107,9 @@ export default async function UntestedPage({
         />
       )}
 
-      {answer === null ? null : answer.engagementUnknown ? (
+      {loaded === null ? null : loaded.answer.engagementUnknown ? (
         <UnknownEngagementNotice slug={query.engagement as string} />
-      ) : answer.engagements.length === 0 ? (
+      ) : loaded.answer.engagements.length === 0 ? (
         <EmptyState
           headline={
             query.filtered
@@ -93,11 +121,15 @@ export default async function UntestedPage({
       ) : (
         <div
           data-verify-unit="coverage-engagements"
-          data-verify-engagements={answer.engagements.length}
+          data-verify-engagements={loaded.answer.engagements.length}
           className="flex flex-col gap-4"
         >
-          {answer.engagements.map((coverage) => (
-            <EngagementCoverage key={coverage.engagement} coverage={coverage} />
+          {loaded.answer.engagements.map((coverage) => (
+            <EngagementCoverage
+              key={coverage.engagement}
+              coverage={coverage}
+              refs={loaded.refs}
+            />
           ))}
         </div>
       )}

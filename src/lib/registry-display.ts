@@ -26,6 +26,26 @@ export const NOT_RECORDED = "not recorded";
 export const UNREADABLE_AMOUNT = "unreadable";
 
 /**
+ * The label for a total whose rows do not agree on one currency.
+ *
+ * Relocated here from the now-deleted `money-display.ts` (B32): that module's
+ * `money()` formatter disagreed with `formatAmount` on symbol-vs-code and on
+ * thousands separators, and QA's recommendation — verified rather than taken on
+ * faith, since `LOCALE` is pinned two lines below and defuses the hydration
+ * objection `money-display.ts` was built to avoid — was to keep this function
+ * and delete the other module. This constant had no formatting logic of its
+ * own to disagree over, so it moves over unchanged and keeps its one consumer,
+ * `CommittedTotalsStrip`.
+ *
+ * `describedTotals()` below answers the bare `"not summed"` for the same
+ * condition on the registry's per-engagement panel — a shorter form for a
+ * denser row, not a second disagreement: neither reading nor doubling one of
+ * the two loses the other's context.
+ */
+export const MIXED_CURRENCY_TOTAL =
+  "not summed — these milestones are in more than one currency";
+
+/**
  * The one locale used for every number on these screens.
  *
  * Explicit rather than the runtime default: `Intl` on the server and `Intl` in

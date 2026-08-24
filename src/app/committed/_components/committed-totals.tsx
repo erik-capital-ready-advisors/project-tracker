@@ -1,4 +1,4 @@
-import { MIXED_CURRENCY_TOTAL, money } from "@/lib/money-display";
+import { formatAmount, MIXED_CURRENCY_TOTAL } from "@/lib/registry-display";
 
 import type { CommittedTotals } from "@/lib/server/answers/committed";
 
@@ -63,7 +63,7 @@ export function CommittedTotalsStrip({ totals }: { totals: CommittedTotals }) {
         >
           <span className="text-muted-foreground text-xs">{label}</span>
           <span className="ident text-foreground text-sm tabular-nums">
-            {money(value, totals.currency as string)}
+            {formatAmount(value, totals.currency as string).text}
           </span>
         </span>
       ))}

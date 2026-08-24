@@ -6,13 +6,16 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import Link from "next/link";
+
 import {
   Absent,
   DispositionChip,
   HeldByChips,
-  RefList,
 } from "@/components/answer-chips";
+import { EntityRef, EntityRefList } from "@/components/entity-ref";
 import { StateBadge } from "@/components/state-badge";
+import type { RefEntry, RefLookup } from "@/lib/answer-screen-refs";
 import { elapsedDays, isoDay } from "@/lib/display-format";
 import { cn } from "@/lib/utils";
 
@@ -65,7 +68,43 @@ function SubHeading({ children }: { children: React.ReactNode }) {
   );
 }
 
-export function BlockedGroup({ group }: { group: BlockedGroupData }) {
+/**
+ * FR-80 — the references on this group that are held as **text** and have to be
+ * resolved before they can be links.
+ *
+ * Almost nothing on this screen is in that state, and that is the useful part:
+ * `BlockedItem.id` and `BlockedWait.id` are already the database uuids
+ * (`answers/load.ts`: *"`id` and `dependsOn` carry database uuids, not the
+ * `engagement:run:unit` key"*), so a blocked work item and an open wait are
+ * navigable with no round trip at all.
+ *
+ * The one exception is `wait.blocks`, which `blockedAnswer` builds as
+ * `item.unit ?? item.id` — a list whose entries are units for fleet rows and
+ * raw uuids for `hand` and `external` ones, with nothing distinguishing the two.
+ * They are all asked as work-unit references. A uuid asked that way matches no
+ * `unit` column and comes back `null`, so it renders dangling: a reference to a
+ * row that does exist. That is a defect in the payload rather than in the
+ * resolution, it is recorded in this unit's report and it is deliberately not
+ * papered over by sniffing the string for a uuid shape — this product refuses
+ * rather than guesses which of two meanings a value carries.
+ */
+export function blockedGroupRefEntries(group: BlockedGroupData): RefEntry[] {
+  return group.waits.flatMap((wait) =>
+    wait.blocks.map((ref) => ({
+      kind: "work_item" as const,
+      engagement: wait.engagement,
+      ref,
+    })),
+  );
+}
+
+export function BlockedGroup({
+  group,
+  refs,
+}: {
+  group: BlockedGroupData;
+  refs: RefLookup;
+}) {
   return (
     <section
       data-verify-unit="blocked-group"
@@ -128,8 +167,21 @@ export function BlockedGroup({ group }: { group: BlockedGroupData }) {
                   data-verify-held={item.heldBy.join(",")}
                 >
                   <TableCell className="align-top font-medium">
+                    {/* FR-80. `item.id` IS the work item's row id, so this
+                        reference needs no resolution — the only reason it could
+                        be unnavigable is a row with no unit key, and that is
+                        rendered as absent rather than as a reference, because
+                        an em-dash is not a reference to anything. */}
                     <span className="ident whitespace-nowrap">
-                      {item.unit ?? <Absent title="No unit key was recorded." />}
+                      {item.unit === null ? (
+                        <Absent title="No unit key was recorded." />
+                      ) : (
+                        <EntityRef
+                          kind="work_item"
+                          label={item.unit}
+                          id={item.id}
+                        />
+                      )}
                     </span>
                     {/*
                       FR-52 asks what is STOPPED and what is HOLDING it. A unit
@@ -158,7 +210,20 @@ export function BlockedGroup({ group }: { group: BlockedGroupData }) {
                     )}
                   </TableCell>
                   <TableCell className="ident text-muted-foreground whitespace-nowrap">
-                    {item.engagement}
+                    {/* FR-80 names the engagement slug among the references
+                        that must be navigable, and FR-81 does NOT make it one
+                        of the eight entity kinds — `ENTITY_KINDS` is asserted
+                        to be exactly those eight. `/registry/[slug]` is the
+                        engagement's detail view and it already exists, so this
+                        is an ordinary anchor rather than an `<EntityRef>`. */}
+                    <Link
+                      href={`/registry/${item.engagement}`}
+                      data-verify-unit="engagement-link"
+                      data-verify-slug={item.engagement}
+                      className="rounded-sm underline-offset-2 hover:underline"
+                    >
+                      {item.engagement}
+                    </Link>
                   </TableCell>
                   <TableCell className="text-muted-foreground whitespace-nowrap">
                     {item.workType ?? (
@@ -237,7 +302,16 @@ export function BlockedGroup({ group }: { group: BlockedGroupData }) {
                   data-verify-blocks={wait.blocks.length}
                 >
                   <TableCell className="max-w-xs">
-                    <span className="font-medium">{wait.label}</span>
+                    {/* `wait.id` is the row id, so the wait is navigable with
+                        no resolution. The label moves from prose weight to the
+                        entity-ref chip because that is what an entity reference
+                        looks like everywhere in this product — see the report;
+                        it is the one visual change on this screen. */}
+                    <EntityRef
+                      kind="external_wait"
+                      label={wait.label}
+                      id={wait.id}
+                    />
                     {/* §7a names `external_wait.reason` as readable on this
                         screen explicitly, so it is shown. It is the only prose
                         column anywhere in this unit. */}
@@ -275,8 +349,12 @@ export function BlockedGroup({ group }: { group: BlockedGroupData }) {
                     )}
                   </TableCell>
                   <TableCell>
-                    <RefList
-                      refs={wait.blocks}
+                    <EntityRefList
+                      refs={wait.blocks.map((ref) => ({
+                        kind: "work_item" as const,
+                        label: ref,
+                        id: refs("work_item", wait.engagement, ref),
+                      }))}
                       empty="This wait blocks nothing that is recorded."
                     />
                   </TableCell>

@@ -188,11 +188,14 @@ Behavioral rules earned on this project. Append one line per lesson, in the mome
   you know is present also comes back non-zero. A bundle scan pointed at the wrong chunks reported
   a clean result indistinguishable from a real one; adding a control term (`function`, in any React
   chunk) exposed it and moved the scan to the chunks the browser Supabase client actually lands in.
-- When running `fleet-preflight.sh`, pass the session's **launch** cwd as argument 2 explicitly —
-  never `$PWD` after a `cd` earlier in the same Bash call. The harness resets the Bash cwd per
-  call, so the `cd` makes the cwd check pass against a repo the session was never launched from,
-  and worktree isolation keys off the launch cwd regardless. A green preflight obtained this way
-  is the same false-green as a subagent editing its own gate.
+- Run `fleet-preflight.sh <repo_path>` with **one argument**, and never pass `$PWD` as a second.
+  As of 2026-08-20 the script derives the session's launch cwd from `$CLAUDE_CODE_SESSION_ID`,
+  which no `cd` can alter; argument 2 is a fallback only, and one that disagrees with the derived
+  value earns a `WARN`. The rule this replaces existed because the harness resets the Bash cwd per
+  call, so `cd <repo> && fleet-preflight.sh .` made the check pass against a repo the session was
+  never launched from — the same false-green as a subagent editing its own gate. Read the verdict
+  line rather than the exit code: `PREFLIGHT PASS (n WARN)` carrying `launch cwd NOT VERIFIED`
+  means the derivation failed and that fallback is back in play.
 - When sending a mid-flight `SendMessage` to a background agent, confirm the target `agentId` against
   that agent's own completion notification or its `description` before sending — dispatch order is not
   a reliable index into the ids, and a misdirected brief assigns the work to nobody while looking sent.
@@ -216,3 +219,52 @@ Behavioral rules earned on this project. Append one line per lesson, in the mome
   reached `prod.md` and an approved CR. Comments in this repo describe what the code does NOT do at
   least as often as what it does, so a match in prose is evidence of the opposite. Check the
   interface: `BrokenDefect` had no such field.
+- Before hand-building an approved-spec milestone in this repo, offer the fleet first —
+  `build-from-spec` / `project-lead` is the default executor for any Next.js/Supabase/Vercel
+  milestone here, and hand-building one is a choice that needs Erik's say-so rather than the
+  default. The cost is not just his prompting time: a hand-built milestone leaves no `.fleet/`
+  manifest for Mode 1 to ingest, and while B4 keeps the session hook uninstalled it leaves no
+  `work_session` row either, so the work is invisible to the product it is building.
+- When every option produces the same work product, it is not a decision — pick the reversible
+  default, state it in one line, and proceed. Reserve `AskUserQuestion` for what is genuinely
+  irreversible or outward-facing (merging to `master`, deploying, deleting, anything that leaves the
+  machine). The tell: if the branch name changes but the diff does not, do not ask. Dispatching M2.7
+  was stopped for a four-option question in which three options built identical code onto different
+  refs, which made Erik the bottleneck on a `git checkout -b`.
+- Measure a test baseline in a throwaway `git worktree` at the ref, never with `git stash -u` in
+  the shared checkout. Sessions run concurrently against this repo, and a stash sweeps another
+  agent's uncommitted work out from under it mid-run; the pop restored it here, but nothing about
+  the sequence guaranteed that.
+- Before pruning a worktree, prove the work is safe with `git cherry` plus a file-set comparison
+  (`comm` over `git ls-tree -r --name-only <branch>` against `HEAD`), never with a bare
+  `git diff HEAD <branch>`. On a branch that is *behind* HEAD, that diff reports HEAD's newer content
+  as the branch's "additions" and answers a question you did not ask. Then remove with
+  `git worktree remove` and leave the branch in place — it frees the disk and clears the leak while
+  keeping the per-unit history, which is the reversible half of the operation.
+- Read and write source files under the agent's OWN worktree path, never the `repo_path` handed
+  down as the shared-checkout value. The two can hold different content at the same relative path,
+  and nothing about a successful `Read` signals which tree it came from — on run 29b583, `u4` read
+  `app-shell.tsx` from the shared checkout and it already contained a finished `SignOutButton`
+  wiring from a stale attempt, which would have been reported as pre-existing state instead of the
+  worktree's actual pre-B40 file. Only the run-scoped `.fleet/` report path is exempt, and only
+  because the brief spells out the worktree-relative form explicitly.
+- When sweeping a UI for dialogs, match trigger elements by `[aria-haspopup]` / `[data-state]`
+  rather than by button label, and hold an explicit deny-list of destructive labels (Archive,
+  Delete, Revoke, Rotate, Resolve). On run `29b583` a label-matched click sweep **archived the
+  live `delivery-ledger` engagement** while writing the user guide. It was caught in the same
+  output, reversed with Restore, and confirmed against the database rather than the UI that had
+  just been used — but the next one may hit a control with no Restore beside it.
+- `pnpm gate:m27:e2e` needs **both** `M27_BASE_URL` and `M27_STORAGE_STATE`; with the latter unset
+  it produces **10 failed / 10, every one "rendered the operator gate (sign-in)"** — which is
+  byte-for-byte the signature a revoked session produces. That signature therefore does **not**
+  establish a dead credential, and on 2026-08-23 it was read as one. Run
+  `M27_BASE_URL=http://localhost:3000 M27_STORAGE_STATE=.playwright-auth/operator.json pnpm
+  gate:m27:e2e` and only then conclude anything about the session. Same failure shape as keying an
+  auth check on `h1`: the observation was real and the inference from it was not.
+- When a suspected defect is reproducible, reproduce it **before** escalating it — escalate the
+  measurement, not the claim. The `defect.source_key` overwrite found on 2026-08-24 was handed to
+  Erik as a structural argument ("verified in code and schema, not executed") bundled with three
+  options to choose between, when one test — plan two runs' QA reports into one engagement and
+  count the rows — settles whether it is real in twenty minutes. A menu of options is not a
+  substitute for a red test, and asking Erik to adjudicate a claim you own the means to verify
+  makes him the bottleneck this product exists to remove.
