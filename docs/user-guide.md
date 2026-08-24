@@ -264,8 +264,9 @@ inside the product will populate it. Rows arrive through ingest.
 
 ## Broken
 
-Broken lists defects and regressions, grouped by severity. Today: **13 open, 0 regressed**, split
-into 1 critical and the rest major or minor.
+Broken lists defects and regressions, grouped by severity. Today: **13 defects, 0 regressed** -
+**10 still open** (3 major, 7 minor) and 3 already marked fixed. The only critical one is among the
+fixed, so nothing critical is currently open.
 
 Each row shows the defect reference, its title, its status, why it is still open, the requirement
 it violates, the work item fixing it, the tests naming it, and when it was reported. Many rows
@@ -795,17 +796,21 @@ run, and nothing to collide with — so it is described here from the build and 
 
 Every item here was measured, not guessed.
 
-**Next and Bottleneck are both empty today, and only one of them can be filled from inside the
-product.** No work item currently holds the `pending` status Next draws from, and none carries you
-or an Erik-gate as its executor, which is what Bottleneck ranks. Both screens explain their own
-emptiness with zero-counts rather than showing a blank. **Next changed this milestone**: planning
-work by hand creates a `pending` row, and `pending` is a status Next reads, so a planned item is a
-Next candidate the moment you record it. Bottleneck did not change — its rows still arrive only
-through fleet ingest, and nothing you click will put one there.
+**Bottleneck is empty; Next no longer is.** Bottleneck ranks work whose executor is you or an
+Erik-gate, and **no work item carries either**, so the screen explains its own emptiness with a
+zero-count rather than showing a blank. Its rows arrive only through fleet ingest, and nothing you
+click will put one there.
 
-**No planned work exists yet, so its markers have never been seen.** Hand entry was built this
-milestone and nothing has been entered through it. The `planned`, `planned stale` and `age?`
-markers are described in this guide from the rule the product computes, not from a screen.
+**Next holds exactly one row, and you can add more.** Planning work by hand creates a `pending`
+row, and `pending` is the status Next draws from, so a planned item becomes a Next candidate the
+moment you record it. One such row exists today, entered through the form to prove the path works.
+Before this milestone Next was empty and could not be filled from inside the product at all.
+
+**Two of the three planned-work markers have still never been seen.** One planned row now exists,
+so the `planned` marker and the age chip beside it have been observed on a real screen. **`planned
+stale` and `age?` have not.** The first needs a row untouched for 30 days and the second needs a
+row whose last-touched date cannot be read, and neither can be produced on demand - so this guide
+describes those two from the rule the product computes rather than from a screen.
 
 **One engagement-filter message has never been seen.** The notice shown when the engagement list
 itself cannot be read needs the lookup to fail, and nobody forced that against real records.
@@ -816,9 +821,10 @@ at the moment it runs is unproven, including how completely it cascades and how 
 audit boundary it is supposed to stop at. Archive instead, which was tested and reverses cleanly.
 If you need a permanent deletion, take an export first.
 
-**Signing out is UNVERIFIED.** The control exists. Nobody pressed it, because pressing it would
-have destroyed the signed-in session this guide was written from. Assume it ends your session and
-returns you to sign-in, and confirm it yourself the first time.
+**Signing out works, and this is now the one claim here confirmed by a person rather than a
+measurement.** It was carried as unverified through several milestones because pressing it destroys
+the signed-in session any agent check would have been running from. Erik pressed it on 2026-08-24
+and it behaved as described: the session ends and you are returned to sign-in.
 
 **One milestone amount will not decrypt, and two screens disagree about it.** The engagement
 screen shows `unreadable` and excludes it from every total, with a note saying it is not zero. The
@@ -827,8 +833,9 @@ milestone with an unreadable amount exists. Do not invoice from those totals unt
 resolved.
 
 **Nothing tests anything, by the ledger's own count.** Untested reports 79 requirements, 324
-tests, and 0 mapped. Broken shows 13 open defects, several marked `fixed` with "no passing test
-names this defect" beside them. The ledger is reporting this correctly. It is your delivery state
+tests, and **0 mapped** - no test in the ledger is tied to a requirement. Broken shows 13 defects,
+10 of them open, and the 3 marked `fixed` carry "no passing test names this defect" beside them,
+meaning nothing in the ledger proves those fixes. The ledger is reporting this correctly. It is your delivery state
 that the report describes, not a fault in the reporting.
 
 **96 questions are open.** Each carries a best guess that shipped unanswered.
