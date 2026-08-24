@@ -87,6 +87,8 @@ function base(): WorkItemDetail {
     notVerifiedCount: 0,
     startedAt: "2026-08-20T10:00:00Z",
     endedAt: null,
+    planned: false,
+    updatedAt: "2026-08-20T10:00:00Z",
     run: {
       id: "run-1",
       runId: "eb2490",

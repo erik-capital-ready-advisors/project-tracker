@@ -54,6 +54,11 @@
  */
 
 import {
+  ENGAGEMENT_PARAM,
+  engagementFilterFrom,
+} from "@/lib/engagement-filter";
+import type { SearchParamRecord } from "@/lib/engagement-filter";
+import {
   DISPOSITION,
   EVIDENCE_SCOPE,
   EXECUTION_MODE,
@@ -76,9 +81,16 @@ import type {
 /** Rows per page. Small enough to read in one glance, per spec 5a. */
 export const PAGE_SIZE = 50;
 
-/** The URL parameter names, in one place so the form and the parser agree. */
+/**
+ * The URL parameter names, in one place so the form and the parser agree.
+ *
+ * `engagement` comes from `@/lib/engagement-filter` rather than being spelled
+ * again here. FR-96 puts the same filter on eleven screens, and this object's
+ * own literal was one of the four independent declarations of it that made
+ * "the same parameter" a coincidence rather than a fact.
+ */
 export const PARAM = {
-  engagement: "engagement",
+  engagement: ENGAGEMENT_PARAM,
   mode: "mode",
   executor: "executor",
   status: "status",
@@ -91,7 +103,8 @@ export const PARAM = {
   page: "page",
 } as const;
 
-export type SearchParams = Record<string, string | string[] | undefined>;
+/** An alias, not a fifth declaration of the shape. See `PARAM.engagement`. */
+export type SearchParams = SearchParamRecord;
 
 export interface RejectedFilter {
   field: string;
@@ -148,21 +161,22 @@ function closed<T>(
   return parsed;
 }
 
-/** Free text, length-capped. A slug that matches no engagement is the server's refusal to report. */
-const SLUG_LIMIT = 128;
-
 export function parseWorkItemQuery(params: SearchParams): WorkItemQuery {
   const rejected: RejectedFilter[] = [];
 
-  const rawSlug = single(params, PARAM.engagement);
-  let engagementSlug: string | null = null;
-  if (rawSlug !== null) {
-    if (rawSlug.length > SLUG_LIMIT) {
-      rejected.push({ field: PARAM.engagement, value: rawSlug.slice(0, 32) });
-    } else {
-      engagementSlug = rawSlug;
-    }
+  // FR-96. The cap, the trim and the empty-value rule all come from
+  // `@/lib/engagement-filter` now; the local `SLUG_LIMIT = 128` this replaced
+  // agreed with it by hand, which is exactly the kind of agreement that stops
+  // being true the day one of the two moves.
+  const engagementFilter = engagementFilterFrom(params);
+  if (engagementFilter.kind === "rejected") {
+    rejected.push({
+      field: PARAM.engagement,
+      value: engagementFilter.value,
+    });
   }
+  const engagementSlug =
+    engagementFilter.kind === "slug" ? engagementFilter.slug : null;
 
   const executionMode = closed(
     params,

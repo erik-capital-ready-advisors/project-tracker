@@ -6,8 +6,16 @@ function toDay(iso: string): number {
   return Date.parse(`${iso}T00:00:00Z`);
 }
 
-/** Whole days between two ISO dates. */
-function daysBetween(from: string, to: string): number {
+/**
+ * Whole days between two ISO dates.
+ *
+ * Exported for FR-91's staleness derivation, which needs the same whole-day
+ * arithmetic over `work_item.updated_at` and would otherwise be a second
+ * implementation of it. Both sides must already be `YYYY-MM-DD` — hand this a
+ * full timestamptz and `toDay` builds `…T00:00:00ZT00:00:00Z` and yields `NaN`,
+ * which is what `toIsoDay` in `@/lib/server/waits/input` exists to prevent.
+ */
+export function daysBetween(from: string, to: string): number {
   return Math.round((toDay(to) - toDay(from)) / MS_PER_DAY);
 }
 

@@ -110,6 +110,8 @@ function listed(overrides: Partial<ListedWorkItem> = {}): ListedWorkItem {
     startedAt: null,
     endedAt: null,
     description: null,
+    planned: false,
+    updatedAt: null,
     ...overrides,
   };
 }

@@ -36,6 +36,7 @@
  */
 
 import { decryptAll } from "@/lib/server/ingest/encrypt";
+import { isPlannedRow } from "@/lib/server/workitems/planned";
 import type { CoverageInput } from "@/lib/ingest/coverage";
 import type {
   Defect,
@@ -208,6 +209,18 @@ export interface LoadedWorkItem extends WorkItem {
   externalWaitId: string | null;
   startedAt: string | null;
   endedAt: string | null;
+  /**
+   * FR-87 — this row is planned work: `execution_mode IS NULL` and
+   * `status = 'pending'`.
+   *
+   * Recorded here rather than derived by the caller because `executionMode`
+   * above has already been through `fromExecutionMode`, which turns a planned
+   * row's NULL into `"fleet"`. The signal only exists on the raw column, so it
+   * is read from there once, at the only place that still has it.
+   */
+  planned: boolean;
+  /** `work_item.updated_at`. FR-91's staleness timestamp; see `workitems/planned`. */
+  updatedAt: string | null;
 }
 
 /**
@@ -232,7 +245,7 @@ const WORK_ITEM_COLUMNS =
   "id, engagement_id, fleet_run_id, unit, execution_mode, work_type, phase, " +
   "executor, executor_kind, status, unautomated_reason, disposition, " +
   "evidence_scope, not_verified_count, blocker_id, external_wait_id, " +
-  "started_at, ended_at";
+  "started_at, ended_at, updated_at";
 
 /**
  * Work items with their dependency edges and implemented requirement refs.
@@ -329,6 +342,11 @@ export async function loadWorkItems(
       rawStatus: null,
       startedAt: text(row.started_at),
       endedAt: text(row.ended_at),
+      planned: isPlannedRow({
+        execution_mode: row.execution_mode,
+        status: row.status,
+      }),
+      updatedAt: text(row.updated_at),
     };
   });
 }

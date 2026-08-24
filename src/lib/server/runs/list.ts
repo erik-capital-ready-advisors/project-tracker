@@ -17,11 +17,23 @@ import { FLEET_RUN_COLUMNS } from "./columns";
 import type { ListedRun, RunListing, RunsDb } from "./types";
 
 /**
- * FR-92 — every ingested fleet run, across every engagement, newest first.
+ * FR-92 — every ingested fleet run, newest first, across every engagement by
+ * default.
  *
- * Cross-engagement by construction: Q16 was resolved at CR-005's approval from
- * FR-92's own wording, so there is no engagement filter here and FR-96 (which
- * would add one) is DRAFT and out of scope for this run.
+ * ## FR-96's filter, and why it did not overturn Q16
+ *
+ * Cross-engagement is still what this returns when nothing is passed, and that
+ * is Q16's ruling from FR-92's own wording rather than an implementation
+ * default. What FR-96 adds — approved 2026-08-24, after the note that used to
+ * stand here called it DRAFT — is an **optional** narrowing expressed in the
+ * URL. The unfiltered view remains the default and no caller becomes
+ * engagement-mandatory, which is FR-96's own first sentence.
+ *
+ * `engagementId`, not a slug: the caller has already resolved it
+ * (`@/lib/engagement-resolve`), and giving this module its own slug lookup would
+ * give it a second opinion on whether an engagement exists. It has none — `null`
+ * means the whole ledger, and a caller whose slug named nothing does not call
+ * this at all.
  *
  * ## Ordering, and the claim it does not make
  *
@@ -40,8 +52,17 @@ import type { ListedRun, RunListing, RunsDb } from "./types";
  * papering over it with a sort that implies an ordering the data does not
  * support is the failure both notes exist to prevent.
  */
-export async function listRuns(db: RunsDb): Promise<RunListing> {
-  const result = await fetchAllRows(db, "fleet_run", FLEET_RUN_COLUMNS, (query) => query);
+export async function listRuns(
+  db: RunsDb,
+  engagementId: string | null = null,
+): Promise<RunListing> {
+  // Filtered in the query rather than over the assembled array. `fetchAllRows`
+  // pages to an exact count, so filtering afterwards would page the whole
+  // `fleet_run` table to show one engagement's runs — and the `truncated`
+  // arithmetic further down would be counting rows nobody asked for.
+  const result = await fetchAllRows(db, "fleet_run", FLEET_RUN_COLUMNS, (query) =>
+    engagementId === null ? query : query.eq("engagement_id", engagementId),
+  );
   if (result.error) throw new LoadError("fleet_run", result.error);
 
   const rows = result.rows;

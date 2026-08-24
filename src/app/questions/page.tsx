@@ -1,8 +1,17 @@
 import Link from "next/link";
 
+import { EngagementScopeNotice } from "@/components/engagement-scope-notice";
 import { EmptyState, Screen } from "@/components/screen";
 import { OperatorLoadNotice } from "@/components/operator-load-notice";
 import { Button } from "@/components/ui/button";
+import { engagementFilterFrom } from "@/lib/engagement-filter";
+import type { SearchParamRecord } from "@/lib/engagement-filter";
+import {
+  engagementScopeBlocksRows,
+  engagementScopeId,
+  resolveEngagementFilter,
+} from "@/lib/engagement-resolve";
+import { withListFlag } from "@/lib/list-toggle-link";
 import { OPERATOR_ROUTES } from "@/lib/nav";
 import { loadForOperator } from "@/lib/operator-load";
 import { readOpenQuestions } from "@/lib/questions-load";
@@ -60,23 +69,49 @@ export const metadata = { title: `${NAV.label} — Delivery Ledger` };
  * empty listing after a **successful** read renders `<EmptyState>`, which says
  * so in words that cannot be mistaken for "the query failed" -- B28 and B39
  * are both a version of that confusion, and this screen does not reproduce it.
+ *
+ * ## FR-96 -- four outcomes now, and the fourth is FR-96c
+ *
+ * The engagement filter is read from the URL and nowhere else (CR-005 §3.3
+ * point 3: no cookie, no remembered last filter), and the picker that sets it
+ * lives in the app shell rather than on this screen. What this screen owns is
+ * honouring it: a resolvable slug narrows the list, and an unresolvable one
+ * renders FR-96c's explicit state with **no rows** rather than the whole ledger
+ * under a filtered heading.
+ *
+ * `withListFlag` is what keeps the "include answered" toggle from quietly
+ * dropping that filter -- see its own header, which is a defect this unit did
+ * not ship rather than one it fixed.
  */
 export default async function QuestionsPage({
   searchParams,
 }: {
-  searchParams: Promise<Record<string, string | string[] | undefined>>;
+  searchParams: Promise<SearchParamRecord>;
 }) {
   const params = await searchParams;
   const rawAnswered = Array.isArray(params.answered)
     ? params.answered[0]
     : params.answered;
   const includeAnswered = rawAnswered === "1";
+  const filter = engagementFilterFrom(params);
 
-  const result = await loadForOperator(() =>
-    readOpenQuestions({ includeAnswered }),
-  );
+  // Resolved inside the load wrapper so a gated visitor gets exactly one
+  // refusal, from the machinery that owns the gate. See `@/lib/engagement-resolve`.
+  const result = await loadForOperator(async () => {
+    const scope = await resolveEngagementFilter(filter);
+    return {
+      scope,
+      listing: engagementScopeBlocksRows(scope)
+        ? null
+        : await readOpenQuestions({
+            includeAnswered,
+            engagementId: engagementScopeId(scope),
+          }),
+    };
+  });
 
-  const listing = result.ok ? result.data : null;
+  const scope = result.ok ? result.data.scope : null;
+  const listing = result.ok ? result.data.listing : null;
 
   return (
     <Screen
@@ -116,7 +151,12 @@ export default async function QuestionsPage({
 
         <Button asChild variant="ghost" size="sm">
           <Link
-            href={includeAnswered ? "/questions" : "/questions?answered=1"}
+            href={withListFlag(
+              "/questions",
+              params,
+              "answered",
+              !includeAnswered,
+            )}
             data-verify-unit="toggle-answered"
             data-verify-including-answered={includeAnswered ? "true" : "false"}
           >
@@ -133,12 +173,25 @@ export default async function QuestionsPage({
         />
       )}
 
+      {/* FR-96c. The same `engagementScopeBlocksRows` that made `listing` null
+          above is what guarantees no rows render beneath this. */}
+      {scope === null ? null : <EngagementScopeNotice resolution={scope} />}
+
       {listing === null ? null : listing.questions.length === 0 ? (
         <EmptyState
           headline={
-            includeAnswered
-              ? "No open questions have been recorded."
-              : "Nothing is waiting on an answer."
+            // Scoped and unscoped are different claims. "No open questions have
+            // been recorded." under `?engagement=acme` reports an empty ledger
+            // on a request that only looked at one engagement.
+            scope?.kind === "resolved"
+              ? includeAnswered
+                ? /* COPY: /questions empty state, one engagement, answered included */
+                  `No questions have been recorded for ${scope.slug}.`
+                : /* COPY: /questions empty state, one engagement, open only */
+                  `Nothing is waiting on an answer for ${scope.slug}.`
+              : includeAnswered
+                ? "No open questions have been recorded."
+                : "Nothing is waiting on an answer."
           }
           detail="The fleet queues a question here whenever a unit could not resolve something on its own. Each one links to what it asked, what it assumed in the meantime, and what was decided."
         />

@@ -28,6 +28,11 @@
  * discovery.
  */
 
+import {
+  ENGAGEMENT_PARAM,
+  engagementFilterFrom,
+} from "@/lib/engagement-filter";
+import type { SearchParamRecord } from "@/lib/engagement-filter";
 import type {
   BlockedFilters,
   BottleneckFilters,
@@ -62,9 +67,19 @@ export const SEVERITIES = ["critical", "major", "minor", "unparsed"] as const;
 export const LIMITS = [25, 50, 100, 250, 500] as const;
 export const DEFAULT_LIMIT = 50;
 
-/** URL parameter names, in one place so the form and the parser agree. */
+/**
+ * URL parameter names, in one place so the form and the parser agree.
+ *
+ * `engagement` is **not** spelled here any more. FR-96 puts one filter on eleven
+ * screens, and `@/lib/engagement-filter` is the single spelling authority for
+ * it; a second literal in this object is how two of the eleven end up
+ * disagreeing about what the parameter is called, and a screen that ignores the
+ * filter renders an unfiltered list under a filtered heading.
+ * `tests/engagement-filter.test.ts` pins the equality that used to be a
+ * coincidence.
+ */
 export const PARAM = {
-  engagement: "engagement",
+  engagement: ENGAGEMENT_PARAM,
   owner: "owner",
   disposition: "disposition",
   state: "state",
@@ -73,7 +88,15 @@ export const PARAM = {
   limit: "limit",
 } as const;
 
-export type SearchParams = Record<string, string | string[] | undefined>;
+/**
+ * An alias rather than a fourth declaration of the same shape.
+ *
+ * The name stays because six screens import it and renaming them would be a
+ * diff about nothing; what changes is that this is now the same type
+ * `@/lib/engagement-filter` accepts, so a screen can hand its `searchParams`
+ * straight to either without a cast.
+ */
+export type SearchParams = SearchParamRecord;
 
 export interface RejectedFilter {
   field: string;
@@ -131,6 +154,30 @@ function text(
 }
 
 /**
+ * FR-96's engagement filter, read through the one module that owns it.
+ *
+ * Not `text(params, PARAM.engagement, ...)` any more, and the difference is a
+ * real one rather than a rename: `TEXT_LIMIT` is 200 and right for `owner` and
+ * `environment`, which are free text, while a slug is capped at 128 by
+ * `MAX.slug` in the registry's own validator. A 150-character value used to be
+ * accepted here and then matched nothing, which reached FR-96c's "no engagement
+ * has this slug" notice by a longer road; it is now reported as the unusable
+ * filter value it is. Either way it is loud and either way no rows are widened,
+ * so the six screens' behaviour is unchanged for every value that can name a row.
+ */
+function engagement(
+  params: SearchParams,
+  rejected: RejectedFilter[],
+): string | null {
+  const filter = engagementFilterFrom(params);
+  if (filter.kind === "slug") return filter.slug;
+  if (filter.kind === "rejected") {
+    rejected.push({ field: PARAM.engagement, value: `${filter.value}…` });
+  }
+  return null;
+}
+
+/**
  * A member of a closed set, or a recorded rejection.
  *
  * The generic is pinned to the tuple's member type, so adding an option to a
@@ -176,71 +223,71 @@ function limit(params: SearchParams, rejected: RejectedFilter[]): number {
 
 export function parseBlockedQuery(params: SearchParams): BlockedQuery {
   const rejected: RejectedFilter[] = [];
-  const engagement = text(params, PARAM.engagement, rejected);
+  const engagementSlug = engagement(params, rejected);
   const owner = text(params, PARAM.owner, rejected);
   const disposition = oneOf(params, PARAM.disposition, DISPOSITIONS, rejected);
   return {
-    engagement,
+    engagement: engagementSlug,
     owner,
     disposition,
     rejected,
-    filtered: engagement !== null || owner !== null || disposition !== null,
+    filtered: engagementSlug !== null || owner !== null || disposition !== null,
   };
 }
 
 export function parseNextQuery(params: SearchParams): NextQuery {
   const rejected: RejectedFilter[] = [];
-  const engagement = text(params, PARAM.engagement, rejected);
+  const engagementSlug = engagement(params, rejected);
   return {
-    engagement,
+    engagement: engagementSlug,
     limit: limit(params, rejected),
     rejected,
     // A limit is a page size, not a filter: it changes how much of the answer is
     // shown, not which rows qualify. Calling it a filter would make the screen
     // say "these results are filtered" about an unfiltered answer.
-    filtered: engagement !== null,
+    filtered: engagementSlug !== null,
   };
 }
 
 export function parseCommittedQuery(params: SearchParams): CommittedQuery {
   const rejected: RejectedFilter[] = [];
-  const engagement = text(params, PARAM.engagement, rejected);
+  const engagementSlug = engagement(params, rejected);
   const state = oneOf(params, PARAM.state, MILESTONE_STATES, rejected);
   const environment = text(params, PARAM.environment, rejected);
   return {
-    engagement,
+    engagement: engagementSlug,
     state,
     environment,
     rejected,
-    filtered: engagement !== null || state !== null || environment !== null,
+    filtered: engagementSlug !== null || state !== null || environment !== null,
   };
 }
 
 export function parseUntestedQuery(params: SearchParams): UntestedQuery {
   const rejected: RejectedFilter[] = [];
-  const engagement = text(params, PARAM.engagement, rejected);
-  return { engagement, rejected, filtered: engagement !== null };
+  const engagementSlug = engagement(params, rejected);
+  return { engagement: engagementSlug, rejected, filtered: engagementSlug !== null };
 }
 
 export function parseBottleneckQuery(params: SearchParams): BottleneckQuery {
   const rejected: RejectedFilter[] = [];
-  const engagement = text(params, PARAM.engagement, rejected);
+  const engagementSlug = engagement(params, rejected);
   return {
-    engagement,
+    engagement: engagementSlug,
     limit: limit(params, rejected),
     rejected,
-    filtered: engagement !== null,
+    filtered: engagementSlug !== null,
   };
 }
 
 export function parseBrokenQuery(params: SearchParams): BrokenQuery {
   const rejected: RejectedFilter[] = [];
-  const engagement = text(params, PARAM.engagement, rejected);
+  const engagementSlug = engagement(params, rejected);
   const severity = oneOf(params, PARAM.severity, SEVERITIES, rejected);
   return {
-    engagement,
+    engagement: engagementSlug,
     severity,
     rejected,
-    filtered: engagement !== null || severity !== null,
+    filtered: engagementSlug !== null || severity !== null,
   };
 }
