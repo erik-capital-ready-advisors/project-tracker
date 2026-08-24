@@ -381,10 +381,39 @@ results that look pedantic. Anything it cannot classify becomes `unparsed` rathe
 and it says so on every screen. Where two artifacts disagree, it records both rather than
 picking a winner. A blank in this product means nobody looked. It never means zero.
 
-**UNVERIFIED: nobody ran an ingest while writing this guide.** Posting a run would have written
-real rows into your ledger, so nobody did it. That ingest has succeeded before is visible in the
-data, which holds one recorded fleet run and 20 work items derived from it. Whether it succeeds
-today was not tested.
+### Your part: asking for it
+
+You do not run this, and there is nothing to press. **Ask Claude to ingest a run**, naming the run
+id - "ingest run `9b85cd`" is enough. Claude holds the token and posts the artifacts; you do not
+handle either.
+
+What you should see afterwards, and what to check:
+
+- **The run appears on Fleet runs.** If it does not, nothing landed, whatever anyone said.
+- **The counts move on Work items, Questions and Broken.** A run that adds nothing to any of them
+  either was already in, or did not go in.
+- **The unparsed count is the number to read.** It is not a failure. It is the ledger telling you
+  how much of that run it could not classify, and a run with a few unparsed rows and an honest
+  count is worth more than a tidy one that guessed.
+
+Posting the same run twice is safe. The ledger keys on the run id and will not duplicate it.
+
+**Verified 2026-08-24.** Six runs were posted in one sitting - `eb2490`, `9a320b`, `29b583`,
+`d4000f`, `9d4658`, `9b85cd` - against the live ledger. Before: 1 run, 23 work items, 79
+requirements, 0 blockers. After: **7 runs, 61 work items, 104 requirements, 56 blockers, 52
+defects, 213 questions.** Fourteen work items came in `unparsed` and are counted as such on every
+screen rather than hidden.
+
+Two things that happened on the way are worth knowing, because they are the product behaving
+correctly rather than misbehaving:
+
+- **A first attempt was refused outright** for using field names the endpoint does not accept. It
+  named every field it does accept and wrote nothing. An endpoint that silently ignored the unknown
+  fields would have reported success and stored an incomplete run.
+- **One milestone came back `unparsed`** because its status cell reads `**Done** — run b0952e`
+  rather than `Done`. The ledger will not guess that the trailing text is decoration. That is the
+  rule working, and it is why the tracker on your Registry screen may show fewer classified
+  milestones than you expect.
 
 ## Work items — the full list of work, every project
 
