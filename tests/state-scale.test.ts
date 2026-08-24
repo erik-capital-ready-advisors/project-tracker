@@ -183,3 +183,83 @@ describe("semantic state scale", () => {
     expect(failures).toEqual([]);
   });
 });
+
+/**
+ * B54 - an opacity modifier on `text-muted-foreground` fails AA at chip size.
+ *
+ * ## Why this test exists
+ *
+ * Run `d4000f` propagated `text-muted-foreground/70` into two components it
+ * created. At `text-xs` that measures 3.56:1 against `--background` in light and
+ * 4.23:1 in dark; AA for normal text is 4.5:1. QA reported the light figure only,
+ * so the dark failure would have survived a fix keyed to the reported number -
+ * which is why this asserts the computed ratio rather than the class spelling.
+ *
+ * Dropping the modifier takes the same token to 7.41:1 and 7.76:1.
+ *
+ * ## Why the file list is not every file
+ *
+ * The `/70` modifier is pre-existing in 24 files across the product, and QA
+ * measured 96 offending nodes on `/questions` alone. That debt is real and is
+ * NOT this test's business - widening the list to the whole tree would fail the
+ * suite for work nobody authorised. The list below is exactly the surfaces run
+ * `d4000f` created or touched, which is the scope B54 was raised for.
+ *
+ * Add a file here when a run cleans it. When the list reaches every file that
+ * renders muted text, replace it with a glob and delete this paragraph.
+ */
+const AA_GUARDED_FILES = [
+  "src/components/planned-chip.tsx",
+  "src/app/work-items/_components/chips.tsx",
+];
+
+/** `bg` shows through `fg` at `alpha`, which is what an opacity modifier does. */
+function blend(fg: string, bg: string, alpha: number): string {
+  const [fr, fg_, fb] = channels(fg);
+  const [br, bg_, bb] = channels(bg);
+  const mix = (f: number, b: number) => Math.round(f * alpha + b * (1 - alpha));
+  return `#${[mix(fr, br), mix(fg_, bg_), mix(fb, bb)]
+    .map((v) => v.toString(16).padStart(2, "0"))
+    .join("")}`;
+}
+
+function themeColour(mode: "light" | "dark", name: string): string {
+  const match = block(mode).match(new RegExp(`--${name}:\\s*(#[0-9a-fA-F]{6})`));
+  if (!match) throw new Error(`--${name} not found in the ${mode} block`);
+  return match[1];
+}
+
+describe("B54 muted text clears AA on the surfaces this run built", () => {
+  it("has no opacity-modified muted-foreground that fails 4.5:1 in either theme", () => {
+    const failures: string[] = [];
+
+    for (const file of AA_GUARDED_FILES) {
+      const source = readFileSync(file, "utf8");
+      for (const match of source.matchAll(/text-muted-foreground\/(\d{1,3})\b/g)) {
+        const alpha = Number(match[1]) / 100;
+        for (const mode of ["light", "dark"] as const) {
+          const bg = themeColour(mode, "background");
+          const ratio = contrast(blend(themeColour(mode, "muted-foreground"), bg, alpha), bg);
+          if (ratio < MIN_CONTRAST) {
+            failures.push(
+              `${file} ${mode} text-muted-foreground/${match[1]} is ${ratio.toFixed(2)}:1, ` +
+                `want ${MIN_CONTRAST}`,
+            );
+          }
+        }
+      }
+    }
+
+    expect(failures).toEqual([]);
+  });
+
+  it("can fail - the modifier this run shipped is caught by the same computation", () => {
+    // A control. Without it, the test above passes just as well against a file
+    // list that no longer exists or a regex that matches nothing, which is the
+    // failure this repo has already shipped twice.
+    const bg = themeColour("light", "background");
+    const ratio = contrast(blend(themeColour("light", "muted-foreground"), bg, 0.7), bg);
+    expect(ratio).toBeLessThan(MIN_CONTRAST);
+    expect(ratio).toBeCloseTo(3.56, 1);
+  });
+});

@@ -58,7 +58,7 @@ const STATUS_CLASS: Record<StoredWorkStatus, string> = {
   done: "border-foreground/40 text-foreground bg-foreground/10 font-medium",
   superseded:
     "border-border text-muted-foreground bg-transparent border-dashed line-through",
-  not_dispatched: "border-border/60 text-muted-foreground/80 border-dashed",
+  not_dispatched: "border-border/60 text-muted-foreground border-dashed",
   // Both of these are states the semantic scale names, so they are rendered by
   // the component that owns the scale and never reach this map.
   blocked: "",
@@ -125,7 +125,7 @@ export function EvidenceScopeChip({
         data-verify-unit="evidence-scope"
         data-verify-scope="not-recorded"
         title="No evidence scope was recorded. That is a gap in the record, and it is not the same as a recorded `not verified`."
-        className="ident text-muted-foreground/70 inline-flex shrink-0 items-center rounded-md border border-dotted px-1.5 py-0.5 text-xs leading-none whitespace-nowrap"
+        className="ident text-muted-foreground inline-flex shrink-0 items-center rounded-md border border-dotted px-1.5 py-0.5 text-xs leading-none whitespace-nowrap"
       >
         {EVIDENCE_NOT_RECORDED}
       </span>
@@ -161,7 +161,7 @@ export function DispositionChip({
       <span
         data-verify-unit="disposition"
         data-verify-disposition="not-recorded"
-        className="text-muted-foreground/60 ident text-xs"
+        className="text-muted-foreground ident text-xs"
         title="No disposition was recorded."
       >
         &mdash;
@@ -219,7 +219,7 @@ export function ExecutorChip({
     >
       {EXECUTOR_KIND_LABELS[kind]}
       {executor === null || kind === "erik" || kind === "erik_gate" ? null : (
-        <span className="text-muted-foreground/70">{executor}</span>
+        <span className="text-muted-foreground">{executor}</span>
       )}
     </span>
   );
@@ -280,7 +280,7 @@ export function ExecutionModeChip({
         data-verify-unit="execution-mode"
         data-verify-mode="none"
         title="No execution mode is recorded. This row is planned work (FR-87) that no run has claimed, which is not the same as fleet work."
-        className="ident text-muted-foreground/70 inline-flex shrink-0 items-center rounded-md border border-dotted px-1.5 py-0.5 text-xs leading-none whitespace-nowrap"
+        className="ident text-muted-foreground inline-flex shrink-0 items-center rounded-md border border-dotted px-1.5 py-0.5 text-xs leading-none whitespace-nowrap"
       >
         {EXECUTION_MODE_NONE}
       </span>

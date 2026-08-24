@@ -274,3 +274,10 @@ Behavioral rules earned on this project. Append one line per lesson, in the mome
   count the rows — settles whether it is real in twenty minutes. A menu of options is not a
   substitute for a red test, and asking Erik to adjudicate a claim you own the means to verify
   makes him the bottleneck this product exists to remove.
+- Read `run-audit.sh`'s `ok` lines, not only its `FAIL` lines. On run `d4000f` the WRITEBACK-MISSING
+  check printed `ok ... no spec/prod.md at <repo> (spec dir: `spec — writeback correctly skipped`
+  while `spec/prod.md` existed at 259 KB and had just been written back in commit `6f91fa2`. The
+  path lookup broke (note the unterminated backtick), and the check treats "no prod.md found" as
+  "writeback correctly skipped" — so it emits `ok` whether the writeback happened or not, and is
+  structurally incapable of catching the thing it is named for. Confirm a writeback with
+  `git log -1 -- spec/prod.md` plus a `grep -c <run-id> spec/prod.md`, never with the audit's verdict.

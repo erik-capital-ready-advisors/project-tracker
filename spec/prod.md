@@ -27,7 +27,29 @@ This file is the **build log**. It tracks the live state of development: what's 
 
 ## Next session pointer
 
-> ### Read this first — resume note for 2026-08-25 (run `d4000f` COMPLETE)
+> ### Read this first — resume note for 2026-08-25 (run `d4000f` COMPLETE, four rulings applied)
+>
+> **Erik ruled on all four open items after the run, 2026-08-24, and three of them changed the
+> tree.** In order: **B53 seeded** — one planned row written through `/work-items/new` with the
+> operator session, so **FR-91's `planned` marker and age chip have rendered for the first time**.
+> **B54 fixed** — the contrast regression is gone and is now a test. **u3's inherited default
+> RATIFIED** — the six answer screens keep both engagement controls, question closed, no code.
+> **Branch pushed and PR opened, NOT merged** (Erik's explicit choice over merge-and-deploy).
+>
+> **The seeded row corroborated D-1's fix against real data, which no test could do.** Its
+> `execution_mode` is `null` in the database and the screen renders **"no mode yet"**, not
+> `"fleet"`. That is the wrong-`done` this milestone existed to prevent, observed as correct on a
+> real row rather than argued from the diff.
+>
+> **FR-91 is still only partly observed, and the honest state is written down:** `planned` and the
+> `0d` age chip render; **`planned stale` and `age?` have never rendered** and cannot be produced
+> today — one needs 30 days untouched, the other a null timestamp. Do not record FR-91 as fully
+> observed on the strength of the seed.
+>
+> **The seeded row is disposable and labelled.** `work_item` id `a7e77707-c158-40fa-bca6-bfcf4e57d0fd`,
+> unit `b53-seed`, engagement `delivery-ledger`, description "B53 seed - verify FR-91 planned and
+> stale markers render. Safe to archive." Archive it whenever you like; FR-91 goes unobserved again
+> when you do.
 >
 > **Fleet run `d4000f` finished. Nothing is in flight and there is nothing to resume.** The
 > branch `agent-build/2026-08-24-d4000f` (tip `e17f960`) is **not pushed and not deployed**.
@@ -675,6 +697,64 @@ Erik's scope for this pass was explicit: **provision and wire the three services
 
 ## Decisions log
 
+### 2026-08-24 — Erik's four rulings after run `d4000f`, and what each cost
+
+Asked as four questions once the run was complete, rather than mid-flight. Three changed the tree.
+
+**B53 — Erik authorised the seed rather than doing it himself.** FR-91's on-screen clause had never
+rendered because no `work_item` held `pending`. One row was written **through the product's own
+`/work-items/new` form** using the saved `aal2` operator session — not by SQL — so the FR-88 hand
+entry path was exercised at the same time. Row `a7e77707-c158-40fa-bca6-bfcf4e57d0fd`, unit
+`b53-seed`, engagement `delivery-ledger`, clearly labelled disposable in its description.
+
+Verified by observation with a control, not by assuming the submit worked: the form's URL does not
+change on success, so "did it land" was answered from the database (`select ... where unit =
+'b53-seed'` returns **exactly one row**) and from the screens. `/next` shows the row and
+`[data-verify-planned="true"]` renders. **`/work-items?status=pending` showed two planned nodes for
+one row — that is responsive duplicate rendering, confirmed against the single database row, not a
+double insert.** Checking that mattered: a double-submit on a live ledger would have been a real
+defect and it looked exactly like one.
+
+**D-1's fix is corroborated on real data as a side effect, and this is the valuable part.** The
+seeded row's `execution_mode` is **`null`** in the database and the screen renders **"no mode yet"**
+rather than `"fleet"`. D-1 was invisible to `tsc` and to all 1817 tests; the only way to see it
+behave correctly was a real null-mode row, and there was none until now.
+
+**FR-91 remains PARTIALLY observed and is recorded that way.** `planned` and the `0d` age chip
+render. **`planned stale` needs 30 days untouched and `age?` needs a null timestamp; neither can be
+produced today and both stay unobserved.** M2.9 is Complete on the strength of the clause that
+rendered, with the two unrendered variants named rather than folded in.
+
+**B54 — fixed before the push, and the fix found two instances QA did not report.** QA raised
+`text-muted-foreground/70` at 3.55:1 in two new components. Dropping the modifier was the fix, but
+the guard test was written to assert **the computed contrast ratio** rather than to ban the class
+spelling — and it immediately failed on `text-muted-foreground/80` (4.44:1) and
+`text-muted-foreground/60` (2.85:1 light, 3.38:1 dark) in the same new file. Both were fixed.
+**Asserting the property rather than the symptom is what found them**, and QA's reported figure
+would have led to a fix that left both in place.
+
+Also measured and worth recording: the `/70` modifier fails in **dark mode too** (4.23:1), which QA
+did not report. A fix keyed to the reported light-mode number alone would have shipped a dark-mode
+AA failure.
+
+`tests/state-scale.test.ts` gained the guard plus **a negative control** asserting the same
+computation returns 3.56:1 for the modifier this run shipped — so the test cannot pass by matching
+nothing, which is a failure this repo has shipped twice before. **Scope is deliberately the two
+files this run created**, not the 24 files carrying the same pre-existing debt; widening it would
+fail the suite for work nobody authorised. The file list carries the condition that removes the
+limit.
+
+**u3's engagement controls — RATIFIED as inherited.** The six answer screens keep both the free-text
+input and the picker. No code change. u1 chose it at medium confidence, u3 implemented it as
+inherited and re-queued rather than deciding; ratifying closes the question so a future unit stops
+re-raising it.
+
+**B56 — push and open a PR, do not merge.** Erik chose this over merge-and-deploy. The live database
+has been ahead of every deployed artifact since i1 applied `20260824110601`; the PR closes the
+distance without shipping to production on the same day the code was written. **Production still
+serves `e3de4be`.**
+
+
 ### 2026-08-24 — run `d4000f` Phase 2: the fleet was right about the code and wrong twice about itself
 
 **D-1 fixed, and corroborated by someone who did not read the fix's report.** `u4` changed
@@ -1057,6 +1137,7 @@ sentence and re-ran the gate to a PASS. Affects: run `29b583` fleet learning L5.
 
 | Date | Session | What happened |
 |---|---|---|
+| 2026-08-24 | **Erik's four rulings applied; B53 seeded, B54 fixed, branch pushed** | B53: one planned row seeded through `/work-items/new` with the operator session — **FR-91's `planned` marker rendered for the first time**, and its `null` `execution_mode` corroborated **D-1's fix on real data** (screen reads "no mode yet", not "fleet"). Exactly one row confirmed in the database; the two planned nodes on `?status=pending` are responsive duplicate rendering, checked rather than assumed. **`planned stale` and `age?` still unobserved.** B54: fixed, and the ratio-asserting guard test found **two more failing modifiers QA never reported** (`/80` 4.44:1, `/60` 2.85:1) plus a dark-mode failure in the reported one; `tests/state-scale.test.ts` gained the guard and a negative control. u3's inherited default **ratified**, no code. Measured after: typecheck 0, lint 0, **test 1817 passed / 6 skipped**. Branch **pushed and PR opened, NOT merged**; production still serves `e3de4be` |
 | 2026-08-17 | Intake | Read the reference corpus — both manifests, the checkpoint, `prod.md`, the four gate scripts, the questions files. Drafted `spec-v1.md`: 62 FRs, 18 entities, 11 Phase 1 milestones, 7 open questions. `security-gate.sh` PASS. No code written |
 | 2026-08-18 | Audit + CR-001 draft | Audited spec, repo CLAUDE.md and `plan.md` against Erik's studio checklist. Gaps found: no defect entity, regressions derivable but never derived, built/shipped collapsed, no provisioning identifiers on `engagement`. Drafted CR-001 (FR-63–FR-78, 3 new entities, §7a rows, Q8) — **pending approval, timed before M1.1 so the schema is built once**. Phase-2 gaps (CR ingest, notifications, cost, recurring obligations) routed to §4.3 in the CR, not spec'd. No code written |
 | 2026-08-24 | **Fleet run `d4000f` — M2.9 Phase 1 merged and checkpointed; the run's best output is three corrections** | 4 of 20 dispatches. `agent-build/2026-08-24-d4000f` @ `7be6949`, cut from `3927de4` after verifying `627521d` (the §3.1/§3.3 approvals) is an ancestor and is **not** on `master`. 3 units merged + 1 research pass, **all four cleared `report-gate.sh`**. Measured on the merged tree: typecheck 0, lint 0, test **1638 passed / 6 skipped** (1550 + 44 + 44), `gate:m27` 5/5, **`gate:m27:e2e` 10/10**, build 0, `manual-gate.sh` PASS 30/30, routes **30 unchanged**. **D-1 found:** nullable `execution_mode` is invisible to `tsc` (hand-written row types), so `fromExecutionMode(null)` → `"fleet"` and a planned row would read as fleet work — the exact FR-91 misread, inert until the first planned row. **CR-005 §3.3's cost claim refuted:** 9 of 11 screens read `searchParams`, not 11, in 3 shapes, with `/runs` and `/registry` reading none. **`project-lead`'s own resolved spec corrected by `i1`** (the upsert index has not been partial since `20260819170622`). §7c agent token **DEGRADED — negative controls only**; operator `aal2` **alive**, so B41 is stale. Migration `20260824110601` applied. 14 questions queued, none blocking. **Phase 2 NOT dispatched — 8 units pending**, resume `/build-from-spec continue d4000f` |
