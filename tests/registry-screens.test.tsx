@@ -64,6 +64,10 @@ function milestone(overrides: Partial<MilestoneRecord> = {}): MilestoneRecord {
     engagementId: "eng-1",
     name: "Phase 1",
     amount: 12000,
+    // B62. A priced milestone is not an unreadable one. The two null cases -
+    // never stored, and stored-but-undecryptable - are opposite facts and this
+    // fixture could not express the difference before.
+    amountUnreadable: false,
     currency: "USD",
     dueDate: "2026-09-01",
     submittedAt: null,
@@ -79,7 +83,7 @@ describe("MilestoneTable — the two numbers that must not lie", () => {
   it("FR-10 renders an amount that did not decrypt as unreadable, never as zero", () => {
     render(
       <MilestoneTable
-        milestones={[milestone({ amount: null })]}
+        milestones={[milestone({ amount: null, amountUnreadable: true })]}
         engagementId="eng-1"
         slug="acme-rebuild"
       />,
@@ -91,11 +95,31 @@ describe("MilestoneTable — the two numbers that must not lie", () => {
     expect(row.textContent).not.toContain("$0");
   });
 
+  it("B62 renders an amount that was never recorded as `not recorded`, not `unreadable`", () => {
+    // The opposite fact from the test above, and it used to render the same
+    // sentence. `unreadable` points a reader at the Vault key; this milestone
+    // simply has no figure yet. Observed on the live ledger 2026-08-24:
+    // /registry said "unreadable" while /milestones/[id] said "not recorded"
+    // about the same row.
+    render(
+      <MilestoneTable
+        milestones={[milestone({ amount: null, amountUnreadable: false })]}
+        engagementId="eng-1"
+        slug="acme-rebuild"
+      />,
+    );
+
+    const row = byUnit("milestone-row");
+    expect(row.textContent).toContain("not recorded");
+    expect(row.textContent).not.toContain("unreadable");
+    expect(row.textContent).not.toContain("$0");
+  });
+
   it("counts unreadable amounts on the table rather than hiding them in rows", () => {
     render(
       <MilestoneTable
         milestones={[
-          milestone({ id: "a", amount: null }),
+          milestone({ id: "a", amount: null, amountUnreadable: true }),
           milestone({ id: "b", amount: 500 }),
         ]}
         engagementId="eng-1"

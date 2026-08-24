@@ -484,6 +484,8 @@ function milestone(overrides: Partial<MilestoneRecord> = {}): MilestoneRecord {
     engagementId: ENGAGEMENT_ID,
     name: "Example phase",
     amount: 1,
+    // B62. A priced milestone is not an unreadable one.
+    amountUnreadable: false,
     currency: "USD",
     dueDate: null,
     submittedAt: null,

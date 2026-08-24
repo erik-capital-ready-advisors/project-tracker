@@ -54,6 +54,13 @@ export interface MilestoneRecord {
   engagementId: string;
   name: string;
   amount: number | null;
+  /**
+   * B62. True only when a ciphertext exists and would not decrypt. A milestone
+   * nobody priced has a null `amount` and this `false`, and the two must not
+   * render as the same sentence - one is a gap in the record, the other is a
+   * fault that points at the Vault key.
+   */
+  amountUnreadable: boolean;
   currency: string;
   dueDate: string | null;
   submittedAt: string | null;
