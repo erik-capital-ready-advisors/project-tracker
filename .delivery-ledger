@@ -1,0 +1,11 @@
+# B61. Per-project session attribution, read by scripts/claude-session-capture.sh.
+#
+# The SessionEnd hook is installed globally, so this file is how a repository
+# states which engagement and which stack its sessions belong to. Without it a
+# session lands in the unassigned queue with a NULL stack, and FR-31's
+# stack-hours rollup - the coverage register's input - never fills.
+#
+# PARSED, never sourced. Only `engagement` and `stack` are read; nothing here can
+# change where the post goes or which credential it carries.
+engagement=delivery-ledger
+stack=nextjs-supabase
