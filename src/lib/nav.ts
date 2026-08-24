@@ -145,17 +145,24 @@ export const OPERATOR_ROUTES: readonly NavItem[] = [
     // CR-007 §3 / M2.2. The register of every stack the ledger has observed,
     // the hours on each, and whether a fleet agent covers it.
     //
-    // Appended at the END, index `[7]`, for the reason the two comments above
-    // spell out: SIX pages still read this array by POSITIONAL INDEX
-    // (`OPERATOR_ROUTES[0]` through `[5]`), and inserting anywhere earlier
-    // renders a screen under another screen's title -- a wrong answer that does
-    // not crash. `tests/nav-routes.test.ts` pins `[0]`-`[4]` and is a tripwire
-    // this unit did not edit; it gained an assertion for this entry, it did not
-    // lose one.
+    // Appended at the END, index `[7]`.
     //
-    // Like `/runs`, this page adds no positional index: `stacks/page.tsx` reads
-    // its own entry with `.find((item) => item.href === "/stacks")`, which is
-    // B44's prescribed fix applied to the one call site this unit owns.
+    // CORRECTION, run 9b85cd, measured rather than inherited. The two comments
+    // above claim SIX pages read this array by POSITIONAL INDEX. That is FALSE
+    // as of this commit and was already false at this run's merge base: all
+    // eight app pages read their own entry with `.find((item) => item.href ===
+    // ...)`. The only positional readers left in the repo are two TEST files --
+    // `tests/nav-routes.test.ts` pins `[0]`-`[4]` and `tests/runs-list.test.tsx`
+    // pins `[5]` -- and both are deliberate tripwires against silent reordering.
+    //
+    // The claim survived because every `OPERATOR_ROUTES[n]` occurrence in `src/`
+    // is INSIDE A COMMENT, so a grep for the indexing form matches prose that
+    // describes the hazard rather than code that has it. That is this repo's own
+    // standing lesson: confirm at the return site, never on a bare identifier.
+    //
+    // Appending is still correct -- it is order-independent and it keeps the two
+    // test tripwires green -- but it is correct for a weaker reason than the one
+    // stated above, and B44 should not be held open on this sentence.
     //
     // Q26 RULED: the label is "Stacks" and the word `coverage` is not reused
     // anywhere on this surface. `src/lib/ingest/coverage.ts` already means

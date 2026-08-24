@@ -12,12 +12,16 @@ import { TriggerRule } from "./_components/trigger-rule";
 /**
  * This screen reads its own nav entry by **href**, not by position (B44).
  *
- * Six pages in this product still index `OPERATOR_ROUTES` positionally, `[0]`
- * through `[5]`, which is why B44 is open and why this unit's entry had to be
- * appended at the end. B44's prescribed fix is a lookup by href, and this is
- * that fix applied to the one call site this unit owns — it adds no eighth
- * positional index and it refactors none of the six, which are five files no
- * unit in this run owns.
+ * CORRECTION, run 9b85cd. This file shipped claiming six pages still index
+ * `OPERATOR_ROUTES` positionally `[0]`-`[5]`. That was measured false: all eight
+ * app pages already read by href, and the only positional readers in the repo
+ * are two test files (`tests/nav-routes.test.ts`, `tests/runs-list.test.tsx`),
+ * which pin order on purpose. The claim came from stale comments, not from a
+ * search — every `OPERATOR_ROUTES[n]` in `src/` sits inside a comment, so
+ * grepping the indexing form finds prose about the hazard, not the hazard.
+ *
+ * Reading by href is still right, and this is B44's prescribed fix at the one
+ * call site this unit owns. B44 should not be held open on the false sentence.
  *
  * The `!` is load-bearing. If the `/stacks` entry is deleted or its href
  * changed, this module throws at import and every test that mounts this page
