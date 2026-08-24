@@ -141,6 +141,31 @@ export const OPERATOR_ROUTES: readonly NavItem[] = [
     question: "Every fleet run ingested, and what each one claimed about itself.",
     requirements: ["FR-92", "FR-94", "FR-95"],
   },
+  {
+    // CR-007 §3 / M2.2. The register of every stack the ledger has observed,
+    // the hours on each, and whether a fleet agent covers it.
+    //
+    // Appended at the END, index `[7]`, for the reason the two comments above
+    // spell out: SIX pages still read this array by POSITIONAL INDEX
+    // (`OPERATOR_ROUTES[0]` through `[5]`), and inserting anywhere earlier
+    // renders a screen under another screen's title -- a wrong answer that does
+    // not crash. `tests/nav-routes.test.ts` pins `[0]`-`[4]` and is a tripwire
+    // this unit did not edit; it gained an assertion for this entry, it did not
+    // lose one.
+    //
+    // Like `/runs`, this page adds no positional index: `stacks/page.tsx` reads
+    // its own entry with `.find((item) => item.href === "/stacks")`, which is
+    // B44's prescribed fix applied to the one call site this unit owns.
+    //
+    // Q26 RULED: the label is "Stacks" and the word `coverage` is not reused
+    // anywhere on this surface. `src/lib/ingest/coverage.ts` already means
+    // requirement and test coverage (FR-45 to FR-51).
+    href: "/stacks",
+    label: "Stacks",
+    question:
+      "Every technology the ledger has seen, the hours on it, and whether a fleet agent covers it.",
+    requirements: ["FR-104", "FR-105", "FR-106", "FR-107", "FR-108", "FR-109"],
+  },
 ] as const;
 
 export const ALL_ROUTES: readonly NavItem[] = [
