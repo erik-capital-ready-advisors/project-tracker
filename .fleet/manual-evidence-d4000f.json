@@ -1,193 +1,197 @@
 {
- "run_id": "d4000f",
- "work_unit_id": "doc1",
- "branch": "agent-build/2026-08-24-d4000f",
- "instance": "http://localhost:3000, the dev server Erik had already running against the real Supabase project, driven with the saved aal2 operator session at .playwright-auth/operator.json passed as M27_STORAGE_STATE. Every one of the 32 routes below was re-opened on branch agent-build/2026-08-24-9b85cd on 2026-08-24 by run 9b85cd unit doc1; nothing was carried forward from run d4000f without being looked at again (B57). Navigation and reading only. No control on the destructive deny-list (Archive, Delete, Destroy, Purge, Revoke, Rotate, Resolve, Remove, Sign out) was pressed, no form was submitted, and no ledger record was created, modified or deleted - this instance holds Erik's real records and there is no fixture instance. Trigger elements were matched by data-verify-unit and aria-label, never by button label, which is the rule run 29b583 earned by archiving the live delivery-ledger engagement with a label-matched click. Where an earlier run exercised an interaction this run did not repeat, the observation is attributed to that run rather than restated. Screenshots are .png under .fleet/manual-traces/, which .gitignore line 36 keeps out of the repository - rendered page text on these screens is 7a `sensitive` client prose and does not belong in git. Page text dumps were written to the session scratchpad and never into the repository.",
- "non_screen_sections": [
-  "Before you start",
-  "Moving around",
-  "Filtering by engagement",
-  "How the fleet's work gets into the ledger",
-  "Planned work, and when it goes stale"
- ],
- "routes": [
-  {
-   "route": "/",
-   "covered_in_guide": "The home screen",
-   "observed": "Re-opened on branch agent-build/2026-08-24-9b85cd, 2026-08-24, run 9b85cd unit doc1. CHANGED: the directory now lists FOURTEEN destinations, not thirteen - `/stacks` is the addition, carrying its own question line 'Every technology the ledger has seen, the hours on it, and whether a fleet agent covers it.' Sidebar Records gained Stacks as its eighth entry. The unparsed badge reads `2 unparsed`, scope `none` - run d4000f recorded 0, and the guide's 'currently 0 unparsed' sentence was corrected. Screenshot .fleet/manual-traces/9b85cd_root.png."
-  },
-  {
-   "route": "/blocked",
-   "covered_in_guide": "Blocked",
-   "observed": "Re-opened on branch agent-build/2026-08-24-9b85cd, 2026-08-24, run 9b85cd unit doc1. Still 5 blocked work items, 1 open wait, 2 owners. CHANGED: the open wait now reads 4 days (3 at d4000f), the badge reads 2 unparsed with the panel splitting it `2 work items / 0 defects / 0 test results`. Also opened /blocked?engagement=delivery-ledger (9b85cd_filter_blocked_eng.png): picker reports the slug, badge relabels `2 unparsed (whole ledger)`, scope `whole-ledger` - the guide's badge example was corrected from 3 to 2. Signed out (9b85cd_anon_blocked.png) the notice and the dashed counts render as the guide describes. Screenshot .fleet/manual-traces/9b85cd_blocked.png."
-  },
-  {
-   "route": "/next",
-   "covered_in_guide": "Next",
-   "observed": "Re-opened on branch agent-build/2026-08-24-9b85cd, 2026-08-24, run 9b85cd unit doc1. CHANGED, and the guide's whole section was rewritten. It is NO LONGER EMPTY: one row, `b53-seed`, execution mode `no mode yet` with the `planned` marker and `0d` age chip beside it. The accounting line is now four counts, not three: `0 held by a dependency`, `0 held by a blocker or wait`, `20 not in a startable status`, `2 status could not be classified`. The guide said 'Nothing is startable' with 0/0/0 and that is now false. Also opened /next?engagement=no-such-engagement (9b85cd_filter_next_unknown.png): both FR-96c sentences render verbatim, zero rows, no fallback, picker shows `no-such-engagement - not in the active list`. Screenshot .fleet/manual-traces/9b85cd_next.png."
-  },
-  {
-   "route": "/committed",
-   "covered_in_guide": "Committed",
-   "observed": "Re-opened on branch agent-build/2026-08-24-9b85cd, 2026-08-24, run 9b85cd unit doc1. One milestone 'Phase 1 - ingest and the six answers', due 2026-08-22, state `open`, covered 0/3, shipped 0/3, not submitted, not paid, all four totals $0.00 - unchanged. NEW OBSERVATION: the amount column on this screen renders a DASH for the milestone the engagement screen calls `unreadable`. That is a third rendering of one value and the guide now names all three. Screenshot .fleet/manual-traces/9b85cd_committed.png."
-  },
-  {
-   "route": "/untested",
-   "covered_in_guide": "Untested",
-   "observed": "Re-opened on branch agent-build/2026-08-24-9b85cd, 2026-08-24, run 9b85cd unit doc1. Unchanged from d4000f: 79 requirements, 324 tests, 0 mapped, 0 covered, 0 unproven, 79 uncovered, 0 self-certified. Rows carry 'no work item claims to implement this' where nothing does (FR-63 today). Screenshot .fleet/manual-traces/9b85cd_untested.png."
-  },
-  {
-   "route": "/bottleneck",
-   "covered_in_guide": "Bottleneck",
-   "observed": "Re-opened on branch agent-build/2026-08-24-9b85cd, 2026-08-24, run 9b85cd unit doc1. CHANGED: still the 'Nothing is waiting on Erik.' empty state, but the count beneath now reads `2 Erik-owned items whose status could not be classified` where d4000f recorded 0. The guide quoted the 0 and was corrected. The two rows are the hand-mode captured sessions. Screenshot .fleet/manual-traces/9b85cd_bottleneck.png."
-  },
-  {
-   "route": "/broken",
-   "covered_in_guide": "Broken",
-   "observed": "Re-opened on branch agent-build/2026-08-24-9b85cd, 2026-08-24, run 9b85cd unit doc1. CHANGED, and this is the correction that mattered most. The screen reads `13 open . 0 regressed` for delivery-ledger, grouped `critical 1 open`, `major 5 open`, `minor 7 open`, plus an Unassigned group at 0. The guide claimed '10 still open ... and 3 already marked fixed. The only critical one is among the fixed, so nothing critical is currently open' - the screen says the opposite. Traced to source: broken.ts:177 keeps a defect in `open` unless `isUnresolved(status)` is false, and defects.ts:441 defines that as `status !== 'verified' && status !== 'wont_fix'`, so `fixed` still counts as open. Guide rewritten to state the rule. The unencrypted-defect-title notice still renders at the top. Screenshot .fleet/manual-traces/9b85cd_broken.png."
-  },
-  {
-   "route": "/work-items",
-   "covered_in_guide": "Work items",
-   "observed": "Re-opened on branch agent-build/2026-08-24-9b85cd, 2026-08-24, run 9b85cd unit doc1. CHANGED: `work-item-summary` now reports rows=23 (20 at d4000f), 2 unparsed on this page (0 at d4000f), and a third figure `0 only Erik can do` the guide never mentioned. Three modes now have rows: 20 fleet, 1 planned (`b53-seed`, data-verify-planned=\"true\"), and 2 `hand` rows with executor Erik, work type `hand-prompted-session` and status `unparsed`. Filter controls re-exercised: ?status=blocked returns 5 rows (the guide's '20 -> 5' became '23 -> 5'), ?status=unparsed returns exactly the 2 hand rows (9b85cd_filter_wi_unparsed.png) - a control showing the query is not blind. Screenshot .fleet/manual-traces/9b85cd_work-items.png."
-  },
-  {
-   "route": "/work-items/[id]",
-   "covered_in_guide": "Opening one work item",
-   "observed": "Re-opened on branch agent-build/2026-08-24-9b85cd, 2026-08-24, run 9b85cd unit doc1. Three opened this run rather than one. /work-items/132181d5-5c0f-4b07-8d8c-dbb2b9da418a (man1) renders Identity, Prose with the raw status text, Run and stack, References out and in, unchanged. /work-items/a7e77707-c158-40fa-bca6-bfcf4e57d0fd (`b53-seed`) is the planned row: Execution mode reads `no mode yet` with `planned` and `0d` - the FR-91 marker and age chip observed on a detail screen. /work-items/b54f7d2e-94ca-4b48-a36c-6a047397c7c2 is a hand row: mode `hand`, executor Erik, status `unparsed`, Raw status literally `unparsed`, and Stack `nextjs-supabase`, which is the link to the Stacks register. Screenshot .fleet/manual-traces/9b85cd_work-item-detail.png / 9b85cd_work-item-planned.png / 9b85cd_work-item-hand.png."
-  },
-  {
-   "route": "/work-items/unassigned",
-   "covered_in_guide": "Unassigned sessions",
-   "observed": "Re-opened on branch agent-build/2026-08-24-9b85cd, 2026-08-24, run 9b85cd unit doc1. Unchanged: tab count 0, 'Nothing is waiting to be attributed.' and the sentence explaining every recorded session has an engagement. No engagement picker on this path. Screenshot .fleet/manual-traces/9b85cd_work-items_unassigned.png."
-  },
-  {
-   "route": "/work-items/new",
-   "covered_in_guide": "Planning work by hand",
-   "observed": "Re-opened on branch agent-build/2026-08-24-9b85cd, 2026-08-24, run 9b85cd unit doc1. Re-opened and every field re-read; NOTHING WAS SUBMITTED this run. Title 'Plan work item', FR-87 . FR-88, the four controls and both hints render exactly as d4000f recorded, engagement select listing 2 active engagements. The guide's 'UNVERIFIED: submitting the form' block was REMOVED as false: prod.md lines 818-825 record that run d4000f submitted this form once through the product with the aal2 session and created row a7e77707-c158-40fa-bca6-bfcf4e57d0fd / `b53-seed`, confirmed against the database. The guide now attributes that submission to 2026-08-24 and says nothing has been submitted since. Screenshot .fleet/manual-traces/9b85cd_work-items_new.png."
-  },
-  {
-   "route": "/waits",
-   "covered_in_guide": "Waits",
-   "observed": "Re-opened on branch agent-build/2026-08-24-9b85cd, 2026-08-24, run 9b85cd unit doc1. 1 open, 0 overdue, 'Include resolved' toggle and 'Declare a wait' trigger present. CHANGED: the one wait now reads 4 days (3 at d4000f) and its method renders as `manual`; the guide gained both figures. The Declare a wait form was NOT opened this run - run 29b583 opened and read it without submitting, and the guide attributes it there. Resolve was not pressed; it is on the deny-list. Screenshot .fleet/manual-traces/9b85cd_waits.png."
-  },
-  {
-   "route": "/waits/[id]",
-   "covered_in_guide": "Opening one wait",
-   "observed": "Re-opened on branch agent-build/2026-08-24-9b85cd, 2026-08-24, run 9b85cd unit doc1. Re-opened /waits/ce152c78-a840-4210-aa87-35a19bd44c65. Engagement, owner Erik, owner type client, reason -, started 2026-08-20, expected -, method `manual`, probe target -, and the note that overdue is derived once on Waits. 'Work items this wait holds' renders a dash. Resolve NOT pressed. Screenshot .fleet/manual-traces/9b85cd_wait-detail.png."
-  },
-  {
-   "route": "/registry",
-   "covered_in_guide": "The registry",
-   "observed": "Re-opened on branch agent-build/2026-08-24-9b85cd, 2026-08-24, run 9b85cd unit doc1. Two engagements, delivery-ledger and Unassigned, both active; the standing hand-entry note renders. NEW and used in the guide: delivery-ledger's own Stacks column reads `not recorded` while /stacks lists `nextjs-supabase` for the same engagement - what you typed and what the ledger watched are different facts, and the guide now says so. Screenshot .fleet/manual-traces/9b85cd_registry.png."
-  },
-  {
-   "route": "/registry/[slug]",
-   "covered_in_guide": "One engagement",
-   "observed": "Re-opened on branch agent-build/2026-08-24-9b85cd, 2026-08-24, run 9b85cd unit doc1. Re-opened /registry/delivery-ledger. Milestone amount still `unreadable` with 'One milestone amount could not be read and contributes nothing to these totals - it is not zero.' Where the work lives all `not recorded`, Provisioning 0/5, the identifiers-never-secrets notice, and Archive / Delete permanently at the bottom. NO dialog was opened and NO button was pressed on this screen - run 29b583 archived this engagement by a label-matched click and had to restore it, which is why this run matched only by data-verify-unit and clicked nothing here. Screenshot .fleet/manual-traces/9b85cd_registry_slug.png."
-  },
-  {
-   "route": "/registry/new",
-   "covered_in_guide": "Registering an engagement",
-   "observed": "Re-opened on branch agent-build/2026-08-24-9b85cd, 2026-08-24, run 9b85cd unit doc1. Re-opened; the three-part form renders unchanged. NOT submitted in either direction this run. The refusals the guide describes were exercised by run 29b583 and are attributed there. Screenshot .fleet/manual-traces/9b85cd_registry_new.png."
-  },
-  {
-   "route": "/registry/[slug]/edit",
-   "covered_in_guide": "Editing an engagement",
-   "observed": "Re-opened on branch agent-build/2026-08-24-9b85cd, 2026-08-24, run 9b85cd unit doc1. Re-opened /registry/delivery-ledger/edit. Same three-part form, pre-filled, submit reads 'Save engagement'. Not saved. Screenshot .fleet/manual-traces/9b85cd_registry_edit.png."
-  },
-  {
-   "route": "/milestones/[id]",
-   "covered_in_guide": "One contract milestone",
-   "observed": "Re-opened on branch agent-build/2026-08-24-9b85cd, 2026-08-24, run 9b85cd unit doc1. Re-opened /milestones/e4a9008b-f665-4c41-bcb5-b96983a58cc1. Amount `not recorded`, currency USD, due 2026-08-22, acceptance FR-10/FR-11/FR-12, and the derived-once-on-Committed note. The disagreement is now THREE-WAY, not two: `unreadable` on the engagement, `not recorded` here, a dash on Committed. The guide was updated from two to three. Screenshot .fleet/manual-traces/9b85cd_milestone.png."
-  },
-  {
-   "route": "/requirements/[id]",
-   "covered_in_guide": "One requirement",
-   "observed": "Re-opened on branch agent-build/2026-08-24-9b85cd, 2026-08-24, run 9b85cd unit doc1. Re-opened /requirements/01f18ca0-5eb8-40d9-923a-f2edeeca5fdf (FR-59). Requirement text, `uncovered`, `not shipped`, then Implemented by (i1), Tested by with the no-detail-view explanation, Violated by, Shipped in, Contract acceptance with the names-only note. All as the guide describes. Screenshot .fleet/manual-traces/9b85cd_requirement.png."
-  },
-  {
-   "route": "/defects/[id]",
-   "covered_in_guide": "One defect",
-   "observed": "Re-opened on branch agent-build/2026-08-24-9b85cd, 2026-08-24, run 9b85cd unit doc1. Re-opened /defects/950a6899-634e-4876-a851-11a1c60181d1 (D-2, critical). Status renders `fixed` on the detail screen while /broken counts it under `critical 1 open` - both seen the same day, and the guide now explains why both are correct. Full multi-paragraph description renders; Won't-fix reason is a dash. Screenshot .fleet/manual-traces/9b85cd_defect.png."
-  },
-  {
-   "route": "/blockers/[id]",
-   "covered_in_guide": "One blocker",
-   "observed": "Re-opened on branch agent-build/2026-08-24-9b85cd, 2026-08-24, run 9b85cd unit doc1. Re-opened /blockers/0abb0117-3c22-44d1-8b18-c7ae55fc58ea (B14). Identity (engagement, owner erik, disposition `closed`), Prose, 'What this is holding' with Blocks reading a dash. Re-confirmed the guide's claim that there is no listing: every href scraped off all 18 signed-in screens this run, and not one points at a /blockers/ route. Screenshot .fleet/manual-traces/9b85cd_blocker.png."
-  },
-  {
-   "route": "/releases/[id]",
-   "covered_in_guide": "Releases",
-   "unobserved_reason": "Still nothing to open. The export screen reports the `release` table holding 0 rows on this branch, so no id renders this screen; requesting /releases/00000000-0000-0000-0000-000000000000 returned HTTP 404 and the product's Not found page (9b85cd_release_404.png), which shows the route is wired and nothing of the release view itself."
-  },
-  {
-   "route": "/questions",
-   "covered_in_guide": "Questions",
-   "observed": "Re-opened on branch agent-build/2026-08-24-9b85cd, 2026-08-24, run 9b85cd unit doc1. Unchanged: 96 open, 4 with unclassified confidence, 'Include answered' toggle, titles carrying run and unit. Confidence values seen on screen include `med`, `high` and `unparsed`. Screenshot .fleet/manual-traces/9b85cd_questions.png."
-  },
-  {
-   "route": "/questions/[id]",
-   "covered_in_guide": "Opening one question",
-   "observed": "Re-opened on branch agent-build/2026-08-24-9b85cd, 2026-08-24, run 9b85cd unit doc1. Re-opened /questions/01368650-5e87-4891-b76e-ba2c847bdbb8 (b0952e:qa1, confidence high, open). Question text, the BEST GUESS block with its 'what shipped if nobody answered' explanation, an empty answer, and the provenance block naming work item, run, unit, spec section, engagement and source key. Screenshot .fleet/manual-traces/9b85cd_question-detail.png."
-  },
-  {
-   "route": "/settings/tokens",
-   "covered_in_guide": "Agent tokens",
-   "observed": "Re-opened on branch agent-build/2026-08-24-9b85cd, 2026-08-24, run 9b85cd unit doc1. CHANGED: 5 tokens, not 4. The new one is labelled `session-hook`, carries `ingest:write` only, expires 2026-11-22, last used 2026-08-24 18:44 - it is the credential behind the two hand-mode rows, and the guide now names it. Three active, two revoked and still listed `kept for audit`. Rotate and Revoke were NOT pressed; both are on the deny-list. The 'Issue a token' form was not opened. No token value was displayed and none is recorded here or in the guide. Screenshot .fleet/manual-traces/9b85cd_settings_tokens.png."
-  },
-  {
-   "route": "/settings/export",
-   "covered_in_guide": "Getting your data out",
-   "observed": "Re-opened on branch agent-build/2026-08-24-9b85cd, 2026-08-24, run 9b85cd unit doc1. CHANGED: 1174 rows across 21 tables, where d4000f recorded 1138 and 29b583 recorded 1125. Per table now includes `stack` 1 and `work_session` 2 - the two tables the Stacks register is built from - plus work_item 23 and agent_token 5, which corroborate those two screens. The decrypted-file notice and both named omissions still render. Download export was NOT pressed this run. Screenshot .fleet/manual-traces/9b85cd_settings_export.png."
-  },
-  {
-   "route": "/sign-in",
-   "covered_in_guide": "Signing in",
-   "observed": "Re-opened on branch agent-build/2026-08-24-9b85cd, 2026-08-24, run 9b85cd unit doc1. Opened in a fresh browser context carrying NO storage state. HTTP 200, stays on /sign-in. Email and password fields, Sign in button, and the notice that there is no account creation and no self-service reset, recovery being done in the Supabase project. With the saved operator session it redirects to / instead (9b85cd_signin_redirect.png). Screenshot .fleet/manual-traces/9b85cd_anon_sign-in.png."
-  },
-  {
-   "route": "/sign-in/verify",
-   "covered_in_guide": "Signing in",
-   "unobserved_reason": "Still unreachable, and both ends were measured again this run rather than assumed: from a clean context with no session it redirects to /sign-in (9b85cd_anon_verify.png), and with the saved aal2 operator session it redirects to / (9b85cd_verify_redirect.png). Reaching it needs a fresh password sign-in; the operator password was not available and signing out would have destroyed the session this guide was written from."
-  },
-  {
-   "route": "/sign-in/enroll",
-   "covered_in_guide": "Signing in",
-   "unobserved_reason": "Still unreachable. The authenticator setup screen renders only for an operator with no second factor attached, and the one operator account has one enrolled. Both ends measured again: signed out it redirects to /sign-in (9b85cd_anon_enroll.png), signed in it redirects to / (9b85cd_enroll_redirect.png)."
-  },
-  {
-   "route": "/runs",
-   "covered_in_guide": "Fleet runs",
-   "observed": "Re-opened on branch agent-build/2026-08-24-9b85cd, 2026-08-24, run 9b85cd unit doc1. Unchanged from d4000f: '1 run', '1 reported no test counts', one row b0952e with verdict `unparsed` / 'one source, uncorroborated', dispatches and tests `not recorded`, and the under-table note explaining that the dispatch columns will always read that way. The shell engagement picker renders here, which is what d4000f corrected and this run re-confirmed. Screenshot .fleet/manual-traces/9b85cd_runs.png."
-  },
-  {
-   "route": "/runs/[run-id]",
-   "covered_in_guide": "Opening one fleet run",
-   "observed": "Re-opened on branch agent-build/2026-08-24-9b85cd, 2026-08-24, run 9b85cd unit doc1. Re-opened /runs/b0952e. Still '1 unparsed in this run' broken down as 0 work units / 0 gate outcomes / the run's own verdict, while the shell badge reads 2 - both on the same page load, and the guide's explanation of why both are right still holds with the badge at 2 rather than 0. Not-counted-here note for defects and test results renders verbatim. Six blocks present: Run, Gates (build_after_phase1 PASS), Work units (20, listed in full, i9p1 reading unassigned / NOT DISPATCHED), Questions queued, Defects, Requirements touched. The ambiguous-match screen was again NOT observed - one run exists - and the guide marks it UNVERIFIED in its own body. Screenshot .fleet/manual-traces/9b85cd_run-detail.png."
-  },
-  {
-   "route": "/stacks",
-   "covered_in_guide": "Stacks",
-   "observed": "Re-opened on branch agent-build/2026-08-24-9b85cd, 2026-08-24, run 9b85cd unit doc1. NEW ROUTE this run - the 32nd served page, and the FORWARD failure this unit was dispatched to clear. `register-state` = `observed`. Blindness panel first, above the table: 1 of 2 sessions name no stack, 50%, with nine figures (sessions 2 / no stack 1 / with stack 1 / no duration 0 / stack with no row 0 / stacks 1 / agent named 0 / earned 0 / actionable 0). The Mode-2 capture sentence renders inside that panel. Trigger rule: clause 1 evaluated (min-engagements=2, min-hours=8), clause 2 `data-verify-evaluated=\"false\"` carrying a `not-verified` badge and the verbatim reason that the schema holds no stack-to-blocker link, plus the sentence that `undetermined` is not a finding of 'did not earn'. One row: `nextjs-supabase`, outcome `undetermined`, '1 of 2 engagements . 0h of 8h', agent 'nobody has said', 0h, 1 session, 1 engagement, first and last seen 2026-08-24. No engagement picker in the shell, and /stacks?engagement=delivery-ledger renders identically with no picker (9b85cd_stacks_filter_attempt.png), which is what the ledger-wide note claims. Signed out (9b85cd_anon_stacks.png) it renders the frame with 'Sign in to read this screen.' The FR-109 dialog WAS opened, by `data-verify-unit=\"agent-covering-trigger\"` and never by label (aria-label 'Set the agent covering nextjs-supabase'), read in full, and closed with Escape: SAVE WAS NEVER PRESSED, and the row still reported data-verify-covered=\"false\" afterwards. Also confirmed the command palette lists Stacks under Records at /stacks (9b85cd_command-palette.png). Q26 checked against the rendered page and against the guide: the word `coverage` appears nowhere on the screen and nowhere in the guide's Stacks section. Screenshot .fleet/manual-traces/9b85cd_stacks.png / 9b85cd_stacks_set-agent-dialog.png."
-  }
- ],
- "amendments": [
-  "2026-08-24, run d4000f, unit doc1. This file supersedes manual-evidence-29b583.json, which stays on disk untouched as that run's artifact. manual-gate.sh reads sorted(glob(...))[-1] and `d4000f` sorts after `29b583`, so this is the file it resolves. M2.9 took the served route count 30 -> 31 by adding /work-items/new, which is the FORWARD failure this unit was dispatched to clear.",
-  "All 30 rows carried over from run 29b583 were re-opened on branch agent-build/2026-08-24-d4000f at df34f44 before being written here, rather than copied. Fifteen changed: /runs (its 'no engagement filter' sentence became false), / (twelve destinations -> thirteen), /settings/export (1125 rows -> 1138), /work-items (gained the shell picker and the 'Plan work item' tab), /work-items/[id] (picker confirmed absent under ?engagement=), and the ten other filterable paths /blocked /next /committed /untested /bottleneck /broken /waits /questions /registry (each gained the shell picker), with /next /broken /questions /work-items also carrying newly observed filter states.",
-  "FR-91's planned and STALE markers were NOT observed: the ledger holds no planned row. Every one of the 20 rows on /work-items reports data-verify-planned=\"false\", and /work-items?status=pending returns no rows while the unfiltered page returns 20 — a control confirming the query is not blind. Creating one would have written a real row into a real ledger, which the brief forbids. The guide marks the markers UNVERIFIED in the section that describes them.",
-  "FR-96's roster-unavailable notice was NOT observed either: producing it means making the engagement lookup fail. The guide marks it UNVERIFIED in the section that describes it.",
-  "Screenshots are .png only and are gitignored by .gitignore line 36. doc1 deliberately did not add .txt page transcripts to this directory, as run 29b583 did: those transcripts are committed, and a rendered page here carries decrypted §7a `sensitive` prose and client names. doc1's transcripts were written to its scratchpad instead. The 34 already-committed transcripts are a pre-existing exposure and are reported to Erik rather than extended.",
-  "2026-08-24, post-merge (PR #5, master a07f035): docs/user-guide.md corrected in five places against measured state - Broken's counts (13 defects, 10 open, the only critical one FIXED, where the guide had said 13 open with a live critical), Next no longer empty (1 pending row), planned markers now PARTLY observed (`planned` and the age chip seen; `planned stale` and `age?` still never rendered), sign-out CONFIRMED by Erik on 2026-08-24 and corroborated by the storage state going dead, and the Untested/0-mapped wording sharpened. Three route rows carry a staleness note: their guide text changed but they could not be re-observed, because the sign-out that verified one claim destroyed the credential needed to check the others. That trade is the honest cost and is recorded rather than hidden.",
-  "2026-08-24, run 9b85cd, unit doc1. This file keeps its `d4000f` name deliberately. manual-gate.sh selects sorted(glob('.fleet/manual-evidence-*.json'))[-1], the LEXICOGRAPHICALLY last file rather than the newest, and `9b85cd` sorts BELOW `d4000f` because '9' < 'd'. A new manual-evidence-9b85cd.json would have been silently ignored while the gate kept reading d4000f's 31 rows and failed FORWARD pointing at the wrong cause. Same pattern M2.8 used when its evidence kept the `29b583` name. M2.2 took the served route count 31 -> 32 by adding /stacks, which is the FORWARD failure this unit was dispatched to clear.",
-  "B57 is open: manual-gate.sh cannot tell a fresh observation from a copied one, so all 31 carried rows were re-opened against the running instance before being rewritten here. TWELVE of the 32 rows changed. Nine changed in the ledger's own figures: / (thirteen destinations -> fourteen), /next (empty -> one planned row, and a three-count accounting line -> four), /bottleneck (0 unclassified -> 2), /broken (the guide's '10 open, nothing critical open' contradicted the screen's '13 open, critical 1 open'), /work-items (20 rows -> 23, 0 unparsed -> 2, plus an 'only Erik can do' figure the guide never had), /waits (3 days -> 4), /settings/tokens (4 tokens -> 5), /settings/export (1138 rows -> 1174), and the top-bar badge on every signed-in screen (0 unparsed -> 2). Three changed because this run looked at something the last one had not: /committed (its amount column prints a dash, making the milestone-amount disagreement three-way rather than two-way), /work-items/[id] (the planned and hand-mode rows, neither of which existed to open before), and /work-items/new (the guide's 'nothing was submitted' claim was false - d4000f submitted the form once and created `b53-seed`).",
-  "Two claims in the guide were wrong rather than merely stale and both were corrected. First, Broken: the guide said '10 still open ... nothing critical is currently open' while the screen says '13 open' and 'critical 1 open'. Source settles it - broken.ts:177 keeps a defect in the open list unless isUnresolved(status) is false, and defects.ts:441 defines that as status not in {verified, wont_fix}, so a defect marked `fixed` is still open. The guide now states the rule and stops telling Erik nothing critical is open. Second, /work-items/new: the guide carried 'UNVERIFIED: submitting the form' while spec/prod.md lines 818-825 record d4000f submitting it through the product and creating a row confirmed against the database. Neither error would have been caught by re-reading the guide; both needed the screen.",
-  "Accepted defects from qa-report-9b85cd.md that a reader can see are named in the guide rather than left in the report: the two WCAG AA contrast failures on /stacks (the `undetermined` chip in light theme, `nobody has said` in both), and the `recorded no duration` figure whose denominator is the stacked sessions rather than all sessions. Both appear in the Stacks section and under what this does not do yet. The four QA issues with no user-visible surface (the OPERATOR_ROUTES comment, set-covering.ts's header, i1's blind grep, i1's missing audit_log table row) are not in the guide; they are repo defects, not operating limitations."
- ],
- "amended_by": {
-  "run_id": "9b85cd",
+  "run_id": "d4000f",
   "work_unit_id": "doc1",
-  "branch": "agent-build/2026-08-24-9b85cd",
-  "date": "2026-08-24"
- }
+  "branch": "agent-build/2026-08-24-d4000f",
+  "instance": "http://localhost:3000, the dev server Erik had already running against the real Supabase project, driven with the saved aal2 operator session at .playwright-auth/operator.json passed as M27_STORAGE_STATE. Every one of the 32 routes below was re-opened on branch agent-build/2026-08-24-9b85cd on 2026-08-24 by run 9b85cd unit doc1; nothing was carried forward from run d4000f without being looked at again (B57). Navigation and reading only. No control on the destructive deny-list (Archive, Delete, Destroy, Purge, Revoke, Rotate, Resolve, Remove, Sign out) was pressed, no form was submitted, and no ledger record was created, modified or deleted - this instance holds Erik's real records and there is no fixture instance. Trigger elements were matched by data-verify-unit and aria-label, never by button label, which is the rule run 29b583 earned by archiving the live delivery-ledger engagement with a label-matched click. Where an earlier run exercised an interaction this run did not repeat, the observation is attributed to that run rather than restated. Screenshots are .png under .fleet/manual-traces/, which .gitignore line 36 keeps out of the repository - rendered page text on these screens is 7a `sensitive` client prose and does not belong in git. Page text dumps were written to the session scratchpad and never into the repository.",
+  "non_screen_sections": [
+    "Before you start \u2014 the three things you need in hand",
+    "Moving around \u2014 the sidebar and the command palette",
+    "Filtering by engagement \u2014 narrowing every list to one project",
+    "How the fleet's work gets into the ledger \u2014 you do not type this in",
+    "Planned work, and when it goes stale \u2014 the 30-day rule",
+    "What each screen is for, at a glance",
+    "The words this product uses \u2014 a plain-English glossary"
+  ],
+  "routes": [
+    {
+      "route": "/",
+      "covered_in_guide": "The home screen \u2014 a directory of everything else",
+      "observed": "Re-opened on branch agent-build/2026-08-24-9b85cd, 2026-08-24, run 9b85cd unit doc1. CHANGED: the directory now lists FOURTEEN destinations, not thirteen - `/stacks` is the addition, carrying its own question line 'Every technology the ledger has seen, the hours on it, and whether a fleet agent covers it.' Sidebar Records gained Stacks as its eighth entry. The unparsed badge reads `2 unparsed`, scope `none` - run d4000f recorded 0, and the guide's 'currently 0 unparsed' sentence was corrected. Screenshot .fleet/manual-traces/9b85cd_root.png."
+    },
+    {
+      "route": "/blocked",
+      "covered_in_guide": "Blocked \u2014 what is stopped, and whose desk it is on",
+      "observed": "Re-opened on branch agent-build/2026-08-24-9b85cd, 2026-08-24, run 9b85cd unit doc1. Still 5 blocked work items, 1 open wait, 2 owners. CHANGED: the open wait now reads 4 days (3 at d4000f), the badge reads 2 unparsed with the panel splitting it `2 work items / 0 defects / 0 test results`. Also opened /blocked?engagement=delivery-ledger (9b85cd_filter_blocked_eng.png): picker reports the slug, badge relabels `2 unparsed (whole ledger)`, scope `whole-ledger` - the guide's badge example was corrected from 3 to 2. Signed out (9b85cd_anon_blocked.png) the notice and the dashed counts render as the guide describes. Screenshot .fleet/manual-traces/9b85cd_blocked.png."
+    },
+    {
+      "route": "/next",
+      "covered_in_guide": "Next \u2014 what you can start right now",
+      "observed": "Re-opened on branch agent-build/2026-08-24-9b85cd, 2026-08-24, run 9b85cd unit doc1. CHANGED, and the guide's whole section was rewritten. It is NO LONGER EMPTY: one row, `b53-seed`, execution mode `no mode yet` with the `planned` marker and `0d` age chip beside it. The accounting line is now four counts, not three: `0 held by a dependency`, `0 held by a blocker or wait`, `20 not in a startable status`, `2 status could not be classified`. The guide said 'Nothing is startable' with 0/0/0 and that is now false. Also opened /next?engagement=no-such-engagement (9b85cd_filter_next_unknown.png): both FR-96c sentences render verbatim, zero rows, no fallback, picker shows `no-such-engagement - not in the active list`. Screenshot .fleet/manual-traces/9b85cd_next.png."
+    },
+    {
+      "route": "/committed",
+      "covered_in_guide": "Committed \u2014 what you promised a client, and whether you may invoice",
+      "observed": "Re-opened on branch agent-build/2026-08-24-9b85cd, 2026-08-24, run 9b85cd unit doc1. One milestone 'Phase 1 - ingest and the six answers', due 2026-08-22, state `open`, covered 0/3, shipped 0/3, not submitted, not paid, all four totals $0.00 - unchanged. NEW OBSERVATION: the amount column on this screen renders a DASH for the milestone the engagement screen calls `unreadable`. That is a third rendering of one value and the guide now names all three. Screenshot .fleet/manual-traces/9b85cd_committed.png."
+    },
+    {
+      "route": "/untested",
+      "covered_in_guide": "Untested \u2014 promises nothing has independently proven",
+      "observed": "Re-opened on branch agent-build/2026-08-24-9b85cd, 2026-08-24, run 9b85cd unit doc1. Unchanged from d4000f: 79 requirements, 324 tests, 0 mapped, 0 covered, 0 unproven, 79 uncovered, 0 self-certified. Rows carry 'no work item claims to implement this' where nothing does (FR-63 today). Screenshot .fleet/manual-traces/9b85cd_untested.png."
+    },
+    {
+      "route": "/bottleneck",
+      "covered_in_guide": "Bottleneck \u2014 what is waiting on you personally",
+      "observed": "Re-opened on branch agent-build/2026-08-24-9b85cd, 2026-08-24, run 9b85cd unit doc1. CHANGED: still the 'Nothing is waiting on Erik.' empty state, but the count beneath now reads `2 Erik-owned items whose status could not be classified` where d4000f recorded 0. The guide quoted the 0 and was corrected. The two rows are the hand-mode captured sessions. Screenshot .fleet/manual-traces/9b85cd_bottleneck.png."
+    },
+    {
+      "route": "/broken",
+      "covered_in_guide": "Broken \u2014 defects, and whether anyone proved the fix",
+      "observed": "Re-opened on branch agent-build/2026-08-24-9b85cd, 2026-08-24, run 9b85cd unit doc1. CHANGED, and this is the correction that mattered most. The screen reads `13 open . 0 regressed` for delivery-ledger, grouped `critical 1 open`, `major 5 open`, `minor 7 open`, plus an Unassigned group at 0. The guide claimed '10 still open ... and 3 already marked fixed. The only critical one is among the fixed, so nothing critical is currently open' - the screen says the opposite. Traced to source: broken.ts:177 keeps a defect in `open` unless `isUnresolved(status)` is false, and defects.ts:441 defines that as `status !== 'verified' && status !== 'wont_fix'`, so `fixed` still counts as open. Guide rewritten to state the rule. The unencrypted-defect-title notice still renders at the top. Screenshot .fleet/manual-traces/9b85cd_broken.png."
+    },
+    {
+      "route": "/work-items",
+      "covered_in_guide": "Work items \u2014 the full list of work, every project",
+      "observed": "Re-opened on branch agent-build/2026-08-24-9b85cd, 2026-08-24, run 9b85cd unit doc1. CHANGED: `work-item-summary` now reports rows=23 (20 at d4000f), 2 unparsed on this page (0 at d4000f), and a third figure `0 only Erik can do` the guide never mentioned. Three modes now have rows: 20 fleet, 1 planned (`b53-seed`, data-verify-planned=\"true\"), and 2 `hand` rows with executor Erik, work type `hand-prompted-session` and status `unparsed`. Filter controls re-exercised: ?status=blocked returns 5 rows (the guide's '20 -> 5' became '23 -> 5'), ?status=unparsed returns exactly the 2 hand rows (9b85cd_filter_wi_unparsed.png) - a control showing the query is not blind. Screenshot .fleet/manual-traces/9b85cd_work-items.png."
+    },
+    {
+      "route": "/work-items/[id]",
+      "covered_in_guide": "Opening one work item \u2014 everything recorded about a single piece of work",
+      "observed": "Re-opened on branch agent-build/2026-08-24-9b85cd, 2026-08-24, run 9b85cd unit doc1. Three opened this run rather than one. /work-items/132181d5-5c0f-4b07-8d8c-dbb2b9da418a (man1) renders Identity, Prose with the raw status text, Run and stack, References out and in, unchanged. /work-items/a7e77707-c158-40fa-bca6-bfcf4e57d0fd (`b53-seed`) is the planned row: Execution mode reads `no mode yet` with `planned` and `0d` - the FR-91 marker and age chip observed on a detail screen. /work-items/b54f7d2e-94ca-4b48-a36c-6a047397c7c2 is a hand row: mode `hand`, executor Erik, status `unparsed`, Raw status literally `unparsed`, and Stack `nextjs-supabase`, which is the link to the Stacks register. Screenshot .fleet/manual-traces/9b85cd_work-item-detail.png / 9b85cd_work-item-planned.png / 9b85cd_work-item-hand.png."
+    },
+    {
+      "route": "/work-items/unassigned",
+      "covered_in_guide": "Unassigned sessions \u2014 captured work that matched no project",
+      "observed": "Re-opened on branch agent-build/2026-08-24-9b85cd, 2026-08-24, run 9b85cd unit doc1. Unchanged: tab count 0, 'Nothing is waiting to be attributed.' and the sentence explaining every recorded session has an engagement. No engagement picker on this path. Screenshot .fleet/manual-traces/9b85cd_work-items_unassigned.png."
+    },
+    {
+      "route": "/work-items/new",
+      "covered_in_guide": "Planning work by hand \u2014 writing down work before an agent claims it",
+      "observed": "Re-opened on branch agent-build/2026-08-24-9b85cd, 2026-08-24, run 9b85cd unit doc1. Re-opened and every field re-read; NOTHING WAS SUBMITTED this run. Title 'Plan work item', FR-87 . FR-88, the four controls and both hints render exactly as d4000f recorded, engagement select listing 2 active engagements. The guide's 'UNVERIFIED: submitting the form' block was REMOVED as false: prod.md lines 818-825 record that run d4000f submitted this form once through the product with the aal2 session and created row a7e77707-c158-40fa-bca6-bfcf4e57d0fd / `b53-seed`, confirmed against the database. The guide now attributes that submission to 2026-08-24 and says nothing has been submitted since. Screenshot .fleet/manual-traces/9b85cd_work-items_new.png."
+    },
+    {
+      "route": "/waits",
+      "covered_in_guide": "Waits \u2014 what you are waiting on other people for",
+      "observed": "Re-opened on branch agent-build/2026-08-24-9b85cd, 2026-08-24, run 9b85cd unit doc1. 1 open, 0 overdue, 'Include resolved' toggle and 'Declare a wait' trigger present. CHANGED: the one wait now reads 4 days (3 at d4000f) and its method renders as `manual`; the guide gained both figures. The Declare a wait form was NOT opened this run - run 29b583 opened and read it without submitting, and the guide attributes it there. Resolve was not pressed; it is on the deny-list. Screenshot .fleet/manual-traces/9b85cd_waits.png."
+    },
+    {
+      "route": "/waits/[id]",
+      "covered_in_guide": "Opening one wait \u2014 a single external dependency in full",
+      "observed": "Re-opened on branch agent-build/2026-08-24-9b85cd, 2026-08-24, run 9b85cd unit doc1. Re-opened /waits/ce152c78-a840-4210-aa87-35a19bd44c65. Engagement, owner Erik, owner type client, reason -, started 2026-08-20, expected -, method `manual`, probe target -, and the note that overdue is derived once on Waits. 'Work items this wait holds' renders a dash. Resolve NOT pressed. Screenshot .fleet/manual-traces/9b85cd_wait-detail.png."
+    },
+    {
+      "route": "/registry",
+      "covered_in_guide": "The registry \u2014 your clients, projects and contract milestones",
+      "observed": "Re-opened on branch agent-build/2026-08-24-9b85cd, 2026-08-24, run 9b85cd unit doc1. Two engagements, delivery-ledger and Unassigned, both active; the standing hand-entry note renders. NEW and used in the guide: delivery-ledger's own Stacks column reads `not recorded` while /stacks lists `nextjs-supabase` for the same engagement - what you typed and what the ledger watched are different facts, and the guide now says so. Screenshot .fleet/manual-traces/9b85cd_registry.png."
+    },
+    {
+      "route": "/registry/[slug]",
+      "covered_in_guide": "One engagement \u2014 a single client project in full",
+      "observed": "Re-opened on branch agent-build/2026-08-24-9b85cd, 2026-08-24, run 9b85cd unit doc1. Re-opened /registry/delivery-ledger. Milestone amount still `unreadable` with 'One milestone amount could not be read and contributes nothing to these totals - it is not zero.' Where the work lives all `not recorded`, Provisioning 0/5, the identifiers-never-secrets notice, and Archive / Delete permanently at the bottom. NO dialog was opened and NO button was pressed on this screen - run 29b583 archived this engagement by a label-matched click and had to restore it, which is why this run matched only by data-verify-unit and clicked nothing here. Screenshot .fleet/manual-traces/9b85cd_registry_slug.png."
+    },
+    {
+      "route": "/registry/new",
+      "covered_in_guide": "Registering an engagement \u2014 taking on a new client project",
+      "observed": "Re-opened on branch agent-build/2026-08-24-9b85cd, 2026-08-24, run 9b85cd unit doc1. Re-opened; the three-part form renders unchanged. NOT submitted in either direction this run. The refusals the guide describes were exercised by run 29b583 and are attributed there. Screenshot .fleet/manual-traces/9b85cd_registry_new.png."
+    },
+    {
+      "route": "/registry/[slug]/edit",
+      "covered_in_guide": "Editing an engagement \u2014 changing details, archiving, deleting",
+      "observed": "Re-opened on branch agent-build/2026-08-24-9b85cd, 2026-08-24, run 9b85cd unit doc1. Re-opened /registry/delivery-ledger/edit. Same three-part form, pre-filled, submit reads 'Save engagement'. Not saved. Screenshot .fleet/manual-traces/9b85cd_registry_edit.png."
+    },
+    {
+      "route": "/milestones/[id]",
+      "covered_in_guide": "One contract milestone \u2014 what a dated, priced chunk is worth",
+      "observed": "Re-opened on branch agent-build/2026-08-24-9b85cd, 2026-08-24, run 9b85cd unit doc1. Re-opened /milestones/e4a9008b-f665-4c41-bcb5-b96983a58cc1. Amount `not recorded`, currency USD, due 2026-08-22, acceptance FR-10/FR-11/FR-12, and the derived-once-on-Committed note. The disagreement is now THREE-WAY, not two: `unreadable` on the engagement, `not recorded` here, a dash on Committed. The guide was updated from two to three. Screenshot .fleet/manual-traces/9b85cd_milestone.png."
+    },
+    {
+      "route": "/requirements/[id]",
+      "covered_in_guide": "One requirement \u2014 proving a specific promise was kept",
+      "observed": "Re-opened on branch agent-build/2026-08-24-9b85cd, 2026-08-24, run 9b85cd unit doc1. Re-opened /requirements/01f18ca0-5eb8-40d9-923a-f2edeeca5fdf (FR-59). Requirement text, `uncovered`, `not shipped`, then Implemented by (i1), Tested by with the no-detail-view explanation, Violated by, Shipped in, Contract acceptance with the names-only note. All as the guide describes. Screenshot .fleet/manual-traces/9b85cd_requirement.png."
+    },
+    {
+      "route": "/defects/[id]",
+      "covered_in_guide": "One defect \u2014 is it really fixed, and what is it blocking",
+      "observed": "Re-opened on branch agent-build/2026-08-24-9b85cd, 2026-08-24, run 9b85cd unit doc1. Re-opened /defects/950a6899-634e-4876-a851-11a1c60181d1 (D-2, critical). Status renders `fixed` on the detail screen while /broken counts it under `critical 1 open` - both seen the same day, and the guide now explains why both are correct. Full multi-paragraph description renders; Won't-fix reason is a dash. Screenshot .fleet/manual-traces/9b85cd_defect.png."
+    },
+    {
+      "route": "/blockers/[id]",
+      "covered_in_guide": "One blocker \u2014 what unsticking it would release",
+      "observed": "Re-opened on branch agent-build/2026-08-24-9b85cd, 2026-08-24, run 9b85cd unit doc1. Re-opened /blockers/0abb0117-3c22-44d1-8b18-c7ae55fc58ea (B14). Identity (engagement, owner erik, disposition `closed`), Prose, 'What this is holding' with Blocks reading a dash. Re-confirmed the guide's claim that there is no listing: every href scraped off all 18 signed-in screens this run, and not one points at a /blockers/ route. Screenshot .fleet/manual-traces/9b85cd_blocker.png."
+    },
+    {
+      "route": "/releases/[id]",
+      "covered_in_guide": "Releases \u2014 what shipped, where, and which promises it carried",
+      "unobserved_reason": "Still nothing to open. The export screen reports the `release` table holding 0 rows on this branch, so no id renders this screen; requesting /releases/00000000-0000-0000-0000-000000000000 returned HTTP 404 and the product's Not found page (9b85cd_release_404.png), which shows the route is wired and nothing of the release view itself."
+    },
+    {
+      "route": "/questions",
+      "covered_in_guide": "Questions \u2014 what your agents asked you and proceeded without",
+      "observed": "Re-opened on branch agent-build/2026-08-24-9b85cd, 2026-08-24, run 9b85cd unit doc1. Unchanged: 96 open, 4 with unclassified confidence, 'Include answered' toggle, titles carrying run and unit. Confidence values seen on screen include `med`, `high` and `unparsed`. Screenshot .fleet/manual-traces/9b85cd_questions.png."
+    },
+    {
+      "route": "/questions/[id]",
+      "covered_in_guide": "Opening one question \u2014 what was asked, and what was assumed meanwhile",
+      "observed": "Re-opened on branch agent-build/2026-08-24-9b85cd, 2026-08-24, run 9b85cd unit doc1. Re-opened /questions/01368650-5e87-4891-b76e-ba2c847bdbb8 (b0952e:qa1, confidence high, open). Question text, the BEST GUESS block with its 'what shipped if nobody answered' explanation, an empty answer, and the provenance block naming work item, run, unit, spec section, engagement and source key. Screenshot .fleet/manual-traces/9b85cd_question-detail.png."
+    },
+    {
+      "route": "/settings/tokens",
+      "covered_in_guide": "Agent tokens \u2014 the keys your agents use, and revoking them",
+      "observed": "Re-opened on branch agent-build/2026-08-24-9b85cd, 2026-08-24, run 9b85cd unit doc1. CHANGED: 5 tokens, not 4. The new one is labelled `session-hook`, carries `ingest:write` only, expires 2026-11-22, last used 2026-08-24 18:44 - it is the credential behind the two hand-mode rows, and the guide now names it. Three active, two revoked and still listed `kept for audit`. Rotate and Revoke were NOT pressed; both are on the deny-list. The 'Issue a token' form was not opened. No token value was displayed and none is recorded here or in the guide. Screenshot .fleet/manual-traces/9b85cd_settings_tokens.png."
+    },
+    {
+      "route": "/settings/export",
+      "covered_in_guide": "Getting your data out \u2014 the whole ledger in one file",
+      "observed": "Re-opened on branch agent-build/2026-08-24-9b85cd, 2026-08-24, run 9b85cd unit doc1. CHANGED: 1174 rows across 21 tables, where d4000f recorded 1138 and 29b583 recorded 1125. Per table now includes `stack` 1 and `work_session` 2 - the two tables the Stacks register is built from - plus work_item 23 and agent_token 5, which corroborate those two screens. The decrypted-file notice and both named omissions still render. Download export was NOT pressed this run. Screenshot .fleet/manual-traces/9b85cd_settings_export.png."
+    },
+    {
+      "route": "/sign-in",
+      "covered_in_guide": "Signing in \u2014 getting past the two-factor gate",
+      "observed": "Re-opened on branch agent-build/2026-08-24-9b85cd, 2026-08-24, run 9b85cd unit doc1. Opened in a fresh browser context carrying NO storage state. HTTP 200, stays on /sign-in. Email and password fields, Sign in button, and the notice that there is no account creation and no self-service reset, recovery being done in the Supabase project. With the saved operator session it redirects to / instead (9b85cd_signin_redirect.png). Screenshot .fleet/manual-traces/9b85cd_anon_sign-in.png."
+    },
+    {
+      "route": "/sign-in/verify",
+      "covered_in_guide": "Signing in \u2014 getting past the two-factor gate",
+      "unobserved_reason": "Still unreachable, and both ends were measured again this run rather than assumed: from a clean context with no session it redirects to /sign-in (9b85cd_anon_verify.png), and with the saved aal2 operator session it redirects to / (9b85cd_verify_redirect.png). Reaching it needs a fresh password sign-in; the operator password was not available and signing out would have destroyed the session this guide was written from."
+    },
+    {
+      "route": "/sign-in/enroll",
+      "covered_in_guide": "Signing in \u2014 getting past the two-factor gate",
+      "unobserved_reason": "Still unreachable. The authenticator setup screen renders only for an operator with no second factor attached, and the one operator account has one enrolled. Both ends measured again: signed out it redirects to /sign-in (9b85cd_anon_enroll.png), signed in it redirects to / (9b85cd_enroll_redirect.png)."
+    },
+    {
+      "route": "/runs",
+      "covered_in_guide": "Fleet runs \u2014 what each autonomous build run did",
+      "observed": "Re-opened on branch agent-build/2026-08-24-9b85cd, 2026-08-24, run 9b85cd unit doc1. Unchanged from d4000f: '1 run', '1 reported no test counts', one row b0952e with verdict `unparsed` / 'one source, uncorroborated', dispatches and tests `not recorded`, and the under-table note explaining that the dispatch columns will always read that way. The shell engagement picker renders here, which is what d4000f corrected and this run re-confirmed. Screenshot .fleet/manual-traces/9b85cd_runs.png."
+    },
+    {
+      "route": "/runs/[run-id]",
+      "covered_in_guide": "Opening one fleet run \u2014 a single run in full",
+      "observed": "Re-opened on branch agent-build/2026-08-24-9b85cd, 2026-08-24, run 9b85cd unit doc1. Re-opened /runs/b0952e. Still '1 unparsed in this run' broken down as 0 work units / 0 gate outcomes / the run's own verdict, while the shell badge reads 2 - both on the same page load, and the guide's explanation of why both are right still holds with the badge at 2 rather than 0. Not-counted-here note for defects and test results renders verbatim. Six blocks present: Run, Gates (build_after_phase1 PASS), Work units (20, listed in full, i9p1 reading unassigned / NOT DISPATCHED), Questions queued, Defects, Requirements touched. The ambiguous-match screen was again NOT observed - one run exists - and the guide marks it UNVERIFIED in its own body. Screenshot .fleet/manual-traces/9b85cd_run-detail.png."
+    },
+    {
+      "route": "/stacks",
+      "covered_in_guide": "Stacks \u2014 which technologies pay for an agent of their own",
+      "observed": "Re-opened on branch agent-build/2026-08-24-9b85cd, 2026-08-24, run 9b85cd unit doc1. NEW ROUTE this run - the 32nd served page, and the FORWARD failure this unit was dispatched to clear. `register-state` = `observed`. Blindness panel first, above the table: 1 of 2 sessions name no stack, 50%, with nine figures (sessions 2 / no stack 1 / with stack 1 / no duration 0 / stack with no row 0 / stacks 1 / agent named 0 / earned 0 / actionable 0). The Mode-2 capture sentence renders inside that panel. Trigger rule: clause 1 evaluated (min-engagements=2, min-hours=8), clause 2 `data-verify-evaluated=\"false\"` carrying a `not-verified` badge and the verbatim reason that the schema holds no stack-to-blocker link, plus the sentence that `undetermined` is not a finding of 'did not earn'. One row: `nextjs-supabase`, outcome `undetermined`, '1 of 2 engagements . 0h of 8h', agent 'nobody has said', 0h, 1 session, 1 engagement, first and last seen 2026-08-24. No engagement picker in the shell, and /stacks?engagement=delivery-ledger renders identically with no picker (9b85cd_stacks_filter_attempt.png), which is what the ledger-wide note claims. Signed out (9b85cd_anon_stacks.png) it renders the frame with 'Sign in to read this screen.' The FR-109 dialog WAS opened, by `data-verify-unit=\"agent-covering-trigger\"` and never by label (aria-label 'Set the agent covering nextjs-supabase'), read in full, and closed with Escape: SAVE WAS NEVER PRESSED, and the row still reported data-verify-covered=\"false\" afterwards. Also confirmed the command palette lists Stacks under Records at /stacks (9b85cd_command-palette.png). Q26 checked against the rendered page and against the guide: the word `coverage` appears nowhere on the screen and nowhere in the guide's Stacks section. Screenshot .fleet/manual-traces/9b85cd_stacks.png / 9b85cd_stacks_set-agent-dialog.png."
+    }
+  ],
+  "amendments": [
+    "2026-08-24, run d4000f, unit doc1. This file supersedes manual-evidence-29b583.json, which stays on disk untouched as that run's artifact. manual-gate.sh reads sorted(glob(...))[-1] and `d4000f` sorts after `29b583`, so this is the file it resolves. M2.9 took the served route count 30 -> 31 by adding /work-items/new, which is the FORWARD failure this unit was dispatched to clear.",
+    "All 30 rows carried over from run 29b583 were re-opened on branch agent-build/2026-08-24-d4000f at df34f44 before being written here, rather than copied. Fifteen changed: /runs (its 'no engagement filter' sentence became false), / (twelve destinations -> thirteen), /settings/export (1125 rows -> 1138), /work-items (gained the shell picker and the 'Plan work item' tab), /work-items/[id] (picker confirmed absent under ?engagement=), and the ten other filterable paths /blocked /next /committed /untested /bottleneck /broken /waits /questions /registry (each gained the shell picker), with /next /broken /questions /work-items also carrying newly observed filter states.",
+    "FR-91's planned and STALE markers were NOT observed: the ledger holds no planned row. Every one of the 20 rows on /work-items reports data-verify-planned=\"false\", and /work-items?status=pending returns no rows while the unfiltered page returns 20 \u2014 a control confirming the query is not blind. Creating one would have written a real row into a real ledger, which the brief forbids. The guide marks the markers UNVERIFIED in the section that describes them.",
+    "FR-96's roster-unavailable notice was NOT observed either: producing it means making the engagement lookup fail. The guide marks it UNVERIFIED in the section that describes it.",
+    "Screenshots are .png only and are gitignored by .gitignore line 36. doc1 deliberately did not add .txt page transcripts to this directory, as run 29b583 did: those transcripts are committed, and a rendered page here carries decrypted \u00a77a `sensitive` prose and client names. doc1's transcripts were written to its scratchpad instead. The 34 already-committed transcripts are a pre-existing exposure and are reported to Erik rather than extended.",
+    "2026-08-24, post-merge (PR #5, master a07f035): docs/user-guide.md corrected in five places against measured state - Broken's counts (13 defects, 10 open, the only critical one FIXED, where the guide had said 13 open with a live critical), Next no longer empty (1 pending row), planned markers now PARTLY observed (`planned` and the age chip seen; `planned stale` and `age?` still never rendered), sign-out CONFIRMED by Erik on 2026-08-24 and corroborated by the storage state going dead, and the Untested/0-mapped wording sharpened. Three route rows carry a staleness note: their guide text changed but they could not be re-observed, because the sign-out that verified one claim destroyed the credential needed to check the others. That trade is the honest cost and is recorded rather than hidden.",
+    "2026-08-24, run 9b85cd, unit doc1. This file keeps its `d4000f` name deliberately. manual-gate.sh selects sorted(glob('.fleet/manual-evidence-*.json'))[-1], the LEXICOGRAPHICALLY last file rather than the newest, and `9b85cd` sorts BELOW `d4000f` because '9' < 'd'. A new manual-evidence-9b85cd.json would have been silently ignored while the gate kept reading d4000f's 31 rows and failed FORWARD pointing at the wrong cause. Same pattern M2.8 used when its evidence kept the `29b583` name. M2.2 took the served route count 31 -> 32 by adding /stacks, which is the FORWARD failure this unit was dispatched to clear.",
+    "B57 is open: manual-gate.sh cannot tell a fresh observation from a copied one, so all 31 carried rows were re-opened against the running instance before being rewritten here. TWELVE of the 32 rows changed. Nine changed in the ledger's own figures: / (thirteen destinations -> fourteen), /next (empty -> one planned row, and a three-count accounting line -> four), /bottleneck (0 unclassified -> 2), /broken (the guide's '10 open, nothing critical open' contradicted the screen's '13 open, critical 1 open'), /work-items (20 rows -> 23, 0 unparsed -> 2, plus an 'only Erik can do' figure the guide never had), /waits (3 days -> 4), /settings/tokens (4 tokens -> 5), /settings/export (1138 rows -> 1174), and the top-bar badge on every signed-in screen (0 unparsed -> 2). Three changed because this run looked at something the last one had not: /committed (its amount column prints a dash, making the milestone-amount disagreement three-way rather than two-way), /work-items/[id] (the planned and hand-mode rows, neither of which existed to open before), and /work-items/new (the guide's 'nothing was submitted' claim was false - d4000f submitted the form once and created `b53-seed`).",
+    "Two claims in the guide were wrong rather than merely stale and both were corrected. First, Broken: the guide said '10 still open ... nothing critical is currently open' while the screen says '13 open' and 'critical 1 open'. Source settles it - broken.ts:177 keeps a defect in the open list unless isUnresolved(status) is false, and defects.ts:441 defines that as status not in {verified, wont_fix}, so a defect marked `fixed` is still open. The guide now states the rule and stops telling Erik nothing critical is open. Second, /work-items/new: the guide carried 'UNVERIFIED: submitting the form' while spec/prod.md lines 818-825 record d4000f submitting it through the product and creating a row confirmed against the database. Neither error would have been caught by re-reading the guide; both needed the screen.",
+    "Accepted defects from qa-report-9b85cd.md that a reader can see are named in the guide rather than left in the report: the two WCAG AA contrast failures on /stacks (the `undetermined` chip in light theme, `nobody has said` in both), and the `recorded no duration` figure whose denominator is the stacked sessions rather than all sessions. Both appear in the Stacks section and under what this does not do yet. The four QA issues with no user-visible surface (the OPERATOR_ROUTES comment, set-covering.ts's header, i1's blind grep, i1's missing audit_log table row) are not in the guide; they are repo defects, not operating limitations.",
+    "2026-08-24: two non-screen sections added to docs/user-guide.md at Erik's request - an at-a-glance map of what each screen is for, and a plain-English glossary of the product's vocabulary. Neither describes a route, so neither carries an observation. Declared here rather than left to the gate to guess at. This file keeps its d4000f name; see L1 on run 9b85cd for why the gate binds to it lexicographically.",
+    "2026-08-24: every guide heading gained a short gloss after the em dash, because the Word document's table of contents listed bare words like 'Bottleneck' with nothing saying what they were. `covered_in_guide` is updated in lockstep here - the gate matches section to route on this string, so the headings and this file have to move together or every route reads UNCOVERED."
+  ],
+  "amended_by": {
+    "run_id": "9b85cd",
+    "work_unit_id": "doc1",
+    "branch": "agent-build/2026-08-24-9b85cd",
+    "date": "2026-08-24"
+  }
 }

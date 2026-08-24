@@ -12,7 +12,7 @@ were re-opened on 2026-08-24, after the Stacks register shipped, and the figures
 that were on screen that day. Where a screen could not be opened, the section says so and marks
 itself `UNVERIFIED`.
 
-## Before you start
+## Before you start — the three things you need in hand
 
 You need three things in hand:
 
@@ -26,7 +26,55 @@ You need three things in hand:
 If any of the three is missing, stop here and sort it out first. Nothing in the ledger is
 reachable without all three.
 
-## Signing in
+## What each screen is for, at a glance
+
+Six of these answer a question. The rest hold the records those answers are computed from. If you
+only ever open three, make them Blocked, Next and Committed.
+
+| Screen | Open it when you want to know |
+|---|---|
+| **Blocked** | What is stopped, and who has to move for it to unstick |
+| **Next** | What you could actually start right now, nothing in its way |
+| **Committed** | What you promised a client, for how much, and whether you may invoice |
+| **Untested** | Which promises nothing has independently proven yet |
+| **Bottleneck** | What is waiting on *you*, worst first |
+| **Broken** | What is defective, and whether anyone has proved the fix |
+| Work items | The full list of work, every project, every way it gets done |
+| Waits | What you are waiting on other people for |
+| Registry | Your clients and projects, and the money milestones under each |
+| Questions | What your agents asked you and are proceeding without |
+| Fleet runs | What each autonomous build run actually did |
+| Stacks | Which technologies you keep working in, and where an agent would pay off |
+| Agent tokens | The keys your agents use. Issue and revoke them here |
+| Export | Everything, in one file, for the day this system is gone |
+
+## The words this product uses — a plain-English glossary
+
+It uses a small number of words in an exact way, and guessing at them is how a screen gets
+misread. None of this is software jargon you need to learn - it is the vocabulary of your own
+delivery work, pinned down so two screens cannot mean different things by the same word.
+
+| Word | What it means here |
+|---|---|
+| **Engagement** | One client project. Everything else hangs off one of these. |
+| **Work item** | One piece of work. A fleet unit, a session you did by hand, or something you are waiting on someone else for - all three live in one list on purpose. |
+| **Execution mode** | How a work item gets done: `fleet` (your agents), `hand` (you, prompting), `external` (someone outside the studio). |
+| **Executor** | Who is doing it. An **Erik-gate** is work that cannot move until *you* personally do something. |
+| **`unparsed`** | **The most important word in the product.** It means: something was read and could not be understood, so nothing is being claimed about it. It is never a guess and never quietly treated as "done". Wherever you see it, the honest answer is "we do not know", and that is deliberate. |
+| **Requirement** (`FR-12`) | One numbered thing the product must do, from the agreed spec. |
+| **Acceptance criterion** | What a client agreed would count as a milestone being finished. |
+| **Contract milestone** | A dated, priced chunk of a client contract. |
+| **Defect** | Something broken. It stays **open** until somebody *other than whoever fixed it* proves it fixed - `fixed` on its own is a claim, not evidence. |
+| **Regression** | Something that used to work and stopped. |
+| **Wait** | A dependency on a person outside the studio: a client, a vendor, an app store. |
+| **Disposition** | `carried` means still live and travelling to the next session. `closed` means dealt with. |
+| **Fleet run** | One end-to-end job by your autonomous agents, with an id like `9b85cd`. |
+| **Stack** | A technology you work in - `nextjs-supabase`, say. Hours accumulate against these. |
+| **Ingest** | The ledger reading your agents' files and turning them into records. You do not type this in. |
+| **Planned** | Work you wrote down before any run claimed it. It goes **stale** if untouched for 30 days. |
+| **Archive vs delete** | Archiving is reversible and is the safe default. Deleting is permanent and makes you type the project name to confirm. |
+
+## Signing in — getting past the two-factor gate
 
 Open the ledger and you land on the sign-in screen. It says plainly what it is:
 
@@ -54,7 +102,7 @@ There is no public signup." Underneath, the counts read `unparsed count unavaila
 `— work items`, with the line "Nothing was read, so nothing here is a statement about what the
 ledger holds." A dash there means nobody looked, not that the answer is zero.
 
-## Moving around
+## Moving around — the sidebar and the command palette
 
 A sidebar sits on every screen. It splits into **The six answers** (Blocked, Next, Committed,
 Untested, Bottleneck, Broken) and **Records** (Registry, Work items, Waits, Agent tokens, Export,
@@ -85,7 +133,7 @@ Most list screens carry filter controls across the top and an **Apply** button. 
 the address of the page, so a filtered view is a link you can keep. Filtering Work items to
 `blocked`, for example, narrowed the list from 23 rows to 5.
 
-## Filtering by engagement
+## Filtering by engagement — narrowing every list to one project
 
 Every list shows every engagement at once, and that stays the default. When you want one client's
 slice, one control does it, and it sits in the top bar beside the unparsed count instead of being
@@ -164,7 +212,7 @@ failed. Reload; if it keeps happening, that is one for Erik.
 nobody did that against real records. The wording above is the sentence the product carries, but
 nobody watched a screen render it.
 
-## The home screen
+## The home screen — a directory of everything else
 
 The home screen is a directory rather than a dashboard. It lists the same fourteen destinations as
 the sidebar, each with the question it answers written underneath. The six answers first:
@@ -180,10 +228,13 @@ Then the eight record screens, Stacks among them, each carrying the same one-lin
 
 It shows no counts and no summary. Read it as a map, then click through.
 
-## Blocked
+## Blocked — what is stopped, and whose desk it is on
 
-Blocked groups everything stopped by owner. Today it shows **5 blocked work items** and
-**1 open wait** across **2 owners**.
+**Open Blocked when something is not moving and you want to know who has to act.** It gathers
+everything that is stopped and groups it by the person or party holding it up, so the question
+stops being "what is stuck" and becomes "whose desk is it on".
+
+When it was last opened it showed **5 blocked work items** and **1 open wait** across **2 owners**.
 
 The top of the screen lists open external waits: what the wait is called, who owns it, when it
 started, when it is expected back, and how long it has been sitting. The one open wait is
@@ -200,7 +251,7 @@ closed means it has been dealt with. You can filter on both, plus by engagement 
 
 Where a date is missing the screen prints a dash rather than a guess.
 
-## Next
+## Next — what you can start right now
 
 Next lists work you could start today, with every dependency finished and no blocker or wait
 holding it, nearest deadline first.
@@ -221,7 +272,7 @@ screen correctly declines to offer them. Two more carry a status the ledger coul
 and it will not guess whether they are startable. They are the same two rows behind the `2 unparsed`
 badge in the top bar.
 
-## Committed
+## Committed — what you promised a client, and whether you may invoice
 
 Committed answers whether you may invoice. It totals **committed**, **billable**, **submitted**
 and **paid** across the top, then lists contract milestones with due date, amount, state, how
@@ -247,7 +298,7 @@ the distinctions carry money:
 
 Filter by engagement, by state, and by what it shipped to.
 
-## Untested
+## Untested — promises nothing has independently proven
 
 Untested answers which requirements nothing has independently proven. For the delivery-ledger
 engagement it reports **79 requirements**, **324 tests**, **0 mapped**, **0 covered**,
@@ -262,7 +313,7 @@ Each row gives the requirement, its state, and the work items claiming to implem
 read "no work item claims to implement this", which is a different and worse finding than an
 untested one.
 
-## Bottleneck
+## Bottleneck — what is waiting on you personally
 
 Bottleneck answers what is waiting on you personally, ranked by how much other work it would
 release.
@@ -279,7 +330,7 @@ captured Claude sessions whose status came in as `unparsed`. The screen refuses 
 refuses to drop them silently, so it counts them where you can see the number. An empty Bottleneck
 with a non-zero count underneath is not the same claim as an empty Bottleneck with a zero.
 
-## Broken
+## Broken — defects, and whether anyone proved the fix
 
 Broken lists defects and regressions, grouped by engagement and then by severity. On
 delivery-ledger it reads **13 open · 0 regressed**, split **1 critical**, **5 major**, **7 minor**.
@@ -310,7 +361,7 @@ A client's name in a title is a client's name sitting in plain text.
 Filter by engagement and by severity, including `unparsed` for defects whose severity the ledger
 could not read.
 
-## How the fleet's work gets into the ledger
+## How the fleet's work gets into the ledger — you do not type this in
 
 You never type most of what is in here. When your autonomous fleet finishes a run it leaves
 artifacts behind: a manifest of work units, a checkpoint, a QA report, and a queue of questions it
@@ -335,7 +386,11 @@ real rows into your ledger, so nobody did it. That ingest has succeeded before i
 data, which holds one recorded fleet run and 20 work items derived from it. Whether it succeeds
 today was not tested.
 
-## Work items
+## Work items — the full list of work, every project
+
+**Open Work items when the six answers are not the shape you need and you just want the whole
+list.** It is the full record, and the three kinds of work sit in one list rather than three on
+purpose - splitting them would leave you merging them in your head.
 
 Work items lists every piece of work across every engagement and all three execution modes:
 **fleet** (your autonomous agents), **hand** (you prompting Claude on other stacks), and
@@ -359,7 +414,7 @@ and somebody watching it work are different claims, and this filter refuses to c
 Tabs at the top switch between **All work items**, **Unassigned sessions**, and **Plan work
 item** — the last of which is how you add work by hand rather than reading it in.
 
-## Opening one work item
+## Opening one work item — everything recorded about a single piece of work
 
 Click any work item to see everything recorded about it and everything referencing it.
 
@@ -376,7 +431,7 @@ instead of flattened into a status word.
 
 Where a field has no value the screen prints a dash.
 
-## Unassigned sessions
+## Unassigned sessions — captured work that matched no project
 
 A recorded work session whose working directory matches no engagement lands here instead of being
 thrown away, so you can attribute it later.
@@ -388,7 +443,7 @@ The queue is currently empty. It says:
 and explains the consequence: every recorded session has an engagement. The tab beside the title
 shows a count, currently `0`.
 
-## Planning work by hand
+## Planning work by hand — writing down work before an agent claims it
 
 Almost everything in the ledger arrives by ingest. Planned work is the exception: work you have
 decided on but not yet dispatched, typed in by hand so that **Next** can answer before a run
@@ -442,7 +497,7 @@ rather than against the screen, because the address does not change when the wri
 has been submitted since; the fields and the two refusals above were read from the form on
 2026-08-24 without sending anything.
 
-## Planned work, and when it goes stale
+## Planned work, and when it goes stale — the 30-day rule
 
 A **planned** row is work recorded before any run has claimed it. The distinction exists so that
 *nobody has started this* never reads as *this is in flight*. Those two look identical in a column
@@ -480,7 +535,7 @@ and the second needs a row whose last-touched date will not read, and neither ca
 demand against your real records. What those two markers look like is taken from what the product
 computes, not from a screen.
 
-## Waits
+## Waits — what you are waiting on other people for
 
 Waits lists dependencies on people outside the studio. It shows **1 open** and **0 overdue**,
 grouped by owner, with a checkbox to **Include resolved**.
@@ -507,7 +562,7 @@ Three notes from the form itself:
 **Nobody pressed Resolve or Declare wait while writing this guide.** Both write to your ledger.
 The form contents above come from opening it and reading it, not from submitting it.
 
-## Opening one wait
+## Opening one wait — a single external dependency in full
 
 Click a wait to see it in full: engagement, owner, owner type, reason, start date, expected-by
 date, resolved date, who resolved it, resolution method, and probe target. A final block lists the
@@ -517,9 +572,13 @@ The screen notes that whether a wait is overdue gets decided once, on Waits, fro
 date. It is not recomputed here. That is the pattern throughout the product: one place decides,
 every other screen shows.
 
-## The registry
+## The registry — your clients, projects and contract milestones
 
-The registry lists your engagements. Two exist: **delivery-ledger** and **Unassigned**, both
+**Open the registry when you want the client side of the picture rather than the work side** - who
+the project is for, what was contracted, and for how much. Everything else in the ledger hangs off
+an engagement registered here.
+
+It lists your engagements. Two exist: **delivery-ledger** and **Unassigned**, both
 `active`.
 
 The line at the top is the one to remember:
@@ -530,7 +589,7 @@ The line at the top is the one to remember:
 Columns cover client, status, contract, stacks, database, hosting, and production. Unfilled
 columns read `not recorded`. **Register engagement** starts a new one.
 
-## One engagement
+## One engagement — a single client project in full
 
 Click an engagement to get its contract milestones, its acceptance criteria, and its provisioning
 identifiers.
@@ -574,7 +633,10 @@ Archive was pressed and reversed while writing this guide. Archiving flips the e
 **Delete permanently was not pressed and has never been run against real records.** See "What
 this does not do yet".
 
-## Registering an engagement
+## Registering an engagement — taking on a new client project
+
+**Do this when you take on a new client project.** Nothing can be recorded against a project until
+it exists here.
 
 **Register engagement** opens a form in three parts.
 
@@ -599,7 +661,7 @@ nothing is saved unless the whole thing succeeds.
 No engagement was created while writing this guide. The two failures above were exercised
 deliberately; the success path was not.
 
-## Editing an engagement
+## Editing an engagement — changing details, archiving, deleting
 
 **Edit** on an engagement opens the same three-part form, pre-filled, with the button reading
 **Save engagement** instead of Register. Every field and every rule matches the registration form,
@@ -607,7 +669,7 @@ including the `https://` requirement and the refusal of anything shaped like a c
 
 Nobody saved an edit while writing this guide, since that would change your records.
 
-## One contract milestone
+## One contract milestone — what a dated, priced chunk is worth
 
 Click a milestone to see what it is worth, when it is due, and which requirements make up its
 acceptance. It shows engagement, amount, currency, due date, submitted date, paid date, notes,
@@ -620,9 +682,10 @@ answer too many."
 Note the amount disagreement described under "One engagement": this screen shows `not recorded` for
 a milestone the engagement screen shows as `unreadable` and Committed shows as a dash.
 
-## One requirement
+## One requirement — proving a specific promise was kept
 
-A requirement's screen gathers everything recorded against it: what implements it, what tests it,
+**Open a requirement when you need to prove a specific promise was kept.** The screen gathers
+everything recorded against it: what implements it, what tests it,
 what violates it, and where it shipped.
 
 It opens with the requirement text, its coverage state, and whether it has shipped. Then four
@@ -638,9 +701,10 @@ shows names only, with no amount, because agent tokens are refused contract amou
 Where nothing tests a requirement, the screen says so and then says what that means: "Nothing has
 been claimed about it either way." An absence of evidence, recorded as an absence.
 
-## One defect
+## One defect — is it really fixed, and what is it blocking
 
-A defect's screen holds everything recorded about it and what it points at.
+**Open a defect when you need to know whether it is really fixed, and what it is blocking.** The
+screen holds everything recorded about it and everything it points at.
 
 Identity covers engagement, status, severity, how it was graded, its source, when it was reported
 and by whom. **Prose** holds the full description, which on a real defect runs to several
@@ -657,9 +721,10 @@ A **Won't-fix reason** field appears for defects that will not be fixed.
 Remember the title rule from Broken: the title is stored unencrypted, the description is
 encrypted at rest.
 
-## One blocker
+## One blocker — what unsticking it would release
 
-A blocker's screen says what the blocker is, who owns it, and what it is holding.
+**Open a blocker when you want to know what unsticking it would release.** The screen says what the
+blocker is, who owns it, and what it is holding.
 
 It shows engagement, owner, disposition, opened date and resolved date, then the description in
 full, then **What this is holding**.
@@ -667,7 +732,7 @@ full, then **What this is holding**.
 Blockers have no listing screen of their own. You reach one by following a reference from a work
 item or another record that names it. Get there through Blocked and the records it links to.
 
-## Releases
+## Releases — what shipped, where, and which promises it carried
 
 A release records what shipped, into which environments, and which requirements it names. Other
 screens read from releases: **Shipped in** on a requirement, and the shipped column on Committed.
@@ -680,7 +745,7 @@ not-found page, which is the correct behaviour and tells you nothing about the s
 Everything in the paragraph above comes from how other screens describe releases, not from
 watching a release render. Expect to discover its real layout the first time a release lands.
 
-## Questions
+## Questions — what your agents asked you and proceeded without
 
 Questions lists every question your fleet queued for you, answered or not. It currently shows
 **96 open** and **4 with unclassified confidence**.
@@ -698,7 +763,7 @@ is not a low-confidence question; it is a question whose confidence nobody knows
 96 open questions is a real number and worth pausing on. Each one is a point where an agent could
 not get an answer, guessed, and carried on.
 
-## Opening one question
+## Opening one question — what was asked, and what was assumed meanwhile
 
 Click a question to see what it asked, what it assumed in the meantime, and what was decided.
 
@@ -710,7 +775,7 @@ The **Best guess** block is the one that matters, and the screen explains why it
 question rather than behind it: it is what shipped if nobody answered. On an open question, the
 best guess is the decision that is live in your code right now.
 
-## Agent tokens
+## Agent tokens — the keys your agents use, and revoking them
 
 This screen lists the credentials your agents use to read and write the ledger. It shows
 **5 tokens** with label, capabilities, status, expiry, last used, created date, and **Rotate** and
@@ -740,7 +805,7 @@ The form also says tokens expire, and to rotate before the expiry date rather th
 live credential and adds a row to your ledger. The description above comes from opening the form
 and reading it. The one-time reveal screen was not seen and is not described here.
 
-## Getting your data out
+## Getting your data out — the whole ledger in one file
 
 Export writes every record into one file, for the day this system is not here. It reports
 **1174 rows across 21 tables**, read in a single database operation so that no row limit can
@@ -770,7 +835,7 @@ engagement screen and destroys the engagement's work items, blockers, requiremen
 milestones and questions. It stops at the audit boundary, so the audit log survives a deletion by
 design. Read the next section before you use it.
 
-## Fleet runs
+## Fleet runs — what each autonomous build run did
 
 Fleet runs lists every autonomous build run that has been read into the ledger, across every
 engagement, newest first. Each row states what that run claimed about itself — nothing on this
@@ -801,7 +866,7 @@ versions of this guide said there was no filter here, and that was true when the
 The dropdown in the top bar was approved and built since, and Fleet runs is one of the eleven
 screens it narrows. With no engagement chosen you see every run, which stays the default.
 
-## Opening one fleet run
+## Opening one fleet run — a single run in full
 
 Clicking a run opens everything that run recorded. The heading is the run id itself, with
 **← All runs** to go back.
@@ -843,7 +908,7 @@ only within an engagement, so two engagements could one day hold the same id. Th
 screen for that case which lists every match and picks none. It cannot appear on today's data — one
 run, and nothing to collide with — so it is described here from the build and not from observation.
 
-## Stacks
+## Stacks — which technologies pay for an agent of their own
 
 Stacks answers which technologies your ledger has seen, how many of your hours sit on each, and
 whether a fleet agent has been named for any of them. Read it when you are deciding which
