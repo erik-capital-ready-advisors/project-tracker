@@ -37,10 +37,10 @@ only, per §3.1a), FR-91, and FR-96 with FR-96a, FR-96b, FR-96c.
 
 | ID | Type | Phase | Description | Dispatched-to | Depends-on | Status |
 |----|------|-------|-------------|---------------|-----------|--------|
-| r1 | research | 1 | Fix the conventions: how all 11 filterable screens read `searchParams` under Next 16, how `app-shell.tsx` mounts `UnparsedCount`, existing engagement-resolution helpers, and the `/registry/new` form pattern. Output to `.fleet/research/d4000f/r1.md` | researcher | — | pending |
-| i1 | integration | 1 | FR-87 schema foundation: make `work_item.execution_mode` nullable, add the FR-91 staleness timestamp, add the FR-90 plan-reference + collision columns, PLAIN unique index, per-name REVOKE + `service_role` GRANT on any new function, regenerate types | api-integrator | — | pending |
-| i2 | integration | 1 | FR-89 plan parser: pure function over the `writing-plans` shape (`### Task N:` + `- [ ]`), `unparsed` the only default, test feeding it an unrecognised shape, byte-copy fixture | api-integrator | — | pending |
-| u1 | ui | 1 | FR-96a + FR-96b shell foundation: one engagement picker in `app-shell.tsx` beside the badge; badge stays ledger-wide and labels its scope under a filter | ui-designer | r1 | pending |
+| r1 | research | 1 | Fix the conventions: how all 11 filterable screens read `searchParams` under Next 16, how `app-shell.tsx` mounts `UnparsedCount`, existing engagement-resolution helpers, and the `/registry/new` form pattern. Output to `.fleet/research/d4000f/r1.md` | researcher | — | **done** — gate SKIP (research note, nothing mergeable), run id matched. Note at `.fleet/research/d4000f/r1.md`. **Corrected the approved CR: only 9 of 11 screens read `searchParams`, in 3 divergent shapes; `/runs` and `/registry` read none** |
+| i1 | integration | 1 | FR-87 schema foundation: make `work_item.execution_mode` nullable, add the FR-91 staleness timestamp, add the FR-90 plan-reference + collision columns, PLAIN unique index, per-name REVOKE + `service_role` GRANT on any new function, regenerate types | api-integrator | — | **done** — gate PASS. Migration `20260824110601` **applied to live Supabase `onpvolboecjpdkvurjaf`**, local file renamed to match. Committed `3ef7861`. Baseline held exactly: 1550/6, typecheck 0, lint 0, gate:m27 5/5, build PASS. **Carries defect D-1 (below)** |
+| i2 | integration | 1 | FR-89 plan parser: pure function over the `writing-plans` shape (`### Task N:` + `- [ ]`), `unparsed` the only default, test feeding it an unrecognised shape, byte-copy fixture | api-integrator | — | **done** — gate PASS. `src/lib/ingest/planDocument.ts` +3 test/fixture files, **all 4 untracked**. test **1594 passed / 6 skipped** (+44 from 1550), typecheck 0, lint 0, gate:m27 5/5. **6 mutations, 0 survivors**, incl. the guess-instead-of-`unparsed` one. Parser ships **unwired** — i3 owns the seam |
+| u1 | ui | 1 | FR-96a + FR-96b shell foundation: one engagement picker in `app-shell.tsx` beside the badge; badge stays ledger-wide and labels its scope under a filter | ui-designer | r1 | in_progress (dispatched 2026-08-24T10:52Z) |
 | i3 | integration | 2 | FR-90 read side (mark every collision, merge nothing) + FR-87/FR-88 planned-work write path | api-integrator | i1, i2 | pending |
 | i4 | integration | 2 | FR-91 staleness derivation — pure, 30-day boundary from a date passed in, never `new Date()` inside — plus planned-row query helpers | api-integrator | i1 | pending |
 | u2 | ui | 2 | FR-88 hand-entry form at `/work-items/new` (engagement REQUIRED per Q14). Takes served routes 30 → 31 | ui-designer | u1, i1 | pending |
@@ -70,6 +70,30 @@ functional. Both deferrals below are **out of scope**, which is a decision, not 
   lists as **still unapproved and wanting its own CR**. Out of scope. Do not build it on
   `source_key` string-parsing.
 
+## D-1 — latent defect created by i1, invisible to tsc and to 1550 tests, MUST be fixed in Phase 2
+
+**`pnpm typecheck` passes with zero errors after `execution_mode` became nullable, and that is the
+problem.** The row interfaces are hand-written and do not derive from the generated
+`Tables<"work_item">`, so widening the database type reaches nothing. Measured by i1 running the
+real functions:
+
+```
+fromExecutionMode(null)              -> "fleet"     <-- a planned row reads as FLEET WORK
+fromExecutionMode("fleet") [control] -> "fleet"
+fromExecutorKind(null)               -> "unassigned"  <-- safe
+```
+
+- `answers/from-db.ts:95`, reached from `answers/load.ts:313`, `detail/work-item.ts:195`,
+  `runs/detail.ts:198` — **a planned row reads as fleet work. That is precisely the FR-91 failure:
+  "nobody has started this" reading as "this is in flight."**
+- `workitems/list.ts:216` passes raw `null` to `EXECUTION_MODE_LABELS[null]` -> `undefined` ->
+  **blank chip** on `/work-items`.
+
+**Nothing is broken today. It goes live the moment i3 writes the first planned row.** i1 correctly
+did not fix it: the fix widens the domain type into `ExecutionModeChip` and its two callers, which
+is React and therefore **u4's scope**. **u4 owns D-1 and i3 must not write a planned row before it
+lands** — or must land behind it in the merge order.
+
 ## Carried NOT VERIFIED, declared before dispatch
 
 - **Any positive-path agent-token assertion** (§7c row 1, measured DEGRADED). The boundary is
@@ -83,7 +107,7 @@ one, and the last writer silently wins.
 
 | Unit | Lines |
 |---|---|
-| r1 | — |
-| i1 | — |
-| i2 | — |
+| r1 | 2 |
+| i1 | 4 |
+| i2 | 4 |
 | u1 | — |

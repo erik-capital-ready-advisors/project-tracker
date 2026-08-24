@@ -5,6 +5,7 @@ import { headers } from "next/headers";
 import { AppShell } from "@/components/app-shell";
 import { ThemeProvider } from "@/components/theme-provider";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { readEngagementRoster } from "@/lib/engagement-roster";
 import { readUnparsedCensus } from "@/lib/unparsed-census";
 
 import "./globals.css";
@@ -77,7 +78,22 @@ export default async function RootLayout({
    *     take the application down and why the badge cannot claim a clean ledger
    *     it never counted.
    */
-  const census = await readUnparsedCensus();
+  /*
+   * FR-96b's picker needs the engagements it offers, and this is the one place
+   * that can supply them: the picker lives in the shell so it is built once
+   * rather than eleven times, and the shell is rendered here.
+   *
+   * `readEngagementRoster` carries the same three properties as the census
+   * above and for the same reasons — memoised per request, gated on a
+   * role-holding operator at `aal2`, and **every failure yields
+   * `unavailable` rather than an empty list**, so an unread roster cannot
+   * render as "no clients". Read in parallel with the census because neither
+   * depends on the other and both sit in front of every route.
+   */
+  const [census, roster] = await Promise.all([
+    readUnparsedCensus(),
+    readEngagementRoster(),
+  ]);
 
   return (
     <html
@@ -88,7 +104,9 @@ export default async function RootLayout({
       <body>
         <ThemeProvider nonce={nonce}>
           <TooltipProvider>
-            <AppShell unparsedCount={census.total}>{children}</AppShell>
+            <AppShell unparsedCount={census.total} roster={roster}>
+              {children}
+            </AppShell>
           </TooltipProvider>
         </ThemeProvider>
       </body>

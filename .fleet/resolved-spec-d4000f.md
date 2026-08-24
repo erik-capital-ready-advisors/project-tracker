@@ -528,12 +528,19 @@ create unique index work_item_engagement_run_unit_key
   where fleet_run_id is not null and unit is not null;
 ```
 
-This is a **partial** unique index. This repo's standing lesson: **PostgREST `on_conflict` takes
-column names and cannot carry a `WHERE` predicate**, so a `supabase-js` `.upsert()` against a
-partial index fails `42P10` — and it fails only on the **second** post, which is exactly the
-idempotency case nobody exercises before shipping. **Any new conflict target for planned work must
-be a PLAIN unique index.** See `20260819170622_i5_upsert_targets_must_be_inferable.sql` for how
-this was handled before.
+**CORRECTED 2026-08-24 by unit i1, and the correction is the orchestrator's error, not i1's.**
+The snippet above is the ORIGINAL 2026-08-19 definition and **is no longer the live state.**
+`20260819170622_i5_upsert_targets_must_be_inferable.sql:45-48` drops it and recreates it **with no
+`WHERE` clause**; its own comment reads *"Deliberately NOT partial."* Verified against the live
+index. `project-lead` read the `create` in the first migration, cited the second one in the same
+breath, and still stated the wrong conclusion.
+
+**The RULE still binds and is unchanged:** PostgREST's `on_conflict` takes column names and cannot
+carry a `WHERE` predicate, so a `supabase-js` `.upsert()` against a partial unique index fails
+`42P10` — **and only on the second post**, which is exactly the idempotency case nobody exercises
+before shipping. **Any new conflict target for planned work must be a PLAIN unique index.** i1
+obeyed this: its `(engagement_id, plan_ref)` index is plain, and it observed `on conflict` **infer
+it with no predicate and no `42P10`**, with a duplicate correctly refused `23505`.
 
 ### Function grants — the failure that killed Mode-1 ingest once already
 

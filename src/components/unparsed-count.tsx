@@ -6,6 +6,8 @@ import {
   unparsedShortLabel,
   unparsedState,
   unparsedVerifyCount,
+  unparsedVerifyScope,
+  type UnparsedScopeNote,
 } from "@/lib/unparsed-display";
 
 /**
@@ -27,23 +29,39 @@ import {
  *            NOT as zero -- see src/lib/unparsed-display.ts for why that
  *            distinction is the whole point.
  *
+ * FR-96a adds a fourth thing it can say. The count is ledger-wide and stays
+ * ledger-wide under an engagement filter; when one is active the label states
+ * that -- "3 unparsed (whole ledger)". Scoping the number to the filter would
+ * hang a silently-changed count over eleven screens; leaving it unlabelled
+ * would let a ledger-wide number read as a scoped one, which is the M2.8
+ * disagreement (badge 0, run `b0952e` 1) one layer up.
+ *
  * State contract for qa-reviewer:
  *   data-verify-unit="unparsed-count"
  *   data-verify-state="zero" | "nonzero" | "unknown"
  *   data-verify-count="<n>"   (absent when the state is unknown)
+ *   data-verify-scope="none" | "whole-ledger"   (FR-96a)
  */
 export function UnparsedCount({
   count,
+  scope = "none",
   className,
 }: {
   /** `null` means "not read yet". It is NOT the same as 0 and never renders as 0. */
   count: number | null | undefined;
+  /**
+   * FR-96a. `"whole-ledger"` when an engagement filter is active on the screen
+   * below, which makes the label say what the number counted. The count itself
+   * is unchanged either way -- this prop labels a scope, it never narrows one.
+   */
+  scope?: UnparsedScopeNote;
   className?: string;
 }) {
   const state = unparsedState(count);
-  const label = unparsedLabel(count);
-  const shortLabel = unparsedShortLabel(count);
+  const label = unparsedLabel(count, scope);
+  const shortLabel = unparsedShortLabel(count, scope);
   const verifyCount = unparsedVerifyCount(count);
+  const verifyScope = unparsedVerifyScope(count, scope);
 
   return (
     // <output> carries an implicit ARIA role of `status`, so this announces to
@@ -53,10 +71,13 @@ export function UnparsedCount({
       title={
         state === "unknown"
           ? "The number of records the system could not classify is not available."
-          : "Records the system could not classify. Every screen reports this."
+          : verifyScope === "whole-ledger"
+            ? "Records the system could not classify, across the whole ledger. This count is never narrowed by the engagement filter."
+            : "Records the system could not classify. Every screen reports this."
       }
       data-verify-unit="unparsed-count"
       data-verify-state={state}
+      data-verify-scope={verifyScope}
       {...(verifyCount === null ? {} : { "data-verify-count": verifyCount })}
       className={cn(
         "ident inline-flex min-w-0 items-center gap-1.5 rounded-md border px-2 py-1 text-xs leading-none whitespace-nowrap transition-colors",
