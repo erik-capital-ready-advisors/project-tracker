@@ -254,6 +254,13 @@ Behavioral rules earned on this project. Append one line per lesson, in the mome
   live `delivery-ledger` engagement** while writing the user guide. It was caught in the same
   output, reversed with Restore, and confirmed against the database rather than the UI that had
   just been used — but the next one may hit a control with no Restore beside it.
+- `pnpm gate:m27:e2e` needs **both** `M27_BASE_URL` and `M27_STORAGE_STATE`; with the latter unset
+  it produces **10 failed / 10, every one "rendered the operator gate (sign-in)"** — which is
+  byte-for-byte the signature a revoked session produces. That signature therefore does **not**
+  establish a dead credential, and on 2026-08-23 it was read as one. Run
+  `M27_BASE_URL=http://localhost:3000 M27_STORAGE_STATE=.playwright-auth/operator.json pnpm
+  gate:m27:e2e` and only then conclude anything about the session. Same failure shape as keying an
+  auth check on `h1`: the observation was real and the inference from it was not.
 - When a suspected defect is reproducible, reproduce it **before** escalating it — escalate the
   measurement, not the claim. The `defect.source_key` overwrite found on 2026-08-24 was handed to
   Erik as a structural argument ("verified in code and schema, not executed") bundled with three

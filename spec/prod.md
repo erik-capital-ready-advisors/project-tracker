@@ -83,6 +83,29 @@ This file is the **build log**. It tracks the live state of development: what's 
 > `pnpm test` **1544 → 1545 passed / 6 skipped** · typecheck **0** · lint **0** · `gate:m27` **5/5**
 > · `manual-gate.sh` **PASS 30/30**.
 >
+> #### B31 is CLOSED — the M2.7 e2e gate ran, 8 passed / 2 failed
+>
+> **`pnpm gate:m27:e2e` had never once run green, and that is what has kept M2.7 at "code complete"
+> since 2026-08-20.** It ran 2026-08-24 against `localhost:3000` on the live `aal2` session:
+> **8 passed / 2 failed (1.3m)** — identical to the 2026-08-20 result. **The 2 failures are the
+> known B39 non-defects**, not regressions: `/next` and `/bottleneck` render their *empty states*
+> because no work item is `pending` and none carries `erik`/`erik_gate`, and **neither screen can be
+> populated through the product**. Every FR-80/81/82/83/84/85 crawl over a populated screen passed.
+>
+> **A correction that matters more than the result.** The first attempt returned **10 failed / 10,
+> every one "rendered the operator gate (sign-in)"** — and that is *exactly* the signature
+> `prod.md` recorded on 2026-08-23 and attributed to a revoked session. It was **`M27_STORAGE_STATE`
+> being unset.** The config reads `storageState: process.env.M27_STORAGE_STATE`, so with it absent
+> the gate runs signed-out and every test fails that way. **That signature does not establish a dead
+> credential.** Both variables are required:
+>
+> ```
+> M27_BASE_URL=http://localhost:3000 M27_STORAGE_STATE=.playwright-auth/operator.json pnpm gate:m27:e2e
+> ```
+>
+> **So M2.7's only remaining question is a ruling, not work: does B39 block Complete?** The two
+> screens are correct-but-empty and cannot be filled from inside the product.
+>
 > #### What is open, in the order it costs least to close
 >
 > | Item | Who | Note |
