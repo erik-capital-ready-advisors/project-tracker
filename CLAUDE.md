@@ -312,3 +312,12 @@ Behavioral rules earned on this project. Append one line per lesson, in the mome
   what unblocks if he does it. If a decision is genuinely his alone, ask the specific sub-question
   rather than handing him the question's name. If nothing is needed, say "nothing needed from you"
   explicitly — silence reads as a hidden dependency.
+- **Do the step yourself when you hold the tool, and never hand Erik a bare command.** A fenced
+  `open -a TextEdit ~/.zshrc` with no surrounding context earned "you didn't tell me how to do this"
+  — a command block silently assumes he knows which app to type it into, that a terminal is already
+  open, and what success looks like. Order of preference: (1) run it via Bash yourself and report
+  what changed; (2) if it needs his hands, tell him to type `!<command>` in this session so the
+  output lands in the conversation; (3) only if neither works, spell out the app to open, the
+  literal keystrokes, and what he will see on screen when it worked. The single exception is a step
+  that must not pass through you — issuing or pasting a secret — and even there, prepare everything
+  else first so his part is one action.
