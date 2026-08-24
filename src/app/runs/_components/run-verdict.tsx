@@ -151,7 +151,7 @@ function SourceRow({
       className="flex items-center gap-1.5"
     >
       {showOrigin ? (
-        <span className="ident text-muted-foreground/70 text-[0.6875rem]">
+        <span className="ident text-muted-foreground/85 text-[0.6875rem]">
           {originLabel(source.origin)}
         </span>
       ) : null}
@@ -190,7 +190,7 @@ export function RunVerdict({ verdict }: { verdict: RunVerdictModel }) {
 
       {agreement === "single" ? (
         <span
-          className="text-muted-foreground/70 text-[0.6875rem]"
+          className="text-muted-foreground/85 text-[0.6875rem]"
           title={SOLE_REASON_TITLE[soleReason ?? "one_verdict_column"]}
         >
           one source, uncorroborated
@@ -198,7 +198,7 @@ export function RunVerdict({ verdict }: { verdict: RunVerdictModel }) {
       ) : null}
 
       {agreement === "agreed" ? (
-        <span className="text-muted-foreground/70 text-[0.6875rem]">
+        <span className="text-muted-foreground/85 text-[0.6875rem]">
           {sources.length} sources agree
         </span>
       ) : null}

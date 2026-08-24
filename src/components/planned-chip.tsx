@@ -62,7 +62,7 @@ const CHIP_BASE =
 const CHIP_CLASS: Record<"fresh" | "stale" | "unknown", string> = {
   fresh: "border-border border-dashed text-muted-foreground bg-transparent",
   stale:
-    "border-state-contested/50 bg-state-contested/10 text-state-contested font-medium",
+    "border-state-contested/50 bg-state-contested/10 text-state-contested-ink font-medium",
   unknown: "border-dotted border-border text-muted-foreground bg-transparent",
 };
 
@@ -152,7 +152,7 @@ export function PlannedChip({
       className={cn(CHIP_BASE, CHIP_CLASS[staleness.state], className)}
     >
       {CHIP_TEXT[staleness.state]}
-      <span className="tabular-nums opacity-80">{ageLabel(staleness)}</span>
+      <span className="tabular-nums opacity-85">{ageLabel(staleness)}</span>
     </span>
   );
 }

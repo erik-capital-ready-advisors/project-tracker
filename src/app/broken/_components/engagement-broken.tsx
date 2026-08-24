@@ -153,7 +153,7 @@ export function EngagementBroken({
           </div>
 
           {group.defects.length === 0 ? (
-            <p className="text-muted-foreground/70 px-3 pb-3 text-xs">
+            <p className="text-muted-foreground/85 px-3 pb-3 text-xs">
               None open at this severity.
             </p>
           ) : (
@@ -385,7 +385,7 @@ function DefectRow({
         <span className="flex flex-wrap items-baseline gap-1.5">
           {defect.ref === null ? (
             <span
-              className="ident text-muted-foreground/60 text-xs"
+              className="ident text-muted-foreground/85 text-xs"
               title="No `D-nn` has been allocated to this defect yet, so no test can name it."
             >
               unallocated
@@ -401,7 +401,7 @@ function DefectRow({
               on this path. */}
           <span className="text-sm">{defect.title}</span>
         </span>
-        <span className="ident text-muted-foreground/70 mt-0.5 block text-xs">
+        <span className="ident text-muted-foreground/85 mt-0.5 block text-xs">
           {defect.source}
           {defect.reportedBy === null ? null : ` · ${defect.reportedBy}`}
         </span>
@@ -537,7 +537,7 @@ function RegressionSection({
         <p className="text-muted-foreground mt-0.5 max-w-3xl text-xs">{note}</p>
       </div>
       {count === 0 ? (
-        <p className="text-muted-foreground/70 px-3 pb-3 text-xs">{empty}</p>
+        <p className="text-muted-foreground/85 px-3 pb-3 text-xs">{empty}</p>
       ) : (
         children
       )}

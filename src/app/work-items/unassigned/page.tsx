@@ -144,7 +144,7 @@ export default async function UnassignedSessionsPage() {
                 )}
 
                 {session.summary === null ? (
-                  <p className="text-muted-foreground/70 mt-2 text-sm italic">
+                  <p className="text-muted-foreground/85 mt-2 text-sm italic">
                     No summary is available. It was either never recorded or
                     could not be decrypted — those are different facts and the
                     system does not know which this is.

@@ -230,7 +230,7 @@ export function BottleneckTable({
                       "tabular-nums",
                       item.unblocks > 0
                         ? "text-foreground font-semibold"
-                        : "text-muted-foreground/60",
+                        : "text-muted-foreground/85",
                     )}
                     title="Every work item transitively waiting on this one."
                   >
@@ -238,7 +238,7 @@ export function BottleneckTable({
                   </span>
                   <span
                     data-verify-unit="direct-figure"
-                    className="text-muted-foreground/70 text-xs tabular-nums"
+                    className="text-muted-foreground/85 text-xs tabular-nums"
                     title="Direct dependency edges, printed so the transitive figure beside it can be checked rather than trusted."
                   >
                     {item.directDependents} direct

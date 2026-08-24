@@ -330,7 +330,7 @@ export function RequirementView({
                         // and rendering the first as the second would be the
                         // plausible-wrong-answer this product exists to stop.
                         <span
-                          className="text-muted-foreground/70 text-xs italic"
+                          className="text-muted-foreground/85 text-xs italic"
                           title="No result is recorded for this test. It has never run, which is not the same as having failed."
                         >
                           never ran

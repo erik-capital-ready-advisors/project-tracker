@@ -51,6 +51,23 @@ import { expect, test, type Page } from "@playwright/test";
 const BASE_URL = process.env.QA1_BASE_URL;
 const STORAGE_STATE = process.env.QA1_STORAGE_STATE;
 
+/**
+ * B63. These two were READ and asserted-on but never APPLIED, so every test
+ * below ran under the credential-free `chromium` project and hit the operator
+ * gate. Measured as committed: **8 failed / 1 passed**, every failure
+ * `/stacks rendered the operator gate`, and the one pass was the guard - which
+ * only checks the variables are non-empty strings, not that anything used them.
+ *
+ * The file's own header says a harness that measures a signed-out page is "the
+ * defect class this role exists to catch", and its claim that exactly two axe
+ * assertions are red on purpose was false: all eight were red, for a reason
+ * that had nothing to do with accessibility.
+ */
+test.use({
+  ...(BASE_URL ? { baseURL: BASE_URL } : {}),
+  ...(STORAGE_STATE ? { storageState: STORAGE_STATE } : {}),
+});
+
 /** Every figure key `register-blindness.tsx` publishes. */
 const FIGURE_KEYS = [
   "sessions-total",

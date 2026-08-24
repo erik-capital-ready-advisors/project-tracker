@@ -85,7 +85,7 @@ import { RunVerdict } from "./run-verdict";
  */
 
 /** The shared treatment for "the ledger recorded nothing here". */
-const NOT_RECORDED_CLASS = "ident text-muted-foreground/70 text-xs";
+const NOT_RECORDED_CLASS = "ident text-muted-foreground/85 text-xs";
 
 function NotRecorded({ title }: { title: string }) {
   return (
@@ -299,7 +299,7 @@ export function RunTable({ runs }: { runs: readonly ListedRun[] }) {
                     className="hover:text-foreground underline-offset-2 hover:underline"
                   >
                     {run.engagement.clientName}{" "}
-                    <span className="ident text-muted-foreground/70 text-xs">
+                    <span className="ident text-muted-foreground/85 text-xs">
                       {run.engagement.slug}
                     </span>
                   </Link>

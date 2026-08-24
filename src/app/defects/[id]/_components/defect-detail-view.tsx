@@ -259,7 +259,7 @@ export function DefectDetailView({ detail }: { detail: DefectDetail }) {
                   {test.harness} · {test.file}
                 </span>
                 {test.covers.length === 0 ? null : (
-                  <span className="ident text-muted-foreground/70 text-xs">
+                  <span className="ident text-muted-foreground/85 text-xs">
                     covers {test.covers.join(" · ")}
                   </span>
                 )}

@@ -200,7 +200,7 @@ export default async function ContractMilestoneDetailPage({
                 </span>
               ) : (
                 <span
-                  className="text-muted-foreground/70 italic"
+                  className="text-muted-foreground/85 italic"
                   title="Nobody has priced this milestone. Nothing is stored, so there is nothing to read back. This is not zero and it is not a decryption failure."
                 >
                   {NOT_RECORDED}

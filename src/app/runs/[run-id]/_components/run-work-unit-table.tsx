@@ -138,7 +138,7 @@ export function RunWorkUnitTable({
                 <TableCell className="font-medium whitespace-nowrap">
                   <EntityRef {...unit.ref} />
                   {unit.phase === null ? null : (
-                    <span className="text-muted-foreground/70 ml-1.5 text-xs">
+                    <span className="text-muted-foreground/85 ml-1.5 text-xs">
                       p{unit.phase}
                     </span>
                   )}
@@ -190,7 +190,7 @@ export function RunWorkUnitTable({
                       unknown rendered as zero — `notVerifiedCount` is
                       non-nullable in i1's type, which is what makes that true. */}
                   {unit.notVerifiedCount === 0 ? (
-                    <span className="text-muted-foreground/60">0</span>
+                    <span className="text-muted-foreground/85">0</span>
                   ) : (
                     <span className="text-state-not-verified font-medium">
                       {unit.notVerifiedCount}

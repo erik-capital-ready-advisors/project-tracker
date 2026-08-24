@@ -61,7 +61,7 @@ function DateCell({ value }: { value: string | null }) {
     <span
       className={cn(
         "ident text-xs",
-        set ? "text-foreground" : "text-muted-foreground/70 italic",
+        set ? "text-foreground" : "text-muted-foreground/85 italic",
       )}
     >
       {set ? text : "—"}

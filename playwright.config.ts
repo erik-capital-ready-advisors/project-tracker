@@ -17,6 +17,16 @@ const GATE_SPECS = /m27-navigation\.spec\.ts/;
 const M27_BASE_URL = process.env.M27_BASE_URL;
 
 /**
+ * B63. The authenticated accessibility sweep. Gated on its own base URL for the
+ * same reason as `m27-gate`: a project that is configured but unrunnable emits a
+ * row of skips, and a skipped gate is the same colour as a passing one from a
+ * distance. It is excluded from the default projects so `pnpm e2e` keeps working
+ * without a credential.
+ */
+const A11Y_SPECS = /a11y-authenticated\.spec\.ts/;
+const A11Y_BASE_URL = process.env.A11Y_BASE_URL;
+
+/**
  * The end-to-end harness. `qa-reviewer` authors the real flows here.
  *
  * It builds and serves the production app rather than running `next dev`,
@@ -37,13 +47,26 @@ export default defineConfig({
     trace: "on-first-retry",
   },
   projects: [
-    { name: "chromium", use: { ...devices["Desktop Chrome"] }, testIgnore: GATE_SPECS },
+    { name: "chromium", use: { ...devices["Desktop Chrome"] }, testIgnore: [GATE_SPECS, A11Y_SPECS] },
     // Spec 5a describes ten-second glances between other work, which happen on
     // a phone as often as at a desk.
-    { name: "mobile", use: { ...devices["iPhone 13"] }, testIgnore: GATE_SPECS },
+    { name: "mobile", use: { ...devices["iPhone 13"] }, testIgnore: [GATE_SPECS, A11Y_SPECS] },
     // Present only when it can actually run. A project that is configured but
     // unrunnable produces a row of skips, and a skipped gate is the same colour
     // as a passing one from a distance — which is blocker B19, exactly.
+    ...(A11Y_BASE_URL
+      ? [
+          {
+            name: "a11y",
+            testMatch: A11Y_SPECS,
+            use: {
+              ...devices["Desktop Chrome"],
+              baseURL: A11Y_BASE_URL,
+              storageState: process.env.A11Y_STORAGE_STATE,
+            },
+          },
+        ]
+      : []),
     ...(M27_BASE_URL
       ? [
           {
@@ -64,7 +87,7 @@ export default defineConfig({
   // pnpm start`, spending a build it never uses and aborting the run if that
   // build cannot find its environment.
   webServer:
-    process.env.PLAYWRIGHT_BASE_URL || M27_BASE_URL
+    process.env.PLAYWRIGHT_BASE_URL || M27_BASE_URL || A11Y_BASE_URL
     ? undefined
     : {
         command: `pnpm build && pnpm start --port ${PORT}`,
