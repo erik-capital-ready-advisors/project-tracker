@@ -44,7 +44,7 @@ only, per §3.1a), FR-91, and FR-96 with FR-96a, FR-96b, FR-96c.
 | i3 | integration | 2 | FR-90 read side (mark every collision, merge nothing) + FR-87/FR-88 planned-work write path | api-integrator | i1, i2 | pending |
 | i4 | integration | 2 | FR-91 staleness derivation — pure, 30-day boundary from a date passed in, never `new Date()` inside — plus planned-row query helpers | api-integrator | i1 | **done** — gate PASS (6 sections, 14 file lines, 4 questions), run id matched. Worktree base STALE `75f070a` → reset `6f91fa2`, `HAVE_PHASE1` confirmed, **verified independently by project-lead**. Committed `c7c62ee`. Module `@/lib/server/workitems/planned` — full signature block carried into u4's brief. test **1673 passed / 6 skipped** (+35 from 1638, exactly its new tests), typecheck 0, lint 0, gate:m27 5/5, build exit 0. **Red-capability proven: 4 derivation mutations + 3 projection mutations, 0 survivors**, `planned.ts` restored byte-identical and SHA-checked. No migration, no route, no action, no new field on any agent-facing payload (grepped for object spread in the three answer modules), no column newly decrypted. **D-1 deliberately untouched and still u4's** — `isPlannedRow` reads raw snake_case columns precisely because `fromExecutionMode(null)` returns `"fleet"`, so i4 neither depends on the fix nor breaks when it lands, and **no test here asserts the broken behaviour**. `gate:m27:e2e` NOT VERIFIED — orchestrator post-merge; did not point one at the shared checkout |
 | u2 | ui | 2 | FR-88 hand-entry form at `/work-items/new` (engagement REQUIRED per Q14). Takes served routes 30 → 31 | ui-designer | u1, i1 | **done** — gate PASS (6 sections, 11 file lines, 4 questions), run id matched. Worktree base STALE `75f070a` → reset `6f91fa2`, `HAVE_PHASE1` confirmed, **verified by project-lead**. Committed `23ce03c`. **Served routes 30 → 31** and `manual-gate.sh` now reports exactly `FAIL FORWARD: the branch serves /work-items/new and the guide's evidence never mentions it` — everything above it `ok`. **This is expected and is doc1's job**, budgeted, not discovered at merge. test **1670 passed / 6 skipped** (+32, +2 files), typecheck 0, lint 0, gate:m27 5/5, build exit 0. **11 mutations, 11 caught, tree restored.** Dev server started, both screens driven at 1280 and 375 (375: `scrollWidth` 375, zero overflowing elements), and **confirmed shut down**. `gate:m27:e2e` NOT VERIFIED — orchestrator post-merge |
-| u3 | ui | 2 | FR-96 URL filter honoured on all 11 list screens + FR-96c explicit "no such engagement" state, never a silent fall-back | ui-designer | u1, r1 | **in_progress** — Wave A, dispatched 2026-08-24 |
+| u3 | ui | 2 | FR-96 URL filter honoured on all 11 list screens + FR-96c explicit "no such engagement" state, never a silent fall-back | ui-designer | u1, r1 | **done** — gate PASS (6 sections, 22 file lines, 3 questions), run id matched. Worktree base STALE `75f070a` → reset `6f91fa2`, **verified by project-lead**. Committed `44aa3fc`. **Inherited-decision instruction honoured and independently checked:** report says "The decision I INHERITED rather than chose", question re-queued as line 1, and `git diff` confirms it did **not** touch `unparsed-count.tsx`, `unparsed-display.ts` or `engagement-scope.tsx` — the badge is untouched. **FR-96c uses no `notFound()`** (grepped the FR-96c path). test **1672 / 6 skipped** (+34), typecheck 0, lint 0, gate:m27 5/5, build exit 0, **manual-gate PASS 30/30, served routes 30** — a query parameter is not a route. 4 mutations: 3 killed, **1 SURVIVED** — a dead `unresolved → []` arm in `/registry`'s `listed`; it deleted the dead code and said so rather than leaving unkillable code. Served all eleven routes across three URL shapes, 375px overflow 0 with a 40-char slug, server shut down. `gate:m27:e2e` NOT VERIFIED — orchestrator post-merge |
 | u4 | ui | 2 | FR-91 planned + STALE visual treatment everywhere a work item renders | ui-designer | u1, i4 | pending |
 | c1 | copy | 2 | Microcopy: form labels and help, empty states, STALE wording, "no such engagement" state, the FR-96a badge scope label | copywriter | u1, u2, u3, u4 | pending |
 | doc1 | docs | 2 | `docs/user-guide.md`: FR-96 filter section + `/work-items/new` section + observed evidence rows, taking the evidence file to 31 routes | docs-writer | u2, u3, u4, c1 | pending |
@@ -359,3 +359,75 @@ narrower than u2 could know: (a) two planned rows with **NULL** `plan_ref` must 
 NULLS DISTINCT, and (b) `ignoreDuplicates` must **skip** rather than error or overwrite.
 **project-lead resolves (a) and (b) post-merge with a rolled-back live query** rather than carrying
 a NOT VERIFIED that is one statement away from being closed.
+
+---
+
+## Wave A merged — `8392bd3`. Measured by project-lead on the MERGED tree, not taken on report.
+
+Merge method matches Phase 1: each worktree's diff applied onto the branch as one commit, never
+`git merge` (the permission classifier refuses it). Only one file was touched by two units —
+`src/app/work-items/page.tsx` (u2 and u3) — and the hunks were non-adjacent, so `git apply --3way`
+resolved it. **Verified the resolution rather than trusting a clean apply:** u2's
+`<Link href="/work-items/new">` survives at line 97 and u3's `engagement-resolve` machinery is
+imported and used. Both units' work is present; neither was silently dropped.
+
+| Check | Phase 1 baseline | Wave A merged | Note |
+|---|---|---|---|
+| `pnpm typecheck` | 0 | **0** | |
+| `pnpm lint` (oxlint) | 0 | **0** | |
+| `pnpm test` | 1638 / 6 skipped | **1739 passed / 6 skipped** | = 1638 + 35 + 32 + 34, **exactly the sum** — no cross-unit interference, no tests lost |
+| `pnpm gate:m27` | 5/5 | **5/5** | |
+| `pnpm build` | exit 0 | **exit 0** | |
+| `pnpm gate:m27:e2e` | 10/10 | **9 passed / 1 failed at default workers; 10 passed / 10 at `--workers=1`** | see below |
+| `manual-gate.sh` | PASS 30/30 | **FAIL FORWARD**, 31 served / 30 in evidence | expected; doc1 owns it |
+| Served page routes | 30 | **31** | u2's `/work-items/new` |
+
+### `gate:m27:e2e` — the intermittent failure is a PARALLEL-WORKER RACE, not a credential fault
+
+At default 5 workers: **9 passed / 1 failed**, the failure `/committed` with `data-verify-gate`
+reason **`no-role`**. Re-run at `--workers=1`: **10 passed / 10**, exit 0.
+
+**`no-role` is not `sign-in`.** The both-env-vars-unset signature is 10 failed / 10, every one
+`sign-in`; a revoked session is the same. This is neither. Phase 0 hit the identical shape on
+`/untested` and it also passed in isolation — **a different test each time, which is the signature
+of a race rather than a broken screen.** The operator `aal2` session is alive and B41 remains stale
+as written.
+
+**B38 honoured:** the gate's raw output was never pasted, only grepped for the reason token, and
+both log files were deleted afterwards because a failing run can carry a live access and refresh
+token. Dev server started against the merged tree and **confirmed dead** afterwards (`lsof -ti:3000`
+empty).
+
+### u2's `NULLS DISTINCT` / `ignoreDuplicates` NOT VERIFIED — now CLOSED against the live database
+
+u2 could only prove *"the code asks the database for the right thing"*, because `createFakeDb`
+models neither behaviour. project-lead settled the remaining half directly, in a `DO` block that
+**raises at the end so the rollback is guaranteed by construction** rather than by a trailing
+statement that might not run:
+
+| Probe | Result | Meaning |
+|---|---|---|
+| two rows, same engagement, `plan_ref` **NULL** | `nulls_distinct_inserted=2` | **NULLS DISTINCT confirmed** — planned rows without a plan id do not collide with each other |
+| first row with `plan_ref='PROBE-D4000F-1'` | `first_keyed_insert=1` | control, proves the probe can insert |
+| same `plan_ref` again, `ON CONFLICT … DO NOTHING` | `duplicate_keyed_inserted=0` | **skips, does not error and does not overwrite** |
+
+**Rollback proven after the fact, not assumed:** `work_item` 20 rows before and 20 after, and
+`plan_ref like 'PROBE-D4000F%'` returns **0**. Combined with d1's live no-`42P10` result, the
+duplicate-`plan_ref` path is now fully verified and this NOT VERIFIED is discharged.
+
+### Two artifacts left in the SHARED CHECKOUT by a unit — not committed, and worth Erik's eye
+
+- `new-desktop.png` (135 KB, 09:40, repo root) — a screenshot written to the **shared checkout**
+  rather than a worktree, during u2's serve-and-look pass. Harmless in itself and **deliberately
+  left unstaged**, but it is precisely the artifact a `git add -A` would sweep into a commit, and
+  it shows the worktree rule can leak on a path the brief did not name explicitly.
+- `CLAUDE.md` and `docs/Delivery-Ledger-User-Guide.docx` were already dirty and belong to other
+  work. **Neither was staged.** Nothing in this run used `git add -A`.
+
+### Reports written but never staged — the u1 failure mode, caught twice more
+
+`d1` produced **no commit at all**, so its report and its 5 questions existed only as untracked
+files in its worktree — the exact way u1's Phase 1 report went missing. Recovered by the worktree
+sweep and confirmed **byte-identical by SHA-256** before staging. i4, u2 and u3 did commit theirs.
+**Two of five units in this run would have lost their report to this.** It is a defect in the
+contract, not in the specialists: nothing in a specialist's brief says the report must be committed.
