@@ -544,6 +544,78 @@ engagement screen and destroys the engagement's work items, blockers, requiremen
 milestones and questions. It stops at the audit boundary, so the audit log survives a deletion by
 design. Read the next section before you use it.
 
+## Fleet runs
+
+Fleet runs lists every autonomous build run that has been read into the ledger, across every
+engagement, newest first. Each row states what that run claimed about itself — nothing on this
+screen is the product's own opinion of how a run went.
+
+Today it holds **1 run**, `b0952e`, and the line above the table says so. Beside it, **1 reported
+no test counts**: an accounting of what the record is missing, printed rather than left for you to
+notice.
+
+The table carries nine columns — run, engagement, branch, mode, verdict, duration, dispatches,
+tests passed / failed / skipped, and unparsed. It is wider than most windows; scroll it sideways
+to reach the last column. Click a run id to open it.
+
+Three columns are worth reading carefully, because each one can say "I don't know" and each says it
+differently:
+
+- **Verdict** is the word the run recorded for itself. `b0952e` reads `unparsed`, and underneath,
+  *one source, uncorroborated*. The ledger stores a single verdict column, so nothing here confirms
+  the word and nothing contradicts it.
+- **Dispatches** reads `not recorded`, and a note under the table explains that it always will:
+  the columns exist but nothing in this product writes them. The screen prints `not recorded`
+  rather than `0 of 0`, which would state a cap no run ever ran under.
+- **Unparsed** is that run's own count of what could not be classified. It is not the badge in the
+  top bar — see the next section.
+
+**There is no engagement filter, and that is deliberate rather than missing.** This screen is
+cross-engagement by design. A filter was proposed and is not approved, so a question was queued
+instead of a control built.
+
+## Opening one fleet run
+
+Clicking a run opens everything that run recorded. The heading is the run id itself, with
+**← All runs** to go back.
+
+**The first line is the run's own unparsed count, and it will not always match the badge in the top
+bar.** Opening `b0952e` reads **1 unparsed in this run**, broken down as `0 work units`, `0 gate
+outcomes`, and *the run's own verdict* — while the top bar reads `0`. Both are correct. The badge
+counts the ledger's three record tables; this line counts one run, and this run's unparsed item is
+its own verdict word, which the badge never looks at.
+
+Directly beneath, the screen names what it deliberately left out of that total: defects and test
+results cannot be narrowed to a run, because nothing in the record connects one to a run. It says
+their absence is a limit of the record and not a clean result.
+
+The rest of the screen is six blocks:
+
+- **Run** — engagement, branch, mode, verdict, started, ended, duration, dispatches, tests
+  reported. For `b0952e`: branch `agent-build/2026-08-19-b0952e`, mode `full`, duration `0m`,
+  dispatches *never recorded*, tests *no counts stated*.
+- **Gates** — what the run reported passing. One row here: `build_after_phase1`, `PASS`.
+- **Work units** — every unit the run dispatched, **20 of them, listed in full**, with type, mode,
+  executor, status, disposition, evidence and counts. Units read `done` or `blocked`; one,
+  `i9p2`, reads `unassigned` and **NOT DISPATCHED**, which is the record stating that the unit was
+  planned and never ran.
+- **Questions queued** — **96 questions**, also listed in full and never truncated, each with the
+  spec section it came from and its confidence.
+- **Defects** — this block answers with a gap rather than a list. It says *which defects this run
+  opened is not recorded*, and explains why: nothing connects a defect to the run that opened it.
+  An empty list here would claim the run opened none, and nothing checked that. Below it, **Fixed
+  by this run's work** shows the one run-to-defect connection the record does hold, which answers a
+  different question and is empty today.
+- **Requirements touched** — **74 requirements**, every one resolving to a stored record.
+
+If you follow a link or type an id that no run carries, you get the product's **Not found** page —
+"That route does not exist in this build" — rather than an empty run.
+
+**One screen here was not seen while writing this guide, and is UNVERIFIED.** Run ids are unique
+only within an engagement, so two engagements could one day hold the same id. The product builds a
+screen for that case which lists every match and picks none. It cannot appear on today's data — one
+run, and nothing to collide with — so it is described here from the build and not from observation.
+
 ## What this does not do yet
 
 Every item here was measured, not guessed.

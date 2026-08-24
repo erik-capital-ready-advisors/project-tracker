@@ -148,6 +148,19 @@
       "route": "/sign-in/enroll",
       "covered_in_guide": "Signing in",
       "unobserved_reason": "The authenticator setup screen renders only for an operator with no second factor attached yet. The one operator account already has one enrolled, so the state is unreachable; signed out it redirects to /sign-in and with the saved session it redirects to /."
+    },
+    {
+      "route": "/runs",
+      "covered_in_guide": "Fleet runs",
+      "observed": "Opened signed in on branch agent-build/2026-08-23-9a320b; screenshot .fleet/manual-traces/runs.png. Heading 'Fleet runs', FR-92 / FR-94 / FR-95. Summary line reads '1 run' and '1 reported no test counts'. One row, b0952e, engagement delivery-ledger, branch agent-build/2026-08-19-b0952e, mode full, verdict 'unparsed' with the sub-line 'one source, uncorroborated', duration 0m, dispatches 'not recorded', tests 'not recorded', unparsed 1. The dispatch-producer note renders beneath the table. Nine columns overflow 1280px width -- the unparsed column is clipped and the table scrolls horizontally, which is stated in the guide. No engagement filter is present, which matches FR-96 being unapproved."
+    },
+    {
+      "route": "/runs/[run-id]",
+      "covered_in_guide": "Opening one fleet run",
+      "observed": "Opened /runs/b0952e signed in on branch agent-build/2026-08-23-9a320b; screenshot .fleet/manual-traces/run-detail.png. Heading is the run id with an 'All runs' back link. Reads '1 unparsed in this run' broken down as 0 work units / 0 gate outcomes / the run's own verdict, while the shell badge reads 0 -- both observed on the same page load. The not-counted-here note for defects and test results renders. Six blocks observed: Run, Gates (build_after_phase1 PASS), Work units (20 rows, i9p2 reading unassigned / NOT DISPATCHED), Questions queued (96 rows with section and confidence), Defects (renders the 'not recorded' gap, and 'Fixed by this run's work' empty), Requirements touched (74). The not-found branch was exercised separately: /runs/zzzzzz rendered the product's Not found page, 'That route does not exist in this build'. The ambiguous-match screen was NOT observed -- one run exists and nothing can collide with it -- and the guide marks that screen UNVERIFIED in its own body."
     }
+  ],
+  "amendments": [
+    "2026-08-24, by hand, NOT by docs-writer and NOT by run 29b583. Run 9a320b (M2.8) added /runs and /runs/[run-id], taking served routes 28 -> 30 and failing manual-gate.sh with two FORWARD errors. The two rows below were observed on branch agent-build/2026-08-23-9a320b at tip dc21837, against a dev server on http://localhost:3000 using the saved aal2 operator session. Everything above this line is run 29b583's original evidence and is unchanged. The file keeps its 29b583 name because it is the guide's single evidence file, which the gate resolves by glob."
   ]
 }
