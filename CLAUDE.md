@@ -304,3 +304,11 @@ Behavioral rules earned on this project. Append one line per lesson, in the mome
   would have authored the requirements they then built against. The tracker even has a separate
   `Deferred` status, used for a *different* set — which actively signals these rows are not the
   deferred ones. They are.
+- End every substantive response with a numbered **"What I need from you"** block: the exact command
+  to run, the exact decision to make with its default, or the words to reply. Naming a *topic* that
+  needs a ruling is not a step — "rule Q21-Q24" made Erik ask "what do you need me to do next?" for
+  the second time in one session, because a question id is a pointer to work, not the work. Give
+  each item (a) the concrete action, (b) a recommended default he can accept in one word, and (c)
+  what unblocks if he does it. If a decision is genuinely his alone, ask the specific sub-question
+  rather than handing him the question's name. If nothing is needed, say "nothing needed from you"
+  explicitly — silence reads as a hidden dependency.
