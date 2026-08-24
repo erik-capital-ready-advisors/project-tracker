@@ -89,7 +89,7 @@ in-run and the deviation is reported. Recorded here **before** `i1` was dispatch
 
 | ID | Type | Phase | Description | Dispatched-to | Depends-on | Status |
 |----|------|-------|-------------|---------------|-----------|--------|
-| i1 | integration | 1 | Stacks read layer: per-stack aggregation, FR-106 limb-one trigger evaluation, FR-108 blindness counts, FR-109 operator write path for `agent_covering`. Zero migrations expected. | api-integrator | — | pending |
+| i1 | integration | 1 | Stacks read layer: per-stack aggregation, FR-106 limb-one trigger evaluation, FR-108 blindness counts, FR-109 operator write path for `agent_covering`. Zero migrations expected. | api-integrator | — | **done** — `report-gate.sh` PASS (run id matched, 6/6 sections, 13 file lines, 3 questions on disk). Merged `4f19e14` (true fast-forward). **Zero migrations, as predicted.** 12 files, +2019 lines, 57 new tests. |
 | u1 | ui | 2 | `/stacks` screen titled "Stacks": FR-104 table, FR-106 rule stated on screen, FR-107 actionable state visually distinct, FR-108 blindness + no-data treatment, Q25 Mode-2 sentence, Q27 limb-two UNMET notice, FR-109 operator control. | ui-designer | i1 | pending |
 | qa1 | qa | final | Independent review of the merged branch + trajectory grading | qa-reviewer | i1, u1 | pending |
 | doc1 | docs | final | `docs/user-guide.md` covers `/stacks` (routes 31 → 32); **all rows re-opened per B57, not copied forward** | docs-writer (mode: manual) | u1, qa1 PASS | pending |
@@ -114,3 +114,44 @@ in-run and the deviation is reported. Recorded here **before** `i1` was dispatch
 - **CR-006 / M2.6 Writeback (FR-97–FR-103) — NOT IN SCOPE.** §3 is unapproved. Not a deferral by mode;
   a scope boundary.
 - **M2.1, M2.3, M2.4, M2.5 — NOT DISPATCHABLE.** Zero FRs between them (run `9d4658`).
+
+
+## Phase 1 fan-in — i1
+
+**Report gate:** `report-gate.sh .../specialist-reports/9b85cd/i1.md 9b85cd` → **REPORT GATE PASS**
+(`ok run: 9b85cd (matches the run being gated)`), run id passed as this run's, not read back from
+the report.
+
+**Merge:** `a12c735` → `4f19e14`, verified a true fast-forward with
+`git merge-base --is-ancestor` before moving the ref, so nothing was squashed or lost. Files
+enumerated from the worktree tree and from the report's *Files created / modified*, not from
+`git status` — the worktree was confirmed clean of untracked-but-intended files, and i1 reports
+**no new env var**, so there is no `.env.example` to carry.
+
+**Questions collected:** 3, from `.fleet/questions-i1-9b85cd.jsonl` (the per-unit file, never a
+shared one), concatenated into `.fleet/questions-9b85cd.jsonl`. **Per-unit line counts: i1 = 3.**
+**None is blocking.**
+
+### The pre-registered phase discriminator, resolved
+
+I recorded before dispatch that Phase 2 continues in-run only if `i1` queued nothing that would
+change `u1`'s brief. It queued three, and **all three are additive rather than contradictory** —
+i1 says so itself on the first two, and I checked the claim against the shipped types rather than
+taking it:
+
+1. **`TriggerOutcome` is `'earned' | 'undetermined'`, not `'earned' | 'unearned'`.** i1's reasoning
+   is that Q27 forbids evaluating limb two, so the product **cannot** assert a stack has *not*
+   earned a specialist — only that limb one did not fire and limb two was never checked. This is
+   the `unparsed`-discipline applied to a trigger rule and it is **more** honest than FR-107's own
+   word. `u1` renders from `trigger.outcome`; FR-107's visually-distinct treatment keys off
+   `actionable`, which is unchanged.
+2. **`RegisterState` is `'no-sessions' | 'no-stacks' | 'observed'`** — three states, where FR-108
+   names two. The third (*sessions captured, none naming a stack*) is **the state this ledger is
+   actually in today**, so it earns its place. Additive: a screen ignoring `no-stacks` still
+   renders.
+3. **`audit_log` inconsistency** — pre-existing, reported not fixed. i1 followed FR-59 and wrote an
+   audit row for FR-109's write (target id only, **never the value**), while noting that
+   `attributeSession` and `updateEngagement` write none. Does not touch `u1`.
+
+**Therefore Phase 2 continues in-run**, and all three best guesses are carried into `u1`'s brief
+verbatim rather than left for it to rediscover.
