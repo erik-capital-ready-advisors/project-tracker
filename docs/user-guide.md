@@ -64,11 +64,16 @@ counts records the ledger could not classify. Zero means everything it holds, it
 it climbs, it is telling you something arrived in a shape the ledger does not recognise, and the
 honest thing it does is say so rather than guess.
 
-The sidebar also shows a **Jump to...** control marked `⌘K`. **Do not use it.** Clicking it, or
-pressing ⌘K or Ctrl+K, replaces the whole screen with "This page couldn't load" and a Reload
-button. Press Reload or Back and you return to where you were, with nothing lost. The sidebar
-links do the same job and work correctly. This is a defect, described again under "What this does
-not do yet".
+The sidebar also shows a **Jump to...** control marked `⌘K`, and it is the fastest way through the
+product. Click it, or press ⌘K (Ctrl+K on Windows), and a search box opens over the screen. Type
+any part of a screen's name and press Enter to go there.
+
+It lists everything under the same two headings the sidebar uses — **The six answers** and
+**Records** — with each destination's address beside it, so you can see where you are about to
+land. Escape closes it and changes nothing.
+
+> This control was broken until 2026-08-24 and earlier versions of this guide told you not to use
+> it. It is fixed, and it is now covered by tests so it cannot break again unnoticed.
 
 Most list screens carry filter controls across the top and an **Apply** button. Filters go into
 the address of the page, so a filtered view is a link you can keep. Filtering Work items to
@@ -620,12 +625,6 @@ run, and nothing to collide with — so it is described here from the build and 
 
 Every item here was measured, not guessed.
 
-**The command palette crashes the screen.** Clicking **Jump to...**, or pressing ⌘K or Ctrl+K,
-throws the page away and shows "This page couldn't load". All three routes into it fail the same
-way, every time. Press Reload or Back to recover; no data is affected. Use the sidebar links,
-which work. This is a genuine defect and it is worth fixing early, because the palette is the
-fastest path through the product and right now it is the only control that breaks on contact.
-
 **Next and Bottleneck are empty, and you cannot fill them from inside the product.** No work item
 holds the `pending` status that Next draws from, and none carries you or an Erik-gate as its
 executor, which is what Bottleneck ranks. Both screens explain their own emptiness with
@@ -668,9 +667,10 @@ columns, not a blanket promise. Anything you type into a defect title is stored 
 
 ## When something looks wrong
 
-**A screen shows "This page couldn't load".** You pressed ⌘K or Jump to..., or something crashed.
-Press Reload. Nothing was written. If it happens on a screen you reached from the sidebar, note
-what you clicked and tell Erik.
+**A screen shows "This page couldn't load".** Something crashed in the browser. Press Reload.
+Nothing was written — this message means a screen failed to draw, never that data was lost. Note
+what you clicked and tell Erik, because there is no longer a known control that does this: the
+command palette used to, and that was fixed on 2026-08-24.
 
 **A screen shows "Sign in to read this screen".** Your session ended. Sign in again. The counts
 beside it will read `unparsed count unavailable` and the rows will be dashes; that is the ledger

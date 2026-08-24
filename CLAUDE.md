@@ -254,6 +254,12 @@ Behavioral rules earned on this project. Append one line per lesson, in the mome
   live `delivery-ledger` engagement** while writing the user guide. It was caught in the same
   output, reversed with Restore, and confirmed against the database rather than the UI that had
   just been used — but the next one may hit a control with no Restore beside it.
+- Mocking a component to `() => null` in one test file silences it everywhere that file looks, so
+  **check the mocked component has a test of its own** before treating it as covered. `AppShell`'s
+  test mocks `CommandPalette` to `() => null` — correct for that file, since the alternative drags
+  router context into assertions about the shell — and that mock is exactly why **B46 reached
+  production**: the palette threw on every route into it, no test ever mounted it, and 1545 tests
+  stayed green. Same shape as B43. When you write such a mock, grep for a test of the real thing.
 - `pnpm gate:m27:e2e` needs **both** `M27_BASE_URL` and `M27_STORAGE_STATE`; with the latter unset
   it produces **10 failed / 10, every one "rendered the operator gate (sign-in)"** — which is
   byte-for-byte the signature a revoked session produces. That signature therefore does **not**

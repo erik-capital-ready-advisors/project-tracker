@@ -48,10 +48,6 @@ function CommandDialog({
 }) {
   return (
     <Dialog {...props}>
-      <DialogHeader className="sr-only">
-        <DialogTitle>{title}</DialogTitle>
-        <DialogDescription>{description}</DialogDescription>
-      </DialogHeader>
       <DialogContent
         className={cn(
           "top-1/3 translate-y-0 overflow-hidden rounded-xl! p-0",
@@ -59,7 +55,27 @@ function CommandDialog({
         )}
         showCloseButton={showCloseButton}
       >
-        {children}
+        {/*
+          B46. The header lives INSIDE `DialogContent`, and `children` are
+          wrapped in `Command`. Both were wrong and only the second one crashed.
+
+          `CommandInput`, `CommandList`, `CommandGroup` and `CommandItem` are
+          cmdk primitives that read their store from the `Command` root's
+          context. Nothing rendered that root, so `useStore()` returned
+          `undefined`, `.subscribe` threw, and React tore the page down to "This
+          page couldn't load" on every route into the palette.
+
+          The header was a quieter defect of the same edit: Radix wires a
+          dialog's accessible name from a `DialogTitle` rendered inside its
+          content, and this one sat outside it as a sibling of `DialogContent`.
+        */}
+        <DialogHeader className="sr-only">
+          <DialogTitle>{title}</DialogTitle>
+          <DialogDescription>{description}</DialogDescription>
+        </DialogHeader>
+        <Command className="rounded-none! bg-transparent p-0">
+          {children}
+        </Command>
       </DialogContent>
     </Dialog>
   )
