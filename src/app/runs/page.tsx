@@ -201,7 +201,8 @@ export default async function RunsPage({
             // "No fleet run has been ingested yet" under a filter would report
             // an empty ledger on a request that only looked at one engagement.
             scope?.kind === "resolved"
-              ? /* COPY: /runs empty state, scoped to one engagement */
+              ? // Same claim, narrowed, and "yet" is dropped with the ledger:
+                // "yet" is a statement about the product's whole lifetime.
                 `No fleet run has been ingested for ${scope.slug}.`
               : "No fleet run has been ingested yet."
           }

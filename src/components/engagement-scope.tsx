@@ -218,7 +218,11 @@ function EngagementPicker({
         }
         className="ident h-7 w-36 text-xs"
       >
-        {/* COPY: the picker's unfiltered option — FR-96's default view */}
+        {/* One wording for one concept: `answer-filter-bar` already spells the
+            unfiltered case "every engagement", and a second phrasing here would
+            let the shell picker and the six answer screens disagree about what
+            the default view is called. Lowercase fragment, no full stop — this
+            product's convention for a control label as against a statement. */}
         <option value="">every engagement</option>
 
         {options.map((one) => (
@@ -241,14 +245,20 @@ function EngagementPicker({
               chrome and the screen disagree about what is being shown.
         */}
         {slug !== null && !known ? (
-          // COPY: how the picker labels a slug that is not an active engagement
+          // A fact about the LIST, not a claim about the ledger — because the
+          // picker cannot tell the two cases above apart. "not active" would
+          // assert archived; "no such engagement" is FR-96c's sentence and
+          // belongs to the screen below, which did the lookup. The slug leads so
+          // that a native select truncating the option still shows it.
           <option value={slug}>{slug} — not in the active list</option>
         ) : null}
       </NativeSelect>
 
       <Button type="submit" size="icon-sm" variant="outline">
         <Filter aria-hidden />
-        {/* COPY: the picker's submit control, named for screen readers only */}
+        {/* The icon carries no name, so this is the button's whole accessible
+            name. Verb first, and it names the ACT of applying rather than
+            repeating the select's own label two elements away. */}
         <span className="sr-only">Apply the engagement filter</span>
       </Button>
     </form>

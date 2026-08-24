@@ -183,14 +183,23 @@ export default async function QuestionsPage({
             // Scoped and unscoped are different claims. "No open questions have
             // been recorded." under `?engagement=acme` reports an empty ledger
             // on a request that only looked at one engagement.
+            // Four sentences, two axes, and each one claims exactly what its
+            // request looked at. The scope qualifier leads in the "nothing is
+            // waiting" pair, because trailing it after the predicate reads as
+            // part of the predicate — "waiting on an answer for acme" — rather
+            // than as the scope of the search.
+            //
+            // The unfiltered `includeAnswered` line used to say "No OPEN
+            // questions have been recorded." on a request that searched
+            // answered ones too: narrower in the copy than in the query, which
+            // leaves the reader believing answered rows may be hidden. It now
+            // makes the claim the query supports.
             scope?.kind === "resolved"
               ? includeAnswered
-                ? /* COPY: /questions empty state, one engagement, answered included */
-                  `No questions have been recorded for ${scope.slug}.`
-                : /* COPY: /questions empty state, one engagement, open only */
-                  `Nothing is waiting on an answer for ${scope.slug}.`
+                ? `No questions have been recorded for ${scope.slug}.`
+                : `Nothing for ${scope.slug} is waiting on an answer.`
               : includeAnswered
-                ? "No open questions have been recorded."
+                ? "No questions have been recorded."
                 : "Nothing is waiting on an answer."
           }
           detail="The fleet queues a question here whenever a unit could not resolve something on its own. Each one links to what it asked, what it assumed in the meantime, and what was decided."

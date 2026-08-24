@@ -228,8 +228,13 @@ export function PlannedWorkForm({
         >
           {pending ? "Recording…" : "Record planned work"}
         </Button>
+        {/* "written", not "saved": every refusal on this path — the two client
+            checks above and all four server sentences in
+            `create-planned-work-item.ts` — says "nothing was written", and one
+            promise stated in two vocabularies is one the reader has to
+            reconcile. */}
         <p className="text-muted-foreground text-xs">
-          Nothing is saved unless this succeeds.
+          Nothing is written until this succeeds.
         </p>
       </div>
     </form>

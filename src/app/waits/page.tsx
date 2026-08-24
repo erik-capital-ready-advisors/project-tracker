@@ -237,12 +237,14 @@ export default async function WaitsPage({
           headline={
             // Scoped and unscoped are different claims -- see `/questions` for
             // the same note. A filtered screen must not report the ledger.
+            // The scope qualifier leads in the open-only line. Trailing it —
+            // "waiting on anyone outside the studio for acme" — attaches to
+            // "the studio" and reads as a claim about acme's studio. Same
+            // sentence shape as `/questions`, deliberately.
             scope?.kind === "resolved"
               ? includeResolved
-                ? /* COPY: /waits empty state, one engagement, resolved included */
-                  `No external waits have been recorded for ${scope.slug}.`
-                : /* COPY: /waits empty state, one engagement, open only */
-                  `Nothing is waiting on anyone outside the studio for ${scope.slug}.`
+                ? `No external waits have been recorded for ${scope.slug}.`
+                : `Nothing for ${scope.slug} is waiting on anyone outside the studio.`
               : includeResolved
                 ? "No external waits have been recorded."
                 : "Nothing is waiting on anyone outside the studio."

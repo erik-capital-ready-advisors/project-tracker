@@ -59,7 +59,10 @@ function scopeSuffix(
 ): string {
   if (scope !== "whole-ledger") return "";
   if (unparsedState(count) === "unknown") return "";
-  // COPY: the FR-96a scope note appended when an engagement filter is active
+  // Verbatim from FR-96a's own worked example, "3 unparsed (whole ledger)".
+  // Not softened, not shortened to "(all)", not moved into a tooltip: the note
+  // IS the control that stops a ledger-wide number being read as a scoped one,
+  // and a reader who has to hover for it has already misread the number.
   return " (whole ledger)";
 }
 
@@ -129,7 +132,10 @@ export function unparsedShortLabel(
   count: number | null | undefined,
   scope: UnparsedScopeNote = "none",
 ): string {
-  // COPY: the compact form of the unparsed count, shown below the `sm` breakpoint
+  // `?` is this product's standing mark for a fact nobody established —
+  // `run-unparsed.tsx` spells the same state the same way, and the word
+  // `unparsed` survives at every width because it is the one carrying the
+  // meaning. Never a digit here: see the module comment.
   return unparsedState(count) === "unknown"
     ? "unparsed ?"
     : unparsedLabel(count, scope);

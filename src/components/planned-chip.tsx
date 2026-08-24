@@ -72,18 +72,44 @@ const CHIP_TEXT: Record<"fresh" | "stale" | "unknown", string> = {
   unknown: "planned",
 };
 
+/**
+ * The age, as a sentence. Four cases, because `daysUntouched` has four shapes a
+ * single template gets wrong.
+ *
+ * `${days} days` alone reads "untouched for 1 days" the day after a row is
+ * planned, and "untouched for -2 days" under the clock skew `daysUntouched`
+ * deliberately reports rather than clamping. On an instrument panel the whole
+ * claim to be believed is precision, and prose that cannot count to one spends
+ * it. `0` gets its own wording too: "untouched for 0 days" is an odd way to say
+ * the row was touched today.
+ *
+ * The chip's own age token stays `${days}d` for all of them — `-2d` is terse and
+ * honest in a fixed column, and it is the tooltip that has to read as English.
+ */
+function ageSentence(days: number): string {
+  if (days < 0) {
+    return (
+      "Planned work. Its last-touched date is later than the date being asked " +
+      "about, so its age is not stated."
+    );
+  }
+  if (days === 0) return "Planned work, touched today.";
+  if (days === 1) return "Planned work, untouched for 1 day.";
+  return `Planned work, untouched for ${days} days.`;
+}
+
 function title(staleness: PlannedStaleness): string {
   switch (staleness.state) {
     case "stale":
       return (
-        `Planned work, untouched for ${staleness.daysUntouched} days. ` +
+        `${ageSentence(staleness.daysUntouched)} ` +
         `No run has claimed it; it is not in flight. FR-91 surfaces a planned ` +
         `row as STALE at 30 days untouched. Derived from work_item.updated_at, ` +
         `not stored — nothing has transitioned and nothing has been deleted.`
       );
     case "fresh":
       return (
-        `Planned work, untouched for ${staleness.daysUntouched} days. ` +
+        `${ageSentence(staleness.daysUntouched)} ` +
         `No run has claimed it, so it is not in flight.`
       );
     default:

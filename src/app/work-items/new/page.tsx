@@ -89,7 +89,8 @@ export default async function NewWorkItemPage() {
           >
             The engagement list could not be read, so the picker below is empty
             for a reason that is not &ldquo;you have no engagements&rdquo;.
-            Retry; if it persists, check that the database is reachable.
+            Reload the page. If it persists, check that the database is
+            reachable.
           </p>
         ) : null}
 

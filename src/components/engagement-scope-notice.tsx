@@ -60,16 +60,24 @@ export function EngagementScopeNotice({
           className="text-state-blocked mt-0.5 size-4 shrink-0"
         />
         <div className="min-w-0">
-          {/* COPY: FR-96c's sibling — the engagement read failed, so the filter
-              could not be applied and no rows are shown */}
+          {/* Two sentences doing two jobs, and neither may be FR-96c's.
+              One: what happened and what it cost. "looked up" rather than
+              "read", because what failed was the lookup of THIS slug — the
+              engagement *list* failing is a different message on a different
+              screen.
+              Two: the gap in our own knowledge, then the next action. The
+              earlier draft said the unfiltered list was "one click away by
+              clearing the filter", which is wrong twice: this is a GET form, so
+              clearing takes a choice and a submit, and a false claim about the
+              mechanism is exactly what this product refuses elsewhere. */}
           <p className="text-foreground font-medium">
             The engagement <span className="ident">{resolution.slug}</span>{" "}
             could not be looked up, so this list is not shown.
           </p>
           <p className="text-muted-foreground mt-0.5">
             This is not the claim that no such engagement exists — nothing
-            checked. Retry; the unfiltered list is one click away by clearing the
-            filter.
+            checked. Reload the page, or clear the filter to read the whole
+            ledger.
           </p>
         </div>
       </output>
