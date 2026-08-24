@@ -328,3 +328,13 @@ Behavioral rules earned on this project. Append one line per lesson, in the mome
   literal keystrokes, and what he will see on screen when it worked. The single exception is a step
   that must not pass through you — issuing or pasting a secret — and even there, prepare everything
   else first so his part is one action.
+- **A blocker list is not a work queue, and serialising it makes Erik a hamster on a wheel.** On
+  2026-08-24 he asked for Phase 2 (`mode=full`). The fleet correctly refused - M2.1 to M2.6 carry
+  zero FRs - and from that point the session never returned to a goal. It worked the blocker list
+  instead, offering a menu with a "recommended" item each time, and **filed seven new blockers
+  (B60-B66) while closing three of them**, so the list stayed non-empty by construction. He said
+  "are you just finding random things to fix?" and he was right. Before proposing the next item,
+  state (a) which milestone or question it serves, (b) what the END CONDITION is, and (c) whether
+  the spec is already fully built - and if it is, **say so and stop** rather than offering another
+  menu. "Every approved requirement is built" is a finish line and it is the single most useful
+  sentence to say out loud; a defect list will never produce it on its own.
