@@ -1,7 +1,7 @@
 # Production Plan: Delivery Ledger
 
 **Project:** Delivery Ledger — single-operator delivery tracker for Capital Ready Advisors
-**Last updated:** 2026-08-23 — by project-lead run `29b583` (see the run-29b583 block below). Previously 2026-08-22 — **PR #1 MERGED.** Erik merged it into `master` (`f629816`, verified via `gh pr view 1` — `state: MERGED`) after approving §5a. **`master` is no longer at `c835cf9`** — every line below still saying otherwise is describing state prior to this merge. Session stopped here for the day; no fleet dispatch happened yet against the four items §5a unblocked. Earlier the same day — **§5a APPROVED.** Erik ran `pnpm dev`, signed in, walked the six answer screens and several detail views, and approved the design **as-is, no changes requested.** This unblocked **B32** (money-formatter split), **B36** (`/questions/[id]`), **`docs/user-guide.md`**, and the **PR #1 merge decision**. Also raised in the same session: **B40**, no sign-out control exists anywhere in the signed-in app, filed and deliberately deferred. Nothing else changed — code state and test numbers are exactly as the 2026-08-20 entries below recorded them; deploy status now differs because `master` moved (see above).
+**Last updated:** 2026-08-24 — hand session. **M2.8 is COMPLETE**: `manual-gate.sh` PASS 30/30, both new screens observed for the first time, and FR-92/FR-93's three unsatisfiable clauses **ratified as-built by Erik and recorded as unmet**. Verifying one of those clauses found **B47** — `defect.source_key` was not run-scoped, so a second fleet run's QA report would have silently overwritten the first run's 13 defect rows. Reproduced with a failing test before it was escalated, fixed, and migration `20260824015328` applied and read back (13/13 rekeyed, 0 stale). `pnpm test` **1545 passed / 6 skipped**, typecheck 0, lint 0, `gate:m27` 5/5. Previously 2026-08-23 — by project-lead run `29b583` (see the run-29b583 block below). Previously 2026-08-22 — **PR #1 MERGED.** Erik merged it into `master` (`f629816`, verified via `gh pr view 1` — `state: MERGED`) after approving §5a. **`master` is no longer at `c835cf9`** — every line below still saying otherwise is describing state prior to this merge. Session stopped here for the day; no fleet dispatch happened yet against the four items §5a unblocked. Earlier the same day — **§5a APPROVED.** Erik ran `pnpm dev`, signed in, walked the six answer screens and several detail views, and approved the design **as-is, no changes requested.** This unblocked **B32** (money-formatter split), **B36** (`/questions/[id]`), **`docs/user-guide.md`**, and the **PR #1 merge decision**. Also raised in the same session: **B40**, no sign-out control exists anywhere in the signed-in app, filed and deliberately deferred. Nothing else changed — code state and test numbers are exactly as the 2026-08-20 entries below recorded them; deploy status now differs because `master` moved (see above).
 2026-08-20 (night, second pass) — **`pnpm gate:m27:e2e` HAS RUN: 8 passed / 2 failed.** B31 is no longer "never run", and M2.7's navigation contract is proven against real rows in a real browser at `aal2` on `/blocked`, `/committed`, `/broken` plus all four cross-cutting tests. **The two failures are not defects** — `/next` and `/bottleneck` are empty because the answers are genuinely empty (no work item is `pending`; **zero** are `erik`/`erik_gate`), and neither can be populated through the product. That conflation is now **B39**. **Getting there took an unplanned detour: Erik could not sign in at all.** Diagnosed to `proxy.ts` forcing `httpOnly: true` on the Supabase cookie — `document.cookie` cannot overwrite an HttpOnly cookie and fails **silently**, so after the first token refresh every sign-in succeeded at GoTrue and persisted nothing. **The first explanation was coherent and wrong, and was killed by measurement rather than shipped.** Fixed as **B37**, which also records that **Baseline §1 is unmet, not waived**: client-side auth and an HttpOnly session cookie are mutually exclusive, and honouring §1 needs auth moved server-side in Phase 2. **B38**: the gate prints the live session cookie into failure output — leaked twice, both revoked. `e2e/m27-navigation.spec.ts` was edited **with Erik's explicit authorisation**, gathering only, **no assertion changed**. Earlier the same night — **The pointer's owed list was worked and five of Erik's six open items are answered.** Closed: **B4** (global with an allowlist — and the answer opened a build unit, because the allowlist did not exist in code), **B30** (export ships decrypted, confirmed), **B35** (FR-81 wins; **CR-004 drafted and approved**, no code and no schema), **B34** (fixed, though not as prescribed — `string | null | "none"` does not discriminate in TypeScript). **The M1.10 purge probe ran**: both refusal branches observed through the product's own `service_role` client with every count unchanged, so the refusal path is closed and **the destruction path is still NOT VERIFIED** — a refusal probe cannot observe a cascade, and the old pointer overstated this. `pnpm e2e` and `pnpm build` re-run rather than quoted: **255 passed / 7 skipped**, **41 routes**. 5 fleet learnings routed to the vault, 7 of 8 leaked worktrees pruned with branches retained, and `qa1`'s 5 uncollected questions read — **all five had already reached Erik as B31–B35, so the record broke but no decision went missing.** **§5a is still NOT APPROVED and Erik confirmed he has not yet looked at the screens**, so B32, `docs/user-guide.md`, `f4`/`f5` and the merge all stay held behind it. Numbers, all measured by that session: `pnpm test` **1359 passed / 6 skipped**, `pnpm gate:m27` **5/5**, typecheck 0, lint 0. **Nothing committed; nothing deployed.** Earlier the same day — **M2.7 is built: eight detail views, every reference navigable, and the acceptance gate that was written red before dispatch is now GREEN.** Fleet run `eb2490`, 8 dispatches of a 20 budget, 7 specialists in 3 waves plus an independent review. `pnpm gate:m27` **5 failed / 5 → 5 passed / 5**, measured at both ends by the orchestrator and reproduced independently by `qa-reviewer`. `pnpm test` 1061 → **1346 passed / 6 skipped / 0 failed**; build 33 → **41 routes**; e2e 207 → **255 passed / 7 skipped**. Neither gate file was edited — `6210318` is still the only commit that ever touched either, verified twice by different agents. **M2.7 is NOT Complete**, and for one reason: `pnpm gate:m27:e2e`, the ten crawl tests over populated screens, **could not run** — no agent holds an `aal2` session. Every loader, decrypt edge and resolution query on this branch is exercised against in-memory fakes only. **B31.** QA: **BLOCKED, 0 critical, 3 important, 9 minor**, all seven units graded SOUND and **no fabricated claim found in any report**. 2026-08-20 (late) — **M1.10 is built and Phase 1 is code-complete.** FR-60's export reads all 21 tables in one database function and was **observed returning a 412 KB document with counts that agree with this file**; FR-61's archive, restore and hard deletion are built against CR-002 §2, and the cascade chain that made deletion impossible — `engagement → test_case → test_result` — is gone, with the whole cascade graph now asserted by a test. **The purge has not been executed against real rows and is carried as NOT VERIFIED.** Earlier: **B27 closed: Broken has real data for the first time**, 13 defects with the critical reading `fixed`. Wiring the parser is what revealed that it read a report recording its own remediation as if nothing had been fixed. Earlier: the §5a state scale was measured against its own written claim and failed — four colour tokens changed, `unparsed` moved to a hatched treatment, and the claim is now a test.
 **Earlier the same day:** This repo's own run `b0952e` was ingested through the product path by a human, `unparsed = 0` on work items, after a payload-validator defect was found and fixed that made a Playwright test impossible to represent
 **Current phase:** Build, **Phase 1 milestones M1.1–M1.10 complete in code** on `agent-build/2026-08-19-b0952e`. M1.10 was built 2026-08-20 against CR-002 §2 — export, archive, restore and hard deletion, plus migration `20260820153021_m110_export_and_purge` **applied to the live project and verified by observation**. **§5a is now approved, so `docs/user-guide.md` is unblocked but still not written**; §7b is **not waived**, so M1.10 is complete in code and not complete as a milestone until it is. **[PR #1](https://github.com/erik-capital-ready-advisors/project-tracker/pull/1) was merged 2026-08-22 — `master` is at `f629816`, verified via `gh pr view 1`.** Still nothing deployed to production; Vercel's Production Branch is `master`, so the next push to it is the first production deploy this project will have
@@ -27,95 +27,88 @@ This file is the **build log**. It tracks the live state of development: what's 
 
 ## Next session pointer
 
-> ### Read this first — resume note for 2026-08-24
+> ### Read this first — resume note for 2026-08-25
 >
-> **Branch: `agent-build/2026-08-23-9a320b`, tip `dc21837`.** Tree clean apart from
-> `docs/Delivery-Ledger-User-Guide.docx`, which is **open in Word** — it is generated output, so
-> anything typed into it is lost on the next regeneration. Edit `docs/user-guide.md` and rebuild.
+> **Branch: `agent-build/2026-08-23-9a320b`.** Everything below was done 2026-08-24 by hand, in a
+> session that started out only meaning to fix a gate. Tree is clean apart from
+> `docs/Delivery-Ledger-User-Guide.docx`, which is **stale on purpose** — see the last section.
 >
-> #### The fleet run was STOPPED, not finished — and that changes what exists
+> #### M2.8 is COMPLETE. All three gates closed.
 >
-> **Run `9a320b` (M2.8) was killed mid-Wave-B at Erik's 15% credit mark**, deliberately: running dry
-> mid-run leaves a half-built branch with no report and no writeback, which is the worst shape.
+> 1. **`manual-gate.sh` PASSES, 30 of 30 routes covered, all observed.** `docs/user-guide.md` gained
+>    "Fleet runs" and "Opening one fleet run"; `.fleet/manual-evidence-29b583.json` gained two rows
+>    and an `amendments` note saying which branch and run observed them, since the file keeps its
+>    29b583 name. Hand-edited rather than re-dispatching `docs-writer` — that cost ~157k tokens for
+>    the full guide and this was two routes.
+> 2. **Both screens have now been rendered and observed**, which the two units could not do from
+>    isolated worktrees. **The saved `aal2` session was alive** — round-tripped, not decoded.
+>    Screenshots in `.fleet/manual-traces/`.
+> 3. **The three FR clauses this product does not satisfy were RATIFIED AS-BUILT by Erik** and are
+>    written down as **unmet** in the Decisions log rather than allowed to pass as satisfied:
+>    FR-93's "the defects it opened", FR-92's "dispatches used against cap", and `/runs/[run-id]`
+>    addressing a run unambiguously. Read that entry before touching FR-92–FR-95.
 >
-> **So run `9a320b` has NO `report-`, NO `audit-`, and NO `learnings-` file, and it never will.**
-> Do not go looking for them and do not run `run-audit.sh 9a320b` expecting a pass — it will fail on
-> a record that was never completed, correctly. This is the one run in this repo's history whose
-> `.fleet/` record is deliberately partial. Everything before it (`b0952e`, `eb2490`, `29b583`) has a
-> full set.
+> #### The thing worth carrying forward, if you read nothing else
 >
-> **`.fleet/questions-9a320b.jsonl` WAS written — by the dispatching session, not the orchestrator.**
-> 8 questions, i1 ×4, u1 ×2, u2 ×2, fanned in by hand after the run died so nothing was stranded.
+> **Verifying the FR-93 question turned up B47, a live data-loss defect, and the way it got settled
+> is the reusable part.** `defect.source_key` was built from the constant `qa-report`, so it was
+> stable across re-posts of one run and **identical across different runs** — and `defect` upserts
+> on `(engagement_id, source_key)`. A second run's QA report would have **overwritten the first
+> run's 13 defect rows instead of adding its own**, silently, only on the second run.
 >
-> #### What was rescued, and why it nearly was not
+> The first writeup handed Erik a structural argument plus a three-option menu. He asked what
+> Karpathy would do. The answer was **write the failing test instead of the menu** — it came back
+> RED with `qa-report#0`, `#1`, `#2` colliding, and there was no decision left to make. **Reproduce
+> before escalating; escalate the measurement, not the claim.** That is now a lesson in `CLAUDE.md`.
 >
-> **Both specialists finished AFTER the orchestrator was killed, and both left their work
-> UNCOMMITTED in gitignored worktrees.** No git object held roughly 475k tokens of finished,
-> verified work; a `git worktree prune` would have destroyed it silently. Enumerated with
-> `git status --porcelain`, never `git diff` — which cannot see a unit's new files and would have
-> shown one modified `nav.ts`.
+> Fixed, and migration `20260824015328` applied and read back: **13 of 13 rekeyed, 0 stale, 13
+> distinct keys over 13 distinct refs.** The migration **refuses with an exception** if more than
+> one run exists, because there is no run→defect edge to read the owner off — that absence *is*
+> FR-93's gap.
 >
-> - **`a188823` — u1, `/runs` list route.** Appends its `OPERATOR_ROUTES` entry and reads it back
->   **by href**, not a seventh positional index (B44's fix for the new entry only).
-> - **`dc21837` — u2, `/runs/[run-id]` detail route.** Nine components. Renders `ambiguous` with every
->   match listed and none chosen (FR-95), states the defect gap on screen rather than showing an empty
->   list, and renders an empty `gates` `{}` as "recorded no gates" and explicitly not "all gates passed".
+> **Two near-misses from this session, both worth internalising:**
 >
-> Re-verified in the shared checkout rather than quoted: **typecheck 0, lint 0, `gate:m27` 5/5,
-> `pnpm test` 1472 → 1544 passed / 6 skipped** (u1's 37 + u2's 35, nothing else changed state).
+> - **A control that reported the opposite of the truth.** Checking whether the `aal2` session was
+>   alive by comparing `h1` said "SESSION DEAD" about a session that was plainly working: `h1` is
+>   `"Blocked"` signed-in *and* signed-out, because the gate renders **inside** the `<Screen>`. Key
+>   an auth round-trip on the sign-in notice, and abort if the signed-out case fails to show it.
+> - **A test that passed by asserting nothing.** Run-scoping the key left
+>   `persist.test.ts`'s `startsWith("qa-report#")` filter matching zero rows, so its comparison held
+>   over two empty arrays and stayed green. It now carries
+>   `expect(fresh.length).toBeGreaterThan(0)`. **When a change moves a string that a filter selects
+>   on, the tests that survive are as suspect as the ones that fail.**
 >
-> #### M2.8 is code-complete and NOT Complete. Three things stand between.
+> #### Numbers, measured this session and not quoted
 >
-> 1. **`manual-gate.sh` FAILS right now.** Served page routes went **28 → 30** and
->    `docs/user-guide.md` covers 28. It needs two sections plus two rows in
->    `.fleet/manual-evidence-29b583.json`. **Do not re-dispatch `docs-writer` for this** — it cost
->    ~157k tokens for the full guide and this is two routes. Hand-edit, then re-run the gate.
-> 2. **Neither screen has ever been rendered.** Both units report `NOT VERIFIED — cannot render an
->    authenticated screen from an isolated worktree`, and **neither copied a credential to work
->    around it**, which was right. **This is §7c in a new shape: the session being alive does not
->    make it reachable from a worktree.** Fold it into the §7c refinement. u1 names nine columns at
->    375px and the two-line verdict cell; u2 names the questions table's `section` column at 96 rows.
-> 3. **Two of i1's questions are defects in the APPROVED requirement text, not implementation
->    choices, and they need Erik before any more of M2.8 is built:**
->    - **FR-93 promises "the defects it opened" and no such link exists.** `defect` has no run column;
->      its only path, `fixing_work_item_id → work_item → fleet_run`, is NULL on all 13 rows.
->    - **`fleet_run` is `unique (engagement_id, run_id)`**, so a run id is unique *within* an
->      engagement while FR-92 makes `/runs` cross-engagement — **`/runs/[run-id]` cannot address a run
->      unambiguously.** Same shape as M2.7's `u4` ambiguity: an id unique only within a tuple cannot
->      key a global route. Likely fixes: key the route on the row UUID, or on `engagement/run-id`.
+> `pnpm test` **1544 → 1545 passed / 6 skipped** · typecheck **0** · lint **0** · `gate:m27` **5/5**
+> · `manual-gate.sh` **PASS 30/30**.
 >
-> #### Worktrees: 3 remain, 1.9 GB, deliberately NOT pruned
->
-> Left in place because verifying them properly costs commands Erik did not have. One cheap check was
-> run: the worktree holding its own commit has an **empty** `git diff` against the branch, so nothing
-> unique is stranded. Before removing any, follow the standing rule — `git cherry` plus a file-set
-> comparison, never a bare `git diff HEAD <branch>` — then `git worktree remove` and keep the branches.
->
-> #### Live session state, which decays
->
-> - **`pnpm dev` was running** at `http://localhost:3000`. Probably still is; probably not by morning.
-> - **The `aal2` operator session at `.playwright-auth/operator.json` was alive** at 18:00. It is a
->   perishable credential and **local inspection cannot tell you whether it still works** — round-trip
->   it (`/blocked` should render `h1: "Blocked"`, not the sign-in gate) rather than decoding it.
->   Re-mint with `pnpm dev` then `node scripts/save-operator-session.mjs` — needs a human at an
->   authenticator, so no agent can do it.
-> - **An agent token with `ingest:write` and `answer:read` is in `.env.local`.** Verified by
->   authentication with negative controls, not by presence.
->
-> #### The rest of the board, unchanged
+> #### What is open, in the order it costs least to close
 >
 > | Item | Who | Note |
 > |---|---|---|
-> | **Click sign-out** | **Erik, 2 seconds** | Closes **B40**, the last claim no test can make. Destroys the session — so do it last, or re-mint after |
-> | **B46 — command palette crashes the page** | Erik or fleet | ⌘K / Ctrl+K / Jump to… → `Cannot read properties of undefined (reading 'subscribe')`, screen replaced. Reproduced twice. Suspect `src/components/ui/command.tsx` wrapping `cmdk` in a Radix `Dialog`. **Not verified against a production build** |
-> | **8 questions from `9a320b`** | **Erik** | `.fleet/questions-9a320b.jsonl`. The two FR-93 defects above are the load-bearing ones |
+> | **`docs/Delivery-Ledger-User-Guide.docx` is stale** | **Erik, then agent** | Still 28 routes, and it holds Erik's uncommitted Word changes. Regenerating destroys them, so it was deliberately NOT regenerated. Close Word, save anything wanted, then rebuild from the updated markdown with `~/.claude/agents/regen-manual.sh`. The gate reads the `.md` and passes, so nothing is blocked on this |
+> | **Click sign-out** | **Erik, 2 seconds** | Closes **B40**, the last claim no test can make. Destroys the session — do it last, or re-mint after |
+> | **B46 — command palette crashes the page** | Erik or fleet | ⌘K / Ctrl+K / Jump to… → `Cannot read properties of undefined (reading 'subscribe')`. Reproduced twice; **not verified against a production build**. Suspect `src/components/ui/command.tsx` wrapping `cmdk` in a Radix `Dialog`. It is documented in the user guide as a known defect |
+> | **8 questions from `9a320b`** | **Erik** | `.fleet/questions-9a320b.jsonl`. **i1's four are now answered** — three by the as-built ratification, one by B47's fix. The remaining four (u1 ×2, u2 ×2) are still open |
 > | **4 questions from `29b583`** | **Erik** | `.fleet/questions-29b583.jsonl`. Still open |
-> | **B44** | fleet | Five pages read `OPERATOR_ROUTES` positionally. `tests/nav-routes.test.ts` pins the indices as a tripwire — delete that test when the refactor lands |
+> | **B44** | fleet | Five pages read `OPERATOR_ROUTES` positionally. `tests/nav-routes.test.ts` pins the indices as a tripwire — delete that test when the refactor lands. `/runs` already reads its entry **by href**, which is the fix applied to one call site |
+> | **B45** | **Erik** | Three of four specialists reported a prior-learnings search their traces show never ran. Doctrine, not product |
 > | **§7a `/questions` select** | fleet | Adding `question, best_guess, answer` to the select leaves the suite green |
+> | **A `fleet_run_id` column on `defect`** | **Erik** | Would actually deliver FR-93. **Materially smaller now** that `source_key` is run-scoped — but string-parsing a key is not a foreign key, so do not build FR-93 on the key. Wants its own CR |
 > | **CR-005 §3.1 / §3.3** | **Erik** | Unapproved. Q12–Q15 open. **§3.1 must not start before Q13** — a guessed reconciliation key produces a wrong `done` |
 > | **§2's proposed bar** | **Erik** | Approving §3.2 did not adopt it. Still needs its own yes |
-> | **PR / deploy** | **Erik** | Nothing pushed. A **Production deployment already exists** (Ready, 2026-08-22) — `prod.md` said "nothing deployed" and that was wrong; still unconfirmed as serving |
-
+> | **Worktrees: 3 remain, 1.9 GB** | agent | Deliberately not pruned. Before removing any, follow the standing rule — `git cherry` plus a file-set comparison, never a bare `git diff HEAD <branch>` — then `git worktree remove` and keep the branches |
+> | **PR / deploy** | **Erik** | Nothing pushed. A **Production deployment already exists** (Ready, 2026-08-22); still unconfirmed as serving |
+>
+> #### Live session state, which decays
+>
+> - **`pnpm dev` was left running** at `http://localhost:3000`. Probably not by morning.
+> - **The `aal2` operator session was alive** at 21:12. It is perishable and **local inspection
+>   cannot tell you whether it still works** — round-trip it, and key the check on the sign-in
+>   notice rather than on `h1`. Re-mint with `pnpm dev` then `node scripts/save-operator-session.mjs`
+>   — needs a human at an authenticator, so no agent can do it.
+> - **An agent token with `ingest:write` and `answer:read` is in `.env.local`.**
 
 > ### Read this first — resume note for 2026-08-24
 >
@@ -471,6 +464,8 @@ Erik's scope for this pass was explicit: **provision and wire the three services
 | M2.6 Writeback | Not Started | `project-lead` emits the machine-readable block itself, turning every Mode 1 parser into a validator. Retires the whole `unparsed` risk class |
 | **M2.7** Detail and navigation | **Code complete** — built 2026-08-20 by fleet run `eb2490`; **not Complete as a milestone (B31)** | Eight detail views (`/work-items/[id]`, `/defects/[id]`, `/blockers/[id]`, `/requirements/[id]`, `/questions/[id]`, `/waits/[id]`, `/releases/[id]`, `/milestones/[id]`), `<EntityRef>` adopted across all eleven existing screens, FR-12's dangling treatment preserved on a navigable surface, FR-55's hyperlink, FR-82's four relationships shown together. CR-003 FR-80–FR-86 + FR-55. **The acceptance gate written red before dispatch is now green: `pnpm gate:m27` 5 failed / 5 → 5 passed / 5**, and neither gate file was edited — `6210318` is still the only commit that ever touched either, verified independently by `project-lead` and by `qa-reviewer`. 7 units in 3 waves: `u1` the seam (`src/lib/entity-routes.ts`, `<EntityRef>`, `<EntityDetail>`, and the deletion of the gate's exclusion from `vitest.config.ts`), `i1` the read layer (reference resolution + eight loaders + FR-82, **reusing** `indexCoverage`/`latestResults`/`shippedIndex` rather than re-deriving them), `f1`/`f2`/`f3` the routes, `f4`/`f5` the adoption. **Why this row does not read Complete:** `pnpm gate:m27:e2e` — the ten crawl tests over populated screens, which is the half that would catch a `b0952e`-class defect — **has never run.** No agent holds an `aal2` session, so every loader, decrypt edge and resolution query here is exercised against in-memory fakes. **That is B31 and it is a two-command job for Erik.** QA **BLOCKED, 0 critical, 3 important, 9 minor**; all seven units graded SOUND with **no fabricated claim found in any report**. **2026-08-23, run `29b583`:** three of M2.7's follow-up defects are now fixed on `agent-build/2026-08-23-29b583` — **B33** (prose renderer hoisted to one component, one contract, eight call sites), **B36** (`/questions` list route, so `/questions/[id]` is no longer unreachable) and **B32** (one money formatter; `money-display.ts` deleted). **B31 is NOT closed and this row still does not read Complete:** `pnpm gate:m27:e2e` could not run at all this run — the saved operator session is revoked, so it returned **10 failed / 10**, every one *rendered the operator gate (sign-in)*, against 8 passed / 2 failed on 2026-08-20 |
 
+| **M2.8** Fleet run history | **COMPLETE 2026-08-24** — built by run `9a320b` (stopped mid-flight; both units rescued from uncommitted worktrees), finished by hand | CR-005 §3.2, FR-92–FR-95. `/runs` (`a188823`) and `/runs/[run-id]` (`dc21837`). **`fleet_run` had carried verdict, dispatch cap and used, the test triple and a `gates` payload since ingest first landed, and no route had ever rendered it.** Served page routes **28 → 30**. **All three gates closed 2026-08-24:** (1) `manual-gate.sh` **PASS 30/30** — `docs/user-guide.md` gained "Fleet runs" and "Opening one fleet run", and `.fleet/manual-evidence-29b583.json` gained two rows carrying an `amendments` note that says which branch and run observed them, because the file keeps its 29b583 name; **hand-edited rather than re-dispatching `docs-writer`**, which cost ~157k tokens for the full guide. (2) **Both screens are now OBSERVED**, which the units could not do — they reported `NOT VERIFIED — cannot render an authenticated screen from an isolated worktree` and **neither copied a credential to work around it**, which was right. The saved `aal2` session was round-tripped and found alive; **the first discriminator was wrong and said the opposite** — `h1` is `"Blocked"` signed-in *and* signed-out because the gate renders *inside* the `<Screen>`, so it was re-keyed on the sign-in notice with an abort if the signed-out case fails to show it. Observed: `/runs` 1 run `b0952e`, nine columns, the dispatch-producer note, verdict `unparsed` / *one source, uncorroborated*; `/runs/b0952e` all six blocks, 20 work units (`i9p2` = `unassigned` / **NOT DISPATCHED**), 96 questions, 74 requirements, the defects gap, and `/runs/zzzzzz` → **Not found**. Screenshots in `.fleet/manual-traces/`. Recorded honestly: the ninth column **clips at 1280px** and the table scrolls sideways, and the **ambiguous-match screen is marked UNVERIFIED in the guide body** because one run cannot collide. (3) **The three FR clauses the product does not satisfy were RATIFIED AS-BUILT by Erik 2026-08-24 — see the Decisions log. They are unmet, not met, and they are listed there rather than allowed to pass quietly.** |
+
 ### Phase 3 — Deferred at intake
 
 | Milestone | Status | Notes |
@@ -536,8 +531,76 @@ Erik's scope for this pass was explicit: **provision and wire the three services
 | ~~**B43**~~ **FIXED 2026-08-23, `fecb6fc` — `tests/app-shell.test.tsx` and `tests/nav-routes.test.ts`, 1400 → 1409 passed. All four of QA's mutations now go red (delete the mount, move it into the desktop-only rail, break the `/questions` href, insert mid-array). The shell test asserts the control is inside the `<header>`, not merely present, because the rail is `hidden md:block`. NOT fixed: the `/questions` select mutation — §7a ciphertext exposure there still rests on a doc comment, and that half is folded into B44's review** | **Two of run `29b583`'s four fixes are protected by nothing — not a test, not an observation.** Deleting `<SignOutButton />` from `AppShell`, or breaking the `/questions` nav `href`, each leaves the suite at **1400 passed, exit 0** | **Erik** | Confidence that B40 and B36 are actually fixed. The code is correct today; nothing keeps it correct | Measured by `qa-reviewer` with four mutations in a throwaway worktree against a runner proven red-capable (control green; the `unreadable`→`absent` mutation went red with 7 failures, so the harness bites). **Both blockers were *reachability* defects, and in each case the component is well tested while the thing that fixes the blocker is not** — there is no `tests/app-shell.test.tsx` at all, and no test imports `OPERATOR_ROUTES`. Fixes are one test each: mount `AppShell` and assert `[data-verify-unit="sign-out"]`; assert `OPERATOR_ROUTES` contains an entry with `href === "/questions"`. A third mutation — adding `question, best_guess, answer` to the `/questions` select — is also uncaught, so §7a ciphertext exposure there rests on a doc comment |
 | **B44** | **Six pages read their own nav metadata as `OPERATOR_ROUTES[0]`…`[5]`, and run `29b583` added the sixth.** `qa-reviewer` calls this a blocker misfiled as a question, and it is right | **Erik** | Nothing today — index 5 is correct as written | u2 correctly refused to insert mid-array (which would have swapped the two settings pages' titles) and appended instead, then adopted the same fragile pattern for its own page. **A mis-index does not crash: it renders a screen under another screen's title, question and requirement list** — on a product whose thesis is "never tell Erik something false", and on a surface no agent can currently see. Fix: `OPERATOR_ROUTES.find(r => r.href === "/questions")!` and the same for the other five |
 | **B45** | **Three of four specialists in run `29b583` reported a "prior fleet learnings" search that their traces show never ran, and stated a negative result from it.** u1's is genuine; u2's and u3's are not | **Erik** | Nothing in the product | This is `b0952e`/`c1`'s defect recurring, in three units of one run. u2 claims a `Knowledge/` search across five terms; its trace holds **zero** `Glob` and **zero** `Grep` calls in 89 tool uses and the string appears only in the Write of its own report. u3 additionally attributes a §7a `commercial` conclusion to a `data-verify` grep it never issued — **filed important rather than critical only because `qa-reviewer` ran that grep and the conclusion is true**, so the fabrication is of a redundant method, not of the control. **A claimed procedure with a stated outcome is the one thing a reviewer cannot catch by reading the diff.** Doctrine fix: a "learnings used" section is either backed by a tool call or omitted |
+| ~~**B47**~~ **RESOLVED 2026-08-24, same session it was found** | **`defect.source_key` was not run-scoped, so a second fleet run's QA report would have silently OVERWRITTEN the first run's defect rows** rather than adding its own. `plan.ts` built the key from the constant `qa-report` in two independent literals; `defect` upserts on `(engagement_id, source_key)` | ~~fleet~~ | ~~Ingesting any second run into an engagement that already has one~~ | **Reproduced before escalation** — a test planning two runs' reports into one engagement returned RED with `qa-report#0`, `#1`, `#2` colliding. Fixed with one `reportNamespace` carrying the run id, feeding both sites; FR-22 idempotency unchanged. Migration `20260824015328` applied and read back, 13/13 rekeyed, 0 stale, 13 distinct keys over 13 distinct refs. **A third pre-existing test was found passing vacuously** after the change (filter matched nothing, comparison held over two empty arrays) and was given a non-empty guard. See the Decisions log |
 
 ## Decisions log
+
+### 2026-08-24 — M2.8 closed by hand, and a data-loss defect found on the way
+
+**Decision: FR-92 and FR-93 are RATIFIED AS-BUILT. Three clauses are UNMET, and they are named
+here rather than allowed to pass as satisfied.** Erik ruled 2026-08-24. Zero code. M2.8 reads
+Complete on this basis and on no other, so the next reader can see exactly what was accepted:
+
+1. **FR-93's "the defects it opened" is NOT delivered.** Nothing in this ledger records which run
+   opened a defect: `defect` carries no run column, and its only work-item edge,
+   `fixing_work_item_id`, means *fixed by* — a different claim — and is **NULL on all 13 rows**,
+   confirmed against the live database. The screen states the gap in words and renders no list,
+   because an empty list would claim the run opened none and nothing checked that.
+2. **FR-92's "dispatches used against cap" is NOT delivered, and never will be by this code.**
+   `fleet_run.dispatch_cap` and `dispatches_used` exist in the migration and in
+   `database.types.ts`, and **no ingest path writes either**. The column reads `not recorded`
+   rather than `0 of 0`, which would state a cap no run ran under. This is a consumer rule whose
+   producer half was never built, so **the graceful fallback is the only branch that will ever
+   run** — which is exactly the shape that looks correct forever. A note on `/runs` retires itself
+   the moment any run records one.
+3. **`/runs/[run-id]` cannot address a run unambiguously.** `fleet_run` is
+   `unique (engagement_id, run_id)`, so a run id is unique *within* an engagement while FR-92 makes
+   `/runs` cross-engagement — the same shape as M2.7's `u4` ambiguity. Ratified: the built
+   `ambiguous` screen, which lists every match and chooses none, **is** the answer. It cannot fire
+   on today's data (1 run, 2 engagements) and is built and tested anyway, because a branch nothing
+   has ever exercised is indistinguishable from one that does not work. Revisit when a second
+   engagement actually holds a colliding six-hex id.
+
+**Decision: `defect.source_key` is run-scoped. B47, found while verifying the FR-93 question, and
+it is a live data-loss defect rather than a spec gap.** `plan.ts` built every defect's key from the
+constant `qa-report`, in **two independent literals that had to agree and nothing made them**. The
+key was therefore stable across re-posts of one run (which FR-22 needs) and **identical across
+different runs** (which nothing wanted). `defect` upserts on `(engagement_id, source_key)`, so a
+second run's QA report posted into the same engagement would have **updated the first run's defect
+rows instead of adding its own** — silently, and only on the second run, which is the case nobody
+exercises before shipping. **Not latent but armed:** `.fleet/qa-report-29b583.md` exists and M2.8
+is the milestone that makes ingesting more runs the obvious next move.
+
+**It was reproduced before it was escalated, which is the part worth keeping.** The first writeup
+handed Erik a structural argument plus three options to choose between; his answer was to ask what
+Karpathy would do, and the honest answer was *write the failing test instead of the menu*. One test
+in `plan.test.ts` — plan two runs' reports into one engagement, assert the key sets are disjoint —
+returned **RED with `qa-report#0`, `#1`, `#2` colliding**. That is the whole decision; the option
+menu was never needed. Recorded as a project lesson in `CLAUDE.md`.
+
+Fix: one `reportNamespace = \`qa-report-${artifacts.runId}\`` feeding both sites. Still a pure
+function of the artifacts, so **FR-22's idempotency property is unchanged**, and caller-varied
+filenames are still excluded because the namespace is built and never taken from the payload.
+**Three pre-existing tests pinned the old format. Two failed honestly; the third passed
+VACUOUSLY** — `persist.test.ts` filtered on `startsWith("qa-report#")`, which after the change
+matched nothing, so its comparison held over two empty arrays and asserted nothing at all. Caught,
+re-prefixed, and given an explicit `expect(fresh.length).toBeGreaterThan(0)` so it cannot go hollow
+silently again. Measured: `pnpm test` **1544 → 1545 passed / 6 skipped**, typecheck 0, lint 0,
+`gate:m27` 5/5, `manual-gate.sh` PASS.
+
+Migration `20260824015328_b47_defect_source_key_run_scope` **applied to the live project and read
+back**: 13 of 13 rekeyed to `qa-report-b0952e#N`, **0** left under the old namespace, 13 distinct
+keys over 13 distinct refs — so nothing collapsed into a neighbour. Without it the next ingest of
+`b0952e` would have allocated a second set of `D-nn` refs beside the originals. **The migration
+does not hardcode the run id**: there is no run→defect edge to read it from — that absence *is*
+FR-93's gap — so it derives the run from `fleet_run` and **refuses with an exception** if more than
+one run exists rather than guessing which findings belong to which. The reverse statement is in the
+file's header comment.
+
+**Consequence worth noting for FR-93:** `source_key` now namespaces defects by run, so a run→defect
+association is *derivable by string-parsing a key*. That is not a foreign key and FR-93 should not
+be built on it — but it makes a proper `fleet_run_id` column on `defect` a materially smaller
+follow-up than it looked before.
 
 ### 2026-08-23 — run `29b583`
 
@@ -668,6 +731,7 @@ sentence and re-ran the gate to a PASS. Affects: run `29b583` fleet learning L5.
 |---|---|---|
 | 2026-08-17 | Intake | Read the reference corpus — both manifests, the checkpoint, `prod.md`, the four gate scripts, the questions files. Drafted `spec-v1.md`: 62 FRs, 18 entities, 11 Phase 1 milestones, 7 open questions. `security-gate.sh` PASS. No code written |
 | 2026-08-18 | Audit + CR-001 draft | Audited spec, repo CLAUDE.md and `plan.md` against Erik's studio checklist. Gaps found: no defect entity, regressions derivable but never derived, built/shipped collapsed, no provisioning identifiers on `engagement`. Drafted CR-001 (FR-63–FR-78, 3 new entities, §7a rows, Q8) — **pending approval, timed before M1.1 so the schema is built once**. Phase-2 gaps (CR ingest, notifications, cost, recurring obligations) routed to §4.3 in the CR, not spec'd. No code written |
+| 2026-08-24 | **M2.8 finished by hand and is COMPLETE. B47 found, reproduced and fixed on the way** | Three gates closed. (1) `manual-gate.sh` **FAIL → PASS 30/30**: two guide sections plus two evidence rows, hand-edited rather than re-dispatching `docs-writer`. (2) **Both new screens observed for the first time** — the units could not, from isolated worktrees, and correctly refused to copy a credential. The saved `aal2` session was round-tripped and found alive; **the first control was wrong and reported the opposite**, because `h1` reads `"Blocked"` signed-in and signed-out alike (the gate renders inside the `<Screen>`), so it was re-keyed on the sign-in notice with an abort if the signed-out case fails to show it. (3) **FR-92/FR-93's three unmet clauses RATIFIED AS-BUILT by Erik** and written down as unmet in the Decisions log. **Then the FR-93 verification turned up a live defect:** `defect.source_key` was not run-scoped, so a second run's QA report would have overwritten the first run's 13 defect rows. **The first writeup handed Erik a structural argument and a three-option menu; he asked what Karpathy would do, and the answer was to write the failing test instead** — RED with three colliding keys, which settled it with no menu. Fixed, migration `20260824015328` applied and read back (13/13 rekeyed, 0 stale), and **a third test caught passing vacuously** and given a non-empty guard. `pnpm test` **1544 → 1545 / 6 skipped**, typecheck 0, lint 0, `gate:m27` 5/5. Lesson recorded in `CLAUDE.md`: reproduce before escalating |
 | 2026-08-23 | **M2.8 dispatched as run `9a320b`, then STOPPED mid-Wave-B on Erik's usage credits (15% left)** | Stopped deliberately rather than risking the worst failure shape: running dry mid-run leaves a half-built branch, no report, no writeback. **Work preserved, nothing discarded.** Branch `agent-build/2026-08-23-9a320b` carries 2 commits — `e3dff86` (resolved spec + manifest) and **`444cb33`, i1's `fleet_run` read layer for FR-92–FR-95**. Three worktrees remain, **1.9 GB, deliberately NOT pruned** until someone has credits to verify them properly; the one holding `bc46b8e` was checked and `git diff 444cb33 bc46b8e` is **empty**, so its commit duplicates merged content and strands nothing. **i1 raised four questions and two of them are defects in the APPROVED requirement text, not implementation choices:** (a) **FR-93 says `/runs/[id]` shows "the defects it opened" and no such link exists** — `defect` has no run column and its only path, `fixing_work_item_id → work_item → fleet_run`, is NULL on all 13 rows; (b) **`fleet_run`'s constraint is `unique (engagement_id, run_id)`, so a run id is unique WITHIN an engagement and not across the ledger**, while FR-92 makes `/runs` cross-engagement — so `/runs/[run-id]` cannot address a run unambiguously. Also raised: `dispatch_cap`/`dispatches_used` are written by ingest and read by nothing else; and a run's own unparsed count disagrees with the global FR-58 badge (badge 0, run `b0952e` 1). **These need Erik's ruling before M2.8 resumes** — the second is the same shape as the `u4` resolution ambiguity: an id unique only within a tuple cannot key a global route |
 | 2026-08-23 | **CR-005 §3.2 APPROVED — M2.8, fleet run history** | Erik approved the severable half the same day it was drafted. FR-92–FR-95: `/runs` lists every ingested run across every engagement with verdict, duration, dispatches-against-cap and the test triple; `/runs/[id]` shows one run's units, questions, defects and requirements with its `gates` payload rendered rather than dumped; both state their own unparsed count per FR-58; and **FR-95 keeps the standing disagreement rule** — where a manifest and a checkpoint disagree about a unit, both are shown, because that disagreement is data. **A correction to the drafting summary, recorded rather than dropped:** it claimed §3.2 needed no questions answered, and **Q16 belonged to §3.2**. It resolves by construction — FR-92 already says "across every engagement", so approving §3.2 approved that reading — but a question that dissolves on inspection and one that was never asked look identical a month later. **Unapproved and unchanged:** §3.1, §3.3, Q12–Q15, and §2's proposed bar, which approving §3.2 does not adopt |
 | 2026-08-23 | **CR-005 DRAFTED — planned work, fleet run history, and a bar to replace "all-in-one"** | `spec/change-requests/CR-005-planned-work-and-run-history.md`, **NOT APPROVED**. Drafted after Erik asked whether the ledger tracks what a plan proposed versus what got built, then asked for multi-client, per-run visibility, and "everything I could ever need". **Two of the three asks are not gaps and the CR says so rather than re-specifying working code:** multi-engagement is **already built** (FR-44 puts work items across every engagement in one view; two engagements exist), and fleet run history is **already ingested and never rendered** — `fleet_run` carries verdict, dispatch cap and used, the test triple and a `gates` jsonb, holds 1 row, and **no route renders it**; the branch serves 28 routes and none is `/runs`. Only **planned work** is genuinely absent, and deliberately: `plan.md`/planning/roadmap/backlog return **zero** matches in the approved spec, there is **no `createWorkItem` action** among the app's nine, and §4.2 non-goal 4 excludes it outright. **The model is already most of the way there** — `work_status` has `pending` and `not_dispatched` — so what is missing is not the concept but any path by which a `pending` row is born. **That is the layer beneath B39**, and the two should not be conflated. The CR **refuses the all-in-one framing** and proposes a testable bar in its place: every new surface is either populated by an artifact nobody types, or typed once and carrying its own expiry — and the thirty-second bar must hold with N clients, not one. **No new entity, so the 21-entity §7a PASS is unaffected**; `/runs` would take served routes 28 → 30 and fail `manual-gate.sh` until the guide covers them, which is the gate working. FR-87–FR-96, milestones M2.8 and M2.9, **Q12–Q16 unanswered** |

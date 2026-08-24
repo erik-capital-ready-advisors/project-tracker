@@ -254,3 +254,10 @@ Behavioral rules earned on this project. Append one line per lesson, in the mome
   live `delivery-ledger` engagement** while writing the user guide. It was caught in the same
   output, reversed with Restore, and confirmed against the database rather than the UI that had
   just been used — but the next one may hit a control with no Restore beside it.
+- When a suspected defect is reproducible, reproduce it **before** escalating it — escalate the
+  measurement, not the claim. The `defect.source_key` overwrite found on 2026-08-24 was handed to
+  Erik as a structural argument ("verified in code and schema, not executed") bundled with three
+  options to choose between, when one test — plan two runs' QA reports into one engagement and
+  count the rows — settles whether it is real in twenty minutes. A menu of options is not a
+  substitute for a red test, and asking Erik to adjudicate a claim you own the means to verify
+  makes him the bottleneck this product exists to remove.
