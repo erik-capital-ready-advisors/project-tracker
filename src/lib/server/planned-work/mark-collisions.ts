@@ -109,10 +109,26 @@ export async function markPlanCollisions(
   if (error !== null) {
     // No mechanism reaches the caller: a Postgres message names tables and
     // sometimes row values, and the values on this table are `sensitive`.
+    //
+    // The failure is scoped to the reconciliation, and says so positively.
+    // Both callers COMMIT BEFORE reaching this line — `persistPlan` for
+    // `POST /api/ingest/run`, `ingestPlanDocument` for `POST /api/ingest/plan`
+    // — so a claim that nothing changed is false in both directions, and it is
+    // the claim an agent acts on: told the ingest did nothing, it re-posts or
+    // reports the work lost. A wrong `done` is the worst output this product
+    // can produce and a wrong "not done" is the same defect inverted.
+    //
+    // Re-posting is safe to advise rather than merely hoped: every ingest
+    // write is an upsert on a natural key (`persist.ts`, `onConflict`
+    // throughout) and the plan path is `ON CONFLICT DO NOTHING` on
+    // `(engagement_id, plan_ref)`.
     throw apiError(
       "internal_error",
       "The FR-90 reconciliation could not read this engagement's work items, " +
-        "so no collision mark was written. Nothing else was changed.",
+        "so no collision mark was written. Everything this request wrote " +
+        "before this step stands and was not rolled back. Re-post to " +
+        "complete the marking; the writes are upserts on a natural key, so " +
+        "nothing is duplicated.",
     );
   }
 

@@ -49,6 +49,7 @@ only, per §3.1a), FR-91, and FR-96 with FR-96a, FR-96b, FR-96c.
 | c1 | copy | 2 | Microcopy: form labels and help, empty states, STALE wording, "no such engagement" state, the FR-96a badge scope label | copywriter | u1, u2, u3, u4 | **done** — gate PASS (6 sections, 14 file lines, 3 questions), run id matched. Committed `8f93275`. Base `e3de4be`, **guard 2 fired and overridden — third unit, same verified-valid reasoning** (B-P2). **All 11 marked slots filled, 0 `COPY:` markers remain** (verified by project-lead). 7 kept verbatim with reasoning written in, 4 changed. **Caught that the brief's own grep was BLIND** — the literal `grep ... app components` exits 2, those dirs do not exist at that path, and reporting it clean would have been a false negative; it re-ran correctly. **Three copy defects nothing had caught:** (1) `/questions` claimed *"No open questions have been recorded"* on a request that also searched answered ones, while u3's scoped sibling got it right — and it did **not** re-point the assertion at its own words, it replaced it with the RULE and **proved it red-capable against the old copy first**; (2) the FR-91 tooltip read *"untouched for 1 days"* and *"-2 days"* under the clock skew `daysUntouched` deliberately reports — 4 cases now, chip text and `plannedStaleness` untouched; (3) *"one click away by clearing the filter"* was false on a GET form. **Measured u1's truncation flag instead of guessing**: the option renders 216px into a 144px box and the slug alone is 108px — **no wording fits, so it is a LAYOUT finding, not a copy one**; kept precise wording, queued `w-36`. test **1814 / 6** unchanged, typecheck 0, lint 0, gate:m27 5/5, build exit 0, routes 31. Read on screen at 1280 and 375: no overflow, `sm` breakpoint switches correctly, **FR-96a suppression OBSERVED** (`data-verify-scope="none"`, no note). Empty states and picker sit behind `aal2` — **NOT VERIFIED on screen**. Port 3100 confirmed dead; removed the three `.playwright-mcp/` artifacts its session left in the shared checkout |
 | doc1 | docs | 2 | `docs/user-guide.md`: FR-96 filter section + `/work-items/new` section + observed evidence rows, taking the evidence file to 31 routes | docs-writer | u2, u3, u4, c1 | **done** — gate PASS (mode manual recognised, 5 sections, 5 file lines, 4 questions), run id matched. Committed `b08c83a` from `df34f44`. **`manual-gate.sh` PASS — re-run independently by project-lead**: guide 8,268 words, `manual-evidence-d4000f.json` 31 rows, 31 of 31 served routes covered, all observed. **Falsified two claims in the SHIPPED guide** (below). **Re-opened all 30 inherited rows rather than copying; 15 changed.** Ran WITHOUT worktree isolation by project-lead's decision — it must observe signed-in screens and a worktree has no `.env*.local`. Nothing on the deny-list clicked: **the sweep contained no `click()` call at all**, navigation and DOM reads only, chosen because of 29b583. Port 3000 free at start, **dead at finish**. `CLAUDE.md`, the `.docx` and `new-desktop.png` untouched. typecheck 0, lint 0, test 1814/6, gate:m27 5/5, build exit 0, routes 31 — nothing moved |
 | d1 | deploy | 2 | Apply i1's migration, rename the local file to the version `list_migrations` reports, check advisors, verify the preview deploy | devops | i1 | **done** — gate PASS (5 sections, 5 questions), run id matched. Worktree base was STALE `75f070a`, reset to `6f91fa2`, `HAVE_PHASE1` confirmed — **verified independently by project-lead**, not taken on report. **Applied nothing.** Migration `20260824110601` verified against the LIVE database, not the file: version+filename match on all 13 (no `db push` re-run risk); `execution_mode` nullable; BEFORE UPDATE trigger enabled; unique index is **PLAIN** (`btree (engagement_id, plan_ref)`, no `WHERE`); `app.touch_updated_at()` `proacl = postgres=X || service_role=X`, no PUBLIC. Catalog claims exercised in rolled-back transactions (2nd upsert no `42P10`; `service_role` write no `42501`; trigger overrode a written timestamp; CHECK `23514`), rollback proven after the fact. Advisors: security 4 findings **0 introduced**; performance **1 introduced** — `work_item_planned_updated_idx` unused, benign only while FR-91's reader is deferred, **re-check when it ships**. **BLOCKING FINDING B-P1 (below).** Declined to create a preview deploy, with reasons |
+| i5 | integration | fix | QA important finding: false "Nothing else was changed" after persist | api-integrator | qa1 | **done** — gate PASS (6 sections, 4 file lines, 3 questions), run id matched. Committed `8c1d7de`. Base `e3de4be`, pushed-commit case fired and was overridden — **fourth unit**. **Red-then-green in the TRUE order and stated as such**: test written and run **red first** (1 failed / 10, failing on the exact sentence with the real string printed, not a compile error), green after at 11/11 — the ordering claim qa1 caught c1 getting wrong. Fixed at `mark-collisions.ts:109`, the shared source, **not** at the route. **Declined qa1's suggested wording** *"The run was persisted"* with a reason: `markPlanCollisions` is shared and `/api/ingest/plan` reaches it after `ingestPlanDocument` has written, so "the run" would be false on the plan path — **the same defect relocated**. Its wording holds in both directions, needed no signature change, left the plan route byte-identical, and its re-post advice is verified rather than hoped (`persist.ts` is upsert-on-natural-key throughout). Scope held exactly: `run/route.ts` untouched, i3's collision marking **kept not reverted**, no migration, **none of the nine minors touched** — the adjacent one it noticed is queued as a question. test **1815 / 6** (+1, exactly its test), typecheck 0, lint 0, gate:m27 5/5, build exit 0, routes 31. No authenticated round-trip — **NOT VERIFIED**, §7c agent token DEGRADED |
 | qa1 | qa | synth | Final independent review of the merged branch, incl. trajectory grading | qa-reviewer | all | **done** — **ISSUES: 0 critical · 1 important · 9 minor.** Gating verdict **PASS**, so the manual pass is unblocked. Report `.fleet/qa-report-d4000f.md`, 11 questions. **Seven mutations against M2.9's load-bearing rules, all seven caught** — reverting D-1 produced **exactly the 4 failures u4 claimed, arrived at without reading u4's report**, an independent corroboration. FR-90 reads no prose at all; FR-96c returns 200 + explicit notice + zero rows on all eleven screens and never reuses `notFound()`; FR-91 derived with no column and no status; the new write path **calls** `encryptAll` rather than resembling it. All 14 handlers across 13 route files gated. Headers observed **served**: HSTS with **no `preload`, matching what the repo sets** — the `vercel curl` tell, so it is the app's header and not the edge's — plus COOP and a nonce/`strict-dynamic` CSP with no `unsafe-inline`. 19 review flows at `e2e-review/` under `playwright.qa1.config.ts`, kept out of `e2e/` so `pnpm e2e` does not sweep them (0 matches, verified); harness **fails closed**, confirmed by running it with the env vars missing rather than intending it |
 | man1 | docs | synth | End-user manual pass, `mode: manual`. **Gated on qa1 PASS** | docs-writer | qa1 | **NOT DISPATCHED — discharged by doc1, see decision below** | 
 
@@ -626,3 +627,43 @@ clean.
 restore. **The proof is genuine and the assertion is sound — the ordering is not.** project-lead
 relayed c1's "first" to Erik verbatim at Wave C fan-in and should not have; it was a claim about
 process that only a trace can settle, and it was reported as though observed.
+
+---
+
+## The `gate:m27:e2e` intermittency — project-lead's SECOND characterisation was also wrong
+
+**This supersedes the "parallel-worker race" conclusion recorded at Wave A fan-in.** That reading
+was formed from two data points and it does not survive four.
+
+| # | When | Workers | Server | Result | Failing test |
+|---|---|---|---|---|---|
+| 1 | Phase 0 | default | — | 9 / 1 | `/untested`, `no-role`; passed in isolation |
+| 2 | Wave A | default | cold | 9 / 1 | `/committed`, `no-role` |
+| 3 | Wave A | `--workers=1` | warm | **10 / 10** | — |
+| 4 | Wave B | `--workers=1` | **cold** | **10 / 10** | — |
+| 5 | Final | `--workers=1` | cold | 9 / 1 | **`/committed`, and it was test #1** — every test after it green |
+| 6 | Final | `--workers=1` | warm | **10 / 10** | — |
+
+**Run 5 refutes "parallel-worker race" outright** — it failed at one worker. Run 4 refutes plain
+"cold start" — a cold server passed. **The honest statement is narrower than either:** an
+intermittent `no-role` on whichever test runs first against a freshly started server, which has
+never reproduced on a warm one. **The mechanism is NOT ESTABLISHED**, and it is recorded that way
+rather than given a third confident name.
+
+**What IS established, and it is the part that matters:**
+
+- The reason token is **`no-role`, never `sign-in`.** The unset-env-var and revoked-session
+  signatures are both **10 failed / 10, every one `sign-in`** — this is neither.
+- Nine or ten tests pass on every single run, so **the operator `aal2` session is alive.** B41
+  remains stale as written.
+- **It is not a credential fault and not a defect in this run's code** — runs 1 and 2 predate most
+  of it, and the failing assertion is about a screen this milestone did not touch.
+
+**How project-lead got it wrong twice, which is the transferable part:** each conclusion was drawn
+from the smallest set of runs that admitted a tidy story, and each was reported to Erik as settled.
+The first name came from two runs, the second from three. A re-run that goes green is not a
+diagnosis — it is one more sample, and the tell here was always available in the data
+(*a different test failed each time*), which fits "whichever runs first" and fits neither name.
+
+**Standing guidance for this repo:** run the gate twice against a warm server before reading
+anything into a single failure, and treat `no-role` as a known intermittency rather than a finding.

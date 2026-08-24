@@ -197,4 +197,37 @@ describe("markPlanCollisions", () => {
     expect(message).toContain("no collision mark was written");
     expect(marksOf(fake)).toEqual({ p1: "unreconciled", i1: "unreconciled" });
   });
+
+  /**
+   * QA d4000f, `important` #1.
+   *
+   * **Both** call sites commit their writes BEFORE this function runs —
+   * `persistPlan` for `POST /api/ingest/run`, `ingestPlanDocument` for
+   * `POST /api/ingest/plan`. "Nothing else was changed" is therefore false in
+   * both directions, and it is the one sentence an agent acts on: told the
+   * ingest did nothing, it re-posts the run or reports it lost.
+   *
+   * A wrong `done` is the worst output this product can produce. A wrong
+   * *"not done"* is that same defect facing the other way, and this message
+   * was emitting one after a fully committed run.
+   *
+   * The failure is scoped to the reconciliation instead — the shape the
+   * partial-write branch already uses two lines below it.
+   */
+  it("never claims nothing changed, because the caller has already committed", async () => {
+    const fake = createFakePlannedDb();
+    fake.seed("work_item", [planned("p1"), ingestedRow("i1")]);
+    fake.failNext("work_item", 'relation "work_item" does not exist');
+
+    const error = await run(fake).catch((thrown: unknown) => thrown);
+
+    const message = (error as ApiError).message;
+    expect(message).not.toContain("Nothing else was changed");
+    // Says positively what survived, so the caller can tell "the run is not
+    // there" from "the run is there and one bookkeeping step is missing".
+    expect(message).toContain("was not rolled back");
+    // Still no mechanism and still no row prose: §7a classifies `work_item`
+    // text `sensitive`.
+    expect(message).not.toContain("does not exist");
+  });
 });
