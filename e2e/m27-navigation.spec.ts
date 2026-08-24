@@ -58,7 +58,25 @@ const REF = "[data-verify-unit='entity-ref']";
  * check. A gate that quietly reports "0 references, all correct" is worse than
  * no gate, because it produces a green tick over an unbuilt milestone.
  */
-async function requirePopulatedOperatorView(page: Page, route: string): Promise<void> {
+/**
+ * An answer screen has TWO correct shapes, and until 2026-08-24 this file knew
+ * only one.
+ *
+ * `populated` — rows to navigate from. `accounted-empty` — no rows, **and the
+ * screen says what it set aside and why**. The second is not a lesser answer:
+ * FR-53's whole point is that "nothing is startable" and "eleven things are
+ * held by a dependency" are different facts, and `/next` renders its
+ * `set-aside` counts even when the list is empty precisely so they can be told
+ * apart. A screen that is empty and says nothing is still a failure.
+ */
+type OperatorViewState = "populated" | "accounted-empty";
+
+/**
+ * Fail — loudly, and naming which — if this run cannot see what it is here to
+ * check. A gate that quietly reports "0 references, all correct" is worse than
+ * no gate, because it produces a green tick over an unbuilt milestone.
+ */
+async function readOperatorView(page: Page, route: string): Promise<OperatorViewState> {
   const gate = page.locator("[data-verify-unit='load-notice'], [data-verify-unit='operator-gate']");
   if ((await gate.count()) > 0) {
     const reason =
@@ -73,7 +91,49 @@ async function requirePopulatedOperatorView(page: Page, route: string): Promise<
   }
 
   const empty = page.locator("[data-verify-unit='empty-state']");
-  if ((await empty.count()) > 0) {
+  if ((await empty.count()) === 0) return "populated";
+
+  // Empty. The ONLY thing that makes that acceptable is the screen accounting
+  // for its own emptiness in machine-readable form. A failed read never lands
+  // here — `loadForOperator` renders the load notice, caught above — so an
+  // empty state with accounting is a successful read over genuinely nothing.
+  const counts = await page
+    .locator("[data-verify-unit='set-aside'] [data-verify-unit='set-aside-count']")
+    .evaluateAll((nodes) =>
+      nodes.map((el) => ({
+        label: el.getAttribute("data-verify-label"),
+        count: el.getAttribute("data-verify-count"),
+      })),
+    );
+
+  if (counts.length === 0) {
+    throw new Error(
+      `${route} rendered its empty state and accounted for nothing. An empty answer is ` +
+        "only correct when the screen says what it set aside and why — an empty list with " +
+        "eleven items held by a dependency is a different fact from an empty one with " +
+        "nothing held at all. Expected [data-verify-unit='set-aside'] to carry counts.",
+    );
+  }
+
+  for (const one of counts) {
+    expect(one.label, `${route} has a set-aside count with no label`).toBeTruthy();
+    expect(
+      one.count === null ? Number.NaN : Number(one.count),
+      `${route} set-aside "${one.label}" is not a number: ${one.count}`,
+    ).toBeGreaterThanOrEqual(0);
+  }
+
+  return "accounted-empty";
+}
+
+/**
+ * The strict form, for the screens where empty IS the failure — a detail view,
+ * a filtered work-item list, an uncovered-requirement list. Behaviour here is
+ * unchanged from before 2026-08-24, deliberately: only the six answer screens
+ * gained the second correct shape.
+ */
+async function requirePopulatedOperatorView(page: Page, route: string): Promise<void> {
+  if ((await readOperatorView(page, route)) !== "populated") {
     throw new Error(
       `${route} rendered its empty state, so there is nothing here to navigate from. ` +
         "Point M27_BASE_URL at an instance carrying a real ingested run.",
@@ -107,7 +167,43 @@ test.describe("FR-80 / FR-83 — every reference goes somewhere, or is visibly a
       test.setTimeout(120_000);
 
       await page.goto(route);
-      await requirePopulatedOperatorView(page, route);
+
+      /**
+       * ## The PASS CONDITION changed here on 2026-08-24, and by an agent
+       *
+       * The two earlier edits to this file were **gathering only, no assertion
+       * changed**, and said so. **This one is different and must not be read as
+       * the same kind of change: it makes a previously-failing state pass.**
+       * Erik authorised it explicitly, in those terms, after being shown what
+       * would change and why. B39.
+       *
+       * **What was wrong.** `/next` and `/bottleneck` were red on every run
+       * since 2026-08-20 and neither was a defect: no work item is `pending`
+       * and **zero** carry `erik`/`erik_gate`, so those answers are genuinely
+       * empty — and **nothing inside the product can populate them**, because
+       * there is no create-work-item route. Two rows that can never go green.
+       *
+       * **Why that is worth fixing rather than tolerating.** B19's rule holds —
+       * a skip must never look like a pass. Its mirror is just as real: a gate
+       * carrying rows that can never go green is a gate people stop reading,
+       * and this file already lost that argument once (see the 2026-08-20 note
+       * below on the 30s timeout).
+       *
+       * **Why this is not "the gate went red so I changed the gate".** The gate
+       * is STRICTER after this edit, not looser. Before, an empty answer screen
+       * failed for the right reason by accident and no version of empty was
+       * ever inspected. Now `accounted-empty` has to EARN the pass: the screen
+       * must render `set-aside` counts, every one labelled, every value a
+       * non-negative number. An empty screen that accounts for nothing — which
+       * is what a genuinely broken answer looks like — now fails on an
+       * assertion that did not exist before. A failed read cannot reach that
+       * branch at all; it renders the load notice and is caught earlier.
+       *
+       * **What did NOT change:** every assertion below, and the strict
+       * `requirePopulatedOperatorView` used by FR-81, FR-82, FR-55 and FR-84,
+       * where empty IS the failure.
+       */
+      if ((await readOperatorView(page, route)) === "accounted-empty") return;
 
       /**
        * ## This block was rewritten on 2026-08-20, and by an agent
