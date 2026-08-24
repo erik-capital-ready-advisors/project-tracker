@@ -184,3 +184,47 @@ Answer in `.fleet/answers-d4000f.jsonl`, then `/build-from-spec continue d4000f`
   themselves, that needs an allowlist rule — otherwise this recurs as B45 did.
 - **B41 is stale as written.** It records the `aal2` session as revoked; this run measured it alive
   twice (Phase 0, and 10/10 post-merge).
+
+---
+
+# RUN COMPLETE — 2026-08-24
+
+phase_complete: final
+completed: 2026-08-24T16:20:00Z
+branch_tip: e17f960 (plus writeback commits)
+dispatches_used: 15 of 20
+build_final: PASS
+status: SUCCESS WITH ISSUES — M2.9 code-complete, NOT marked Complete
+
+## Phase 2 units — all done, all gated
+
+| Unit | Wave | report-gate.sh | Merge commit |
+|---|---|---|---|
+| i4 | A | PASS | `8392bd3` |
+| u2 | A | PASS | `8392bd3` |
+| u3 | A | PASS | `8392bd3` |
+| d1 | A | PASS (verification only, no code) | — |
+| u4 | B | PASS | `b87f267` |
+| i3 | B | PASS | `b87f267` |
+| c1 | C | PASS | `df34f44` |
+| doc1 | D | PASS (mode: manual) | `b08c83a` |
+| qa1 | synth | ISSUES — 0 critical / 1 important / 9 minor, gating verdict PASS | `d5489d2` |
+| i5 | fix | PASS | `e17f960` |
+| man1 | synth | **NOT DISPATCHED** — discharged by doc1, see manifest | — |
+
+## Final measurements — project-lead, on the merged tree
+
+typecheck 0 · lint 0 · `pnpm test` **1815 passed / 6 skipped** · `gate:m27` 5/5 ·
+build exit 0 · `manual-gate.sh` **PASS 31/31 all observed** · served page routes **31** ·
+`gate:m27:e2e` **10/10 on a warm server** (intermittent `no-role` on the first test of a cold
+run — mechanism NOT ESTABLISHED, not a credential fault)
+
+## Not pushed, not deployed
+
+`git ls-remote` returns nothing for this branch. Production serves `e3de4be` on `master` while
+migration `20260824110601` is applied to the live database. Pushing is Erik's decision.
+
+## Questions
+
+62 across 14 units, concatenated into `.fleet/questions-d4000f.jsonl`. None blocking.
+r1=2 i1=4 i2=4 u1=4 i4=4 u2=4 u3=3 d1=5 u4=5 i3=6 c1=3 doc1=4 qa1=11 i5=3
