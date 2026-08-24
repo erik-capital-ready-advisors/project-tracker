@@ -7,8 +7,9 @@ and what is broken. It also holds the records those answers are computed from.
 One person uses this product. There are no teammates to invite, no roles to assign, and no
 permissions to configure. Everything below is written for you as the only operator.
 
-Everything in this guide describes what the screens did when someone opened them on
-2026-08-23. Where a screen could not be opened, the section says so and marks itself
+Everything in this guide describes what the screens did when someone opened them. They were last
+opened and re-checked on 2026-08-24, after the engagement filter and hand-entered planned work
+were added. Where a screen could not be opened, the section says so and marks itself
 `UNVERIFIED`.
 
 ## Before you start
@@ -57,12 +58,15 @@ ledger holds." A dash there means nobody looked, not that the answer is zero.
 
 A sidebar sits on every screen. It splits into **The six answers** (Blocked, Next, Committed,
 Untested, Bottleneck, Broken) and **Records** (Registry, Work items, Waits, Agent tokens, Export,
-Questions). Click any of them to go there.
+Questions, Fleet runs). Click any of them to go there.
 
 A badge at the top of the sidebar shows the unparsed count, currently **0 unparsed**. That number
 counts records the ledger could not classify. Zero means everything it holds, it understood. When
 it climbs, it is telling you something arrived in a shape the ledger does not recognise, and the
 honest thing it does is say so rather than guess.
+
+Beside that badge sits a dropdown listing your engagements. It narrows every list in the product
+to one client, and it has a section of its own below.
 
 The sidebar also shows a **Jump to...** control marked `⌘K`, and it is the fastest way through the
 product. Click it, or press ⌘K (Ctrl+K on Windows), and a search box opens over the screen. Type
@@ -79,9 +83,85 @@ Most list screens carry filter controls across the top and an **Apply** button. 
 the address of the page, so a filtered view is a link you can keep. Filtering Work items to
 `blocked`, for example, narrowed the list from 20 rows to 5.
 
+## Filtering by engagement
+
+Every list shows every engagement at once, and that stays the default. When you want one client's
+slice, one control does it, and it sits in the top bar beside the unparsed count instead of being
+repeated on every screen.
+
+Choose an engagement from the dropdown and press the filter button beside it. Eleven screens
+honour the choice: Blocked, Next, Committed, Untested, Bottleneck, Broken, Work items, Questions,
+Waits, Fleet runs and Registry.
+
+Nothing else does. Open a single work item, wait, defect, milestone, requirement or run and the
+dropdown is gone from the top bar, because a record you are already looking at cannot be narrowed
+any further.
+
+**The filter lives in the address of the page and nowhere else.** Pick an engagement and the
+address gains `?engagement=acme`; clear it and the address goes back to the bare screen name.
+No cookie sits behind it and nothing remembers your last choice, so nothing is still filtered when
+you come back tomorrow. Two consequences, and both are why it works this way:
+
+- A filtered view is a link. Copy the address out of the browser and it opens filtered for
+  whoever you send it to.
+- A screen is never secretly filtered. If the address does not name an engagement, you are
+  looking at the whole ledger.
+
+The dropdown offers your **active** engagements. An archived one is not in the list, but a link
+naming it still works: paste an address carrying an archived engagement's slug and it resolves and
+filters exactly as it did before. Tidying an engagement away does not rot the links you already
+sent. When the address names something the list does not carry, the dropdown shows it as
+`acme — not in the active list` instead of snapping back to "every engagement" while the screen
+below shows something else.
+
+Filters you already set survive it. Applying an engagement on top of `?severity=critical` keeps
+the severity. The page number is the one exception and resets to the first page, because staying
+on page seven of a list that just got shorter shows an empty page that reads like an empty ledger.
+
+### The unparsed count does not follow the filter
+
+This looks like a bug and is not. With a filter on, the badge in the top bar still counts the
+**whole ledger**, and it says so:
+
+> 3 unparsed (whole ledger)
+
+The count is left alone on purpose. `unparsed` means the ledger could not classify a record, which
+is a fact about the ledger and not about the client you are looking at. Had the number shrunk when
+you picked an engagement, you could walk away believing a problem had gone when all you did was
+look elsewhere. The `(whole ledger)` note is what stops a ledger-wide number being read as a
+scoped one. It shows only while a filter is on; otherwise the badge reads `0 unparsed` and nothing
+more.
+
+### When the address names an engagement that does not exist
+
+Mistype a slug and the screen does not quietly show you everything instead. It shows no rows, and
+it says which of two different things happened.
+
+If nothing in the ledger carries that slug:
+
+> No engagement has the slug `acme`.
+>
+> Empty because nothing matched the slug, not because that engagement has nothing in it.
+
+Read the second sentence. An empty list under a filter is ambiguous on its own — the engagement
+could be quiet, or the name could be wrong — and that line is the screen telling you which.
+
+If instead the engagement list could not be read at all:
+
+> This is not the claim that no such engagement exists — nothing checked. Reload the page, or
+> clear the filter to read the whole ledger.
+
+Different message, different meaning, and the two must not be run together. The first is a fact
+about the slug. The second is the product saying it does not know, because the lookup itself
+failed. Reload; if it keeps happening, that is one for Erik.
+
+**UNVERIFIED: the second message.** Producing it means making the engagement lookup fail, and
+nobody did that against real records. The wording above is the sentence the product carries, but
+nobody watched a screen render it.
+
 ## The home screen
 
-The home screen is a directory, not a dashboard. It lists the same twelve destinations as the
+The home screen is a directory, not a dashboard. It lists the same thirteen destinations as the
 sidebar, each with the question it answers written underneath:
 
 - **Blocked**: what is stopped, who owns it, and for how long?
@@ -240,7 +320,8 @@ The **Evidence** filter is the one to learn. Its four values stay separate on pu
 `observed live`, `observed elsewhere`, `asserted`, and `not verified`. An agent claiming it works
 and somebody watching it work are different claims, and this filter refuses to collapse them.
 
-A tab at the top switches between **All work items** and **Unassigned sessions**.
+Tabs at the top switch between **All work items**, **Unassigned sessions**, and **Plan work
+item** — the last of which is how you add work by hand rather than reading it in.
 
 ## Opening one work item
 
@@ -270,6 +351,94 @@ The queue is currently empty. It says:
 
 and explains the consequence: every recorded session has an engagement. The tab beside the title
 shows a count, currently `0`.
+
+## Planning work by hand
+
+Almost everything in the ledger arrives by ingest. Planned work is the exception: work you have
+decided on but not yet dispatched, typed in by hand so that **Next** can answer before a run
+exists.
+
+Open **Work items** and choose **Plan work item** from the tabs. The screen states its own purpose
+at the head: *"Work that has been decided on but not yet dispatched, so Next can answer before a
+run exists."*
+
+Four fields, two of them required.
+
+**Engagement — required.** A dropdown of your engagements, opening on `choose an engagement…`.
+Learn this field first, because it encodes a rule and not a convenience: **there is no unassigned
+planned work.** Every planned item carries an engagement from the moment you create it. The hint
+under the control says so:
+
+> There is no unassigned planned item. The unassigned queue holds ingested sessions nothing could
+> attribute; planned work has an owner by the time anybody plans it.
+
+**Unassigned sessions** is not a parking space for work nobody has scoped. It exists for sessions
+that were *recorded* and could not be matched to an engagement afterwards — a fact about ingest,
+not a shelf to put an idea on. If you do not know which engagement a piece of work belongs to, you
+are not ready to plan it here. Register the engagement first; with none registered the screen
+tells you so, with *"No engagement to plan against."*
+
+**What the work is — required.** A short description, written for whoever reads Next in ten
+seconds rather than for a ticket. It is encrypted at rest.
+
+**Work type** — free text, the same field every ingested row carries. Optional.
+
+**Unit key** — optional, and worth filling only if a manifest already uses a key for this unit.
+
+Press **Record planned work**. Beneath the button the screen states the promise it keeps:
+*"Nothing is written until this succeeds."* On success you land on the new item's own screen.
+
+Leave the engagement unchosen and it refuses before sending anything:
+
+> Choose the engagement this work belongs to. There is no unassigned planned work item.
+
+Leave the description empty and it refuses the same way:
+
+> Say what the work is. A planned item with no description tells the person reading Next nothing.
+
+The item is created with status `pending` and **no execution mode** — nobody has yet decided
+whether it will be fleet work, hand work, or something waiting on a person outside the studio.
+That is what makes it planned rather than assigned.
+
+**UNVERIFIED: submitting the form.** The screen was opened and every field read, but nothing was
+submitted, because the only instance available holds your real records and this guide is not worth
+a stray row in them. The two refusals and the success path above are quoted from the product
+rather than watched.
+
+## Planned work, and when it goes stale
+
+A **planned** row is work recorded before any run has claimed it. The distinction exists so that
+*nobody has started this* never reads as *this is in flight*. Those two look identical in a column
+of statuses, and confusing them is how a client requirement gets counted as underway when nothing
+has touched it.
+
+Wherever a planned row appears, it carries a small marker reading `planned` with its age beside
+it, so you can tell at a glance which rows are intentions and which are work.
+
+After **30 days untouched** the marker changes to `planned stale` and takes a warning colour.
+Thirty days exactly counts as stale: a row last touched on 25 July is stale when you look on
+24 August, and still fresh on the 23rd.
+
+Three things are worth knowing, because each one is easy to assume the other way round:
+
+- **Nothing happens to the row.** The ledger works stale out from the date the row was last
+  touched, fresh each time you look. No status changes, nothing is deleted and nothing is
+  archived. Touch the row and it counts as fresh again.
+- **It prompts you, it does not judge.** A planned item that has sat for a month may be fine. The
+  marker tells you how long it has sat; what that means is yours to decide.
+- **A third state means neither.** If the ledger cannot read the date a row was last touched, the
+  marker shows `planned` with `age?` in place of a number. Read that as the product saying it does
+  not know how long the row has sat. It claims neither fresh nor stale, and taking it for either
+  one defeats the reason it is drawn differently.
+
+A planned row is already a candidate for **Next**: `pending` is one of the statuses Next draws
+from, so planning work by hand is how you put something into Next before any run exists.
+
+**UNVERIFIED: the markers themselves.** The ledger holds no planned rows today — every work item
+in it arrived by ingest and carries an execution mode — so no `planned`, `planned stale` or `age?`
+marker was on screen while this was written. Filtering Work items to `pending` returned nothing,
+which is the same finding from the other direction. The rule above is read from what the product
+computes; the appearance of the markers is not.
 
 ## Waits
 
@@ -575,9 +744,10 @@ differently:
 - **Unparsed** is that run's own count of what could not be classified. It is not the badge in the
   top bar — see the next section.
 
-**There is no engagement filter, and that is deliberate rather than missing.** This screen is
-cross-engagement by design. A filter was proposed and is not approved, so a question was queued
-instead of a control built.
+**This screen is cross-engagement by default, and it now takes the engagement filter.** Earlier
+versions of this guide said there was no filter here, and that was true when they were written.
+The dropdown in the top bar was approved and built since, and Fleet runs is one of the eleven
+screens it narrows. With no engagement chosen you see every run, which stays the default.
 
 ## Opening one fleet run
 
@@ -625,11 +795,20 @@ run, and nothing to collide with — so it is described here from the build and 
 
 Every item here was measured, not guessed.
 
-**Next and Bottleneck are empty, and you cannot fill them from inside the product.** No work item
-holds the `pending` status that Next draws from, and none carries you or an Erik-gate as its
-executor, which is what Bottleneck ranks. Both screens explain their own emptiness with
-zero-counts rather than showing a blank. Rows arrive through fleet ingest. Nothing you click will
-put one there.
+**Next and Bottleneck are both empty today, and only one of them can be filled from inside the
+product.** No work item currently holds the `pending` status Next draws from, and none carries you
+or an Erik-gate as its executor, which is what Bottleneck ranks. Both screens explain their own
+emptiness with zero-counts rather than showing a blank. **Next changed this milestone**: planning
+work by hand creates a `pending` row, and `pending` is a status Next reads, so a planned item is a
+Next candidate the moment you record it. Bottleneck did not change — its rows still arrive only
+through fleet ingest, and nothing you click will put one there.
+
+**No planned work exists yet, so its markers have never been seen.** Hand entry was built this
+milestone and nothing has been entered through it. The `planned`, `planned stale` and `age?`
+markers are described in this guide from the rule the product computes, not from a screen.
+
+**One engagement-filter message has never been seen.** The notice shown when the engagement list
+itself cannot be read needs the lookup to fail, and nobody forced that against real records.
 
 **Permanent deletion has never been run against real records.** The button exists on the engagement
 screen and the code behind it is written. Nobody has destroyed real rows with it, so its behaviour
@@ -689,6 +868,15 @@ three means zero, and the product will not turn any of them into zero for you.
 **A count reads zero and you expected rows.** Check whether a filter is still applied; filters
 persist in the address of the page, so a filtered view can be bookmarked or arrive by link. Press
 Apply with the filters cleared.
+
+**A list is empty and the address names an engagement.** Read what the screen says underneath. It
+will tell you either that no engagement carries that slug, or that the lookup failed and nothing
+was checked — different problems with different fixes, both covered under *Filtering by
+engagement*. Set the dropdown back to "every engagement" to read the whole ledger.
+
+**The unparsed badge did not change when you picked an engagement.** Working as intended. That
+count is ledger-wide and stays ledger-wide; while a filter is on it says `(whole ledger)` after
+the number so you can see that is what it is.
 
 **Next or Bottleneck is empty.** Expected. See the section above.
 
