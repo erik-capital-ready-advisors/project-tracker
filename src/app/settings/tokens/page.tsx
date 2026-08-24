@@ -8,7 +8,7 @@ import { TokenManager } from "./_components/token-manager";
 import { readTokens } from "./_lib/load";
 import { defaultExpiryDay } from "./_lib/status";
 
-const NAV = OPERATOR_ROUTES[3];
+const NAV = OPERATOR_ROUTES.find((item) => item.href === "/settings/tokens")!;
 
 export const metadata = { title: `${NAV.label} — Delivery Ledger` };
 

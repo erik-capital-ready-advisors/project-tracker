@@ -49,6 +49,10 @@ export const metadata = { title: `${NAV.label} — Delivery Ledger` };
  *   * `unparsedCandidates` — the status could not be classified, so the item is
  *     **not** claimed to be startable and **is** counted. Dropping it silently
  *     is how a list of three looks like the whole answer.
+ *   * `notStartable` — B28. In a status that is not startable at all
+ *     (`blocked`, `in_flight`, `done`, `superseded`). Not "held", but not
+ *     invisible either: the four counters plus the listed items now account for
+ *     every work item the query returned.
  *
  * The last one carries the reserved colour when it is non-zero, because that is
  * exactly what it is.
@@ -144,6 +148,7 @@ export default async function NextPage({
             counts={[
               { label: "held by a dependency", value: loaded.answer.heldByDependency },
               { label: "held by a blocker or wait", value: loaded.answer.heldByBlocker },
+              { label: "not in a startable status", value: loaded.answer.notStartable },
               {
                 label: "status could not be classified",
                 value: loaded.answer.unparsedCandidates,

@@ -20,7 +20,7 @@ import { readWorkItems } from "./_lib/load";
 import { PAGE_SIZE, parseWorkItemQuery, withParams } from "./_lib/query";
 import type { SearchParams } from "./_lib/query";
 
-const NAV = OPERATOR_ROUTES[1];
+const NAV = OPERATOR_ROUTES.find((item) => item.href === "/work-items")!;
 
 export const metadata = { title: `${NAV.label} — Delivery Ledger` };
 

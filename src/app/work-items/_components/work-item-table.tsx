@@ -98,20 +98,24 @@ function SortableHead({
   const direction = nextDirection(query, column);
   const Arrow = query.direction === "asc" ? ArrowUp : ArrowDown;
 
+  // B55. `aria-sort` belongs on the element holding the `columnheader` role --
+  // the `<th>` -- not on the link inside it. On an `<a>` it is an attribute the
+  // platform is required to ignore, which axe grades `aria-allowed-attr` at
+  // impact `critical`: the sort state looked handled in the markup and was
+  // announced to nobody.
+  const sort = active
+    ? query.direction === "asc"
+      ? "ascending"
+      : "descending"
+    : "none";
+
   return (
-    <TableHead className={cn("whitespace-nowrap", className)}>
+    <TableHead className={cn("whitespace-nowrap", className)} aria-sort={sort}>
       <Link
         href={withParams(query, { sort: column, dir: direction, page: null })}
         data-verify-unit="sort-link"
         data-verify-column={column}
         data-verify-active={active ? "true" : "false"}
-        aria-sort={
-          active
-            ? query.direction === "asc"
-              ? "ascending"
-              : "descending"
-            : "none"
-        }
         className={cn(
           "hover:text-foreground inline-flex items-center gap-1 rounded-sm",
           active ? "text-foreground font-medium" : "text-muted-foreground",

@@ -92,6 +92,21 @@ export interface NextAnswer {
   heldByDependency: number;
   /** Candidates excluded because a blocker or wait holds them. */
   heldByBlocker: number;
+  /**
+   * B28. Items in a status that is not startable at all -- `blocked`,
+   * `in_flight`, `done`, `superseded`.
+   *
+   * These are not "held": they are not work Erik could start, and the original
+   * three counters deliberately excluded them. But excluding them from the
+   * COUNT as well meant they left the accounting entirely, and this screen's
+   * empty state promises to say why the list is short. With 20 items in other
+   * statuses and no counter naming them, an answer that is working correctly is
+   * indistinguishable from an empty database.
+   *
+   * Together with the three above and `items.length`, this accounts for every
+   * work item the query returned. That identity is asserted in the tests.
+   */
+  notStartable: number;
   truncated: boolean;
   engagementUnknown: boolean;
 }
@@ -126,6 +141,7 @@ export async function nextAnswer(
       unparsedCandidates: 0,
       heldByDependency: 0,
       heldByBlocker: 0,
+      notStartable: 0,
       truncated: false,
       engagementUnknown: filters.engagement !== null,
     };
@@ -156,6 +172,7 @@ export async function nextAnswer(
   let unparsedCandidates = 0;
   let heldByDependency = 0;
   let heldByBlocker = 0;
+  let notStartable = 0;
   const ready: LoadedWorkItem[] = [];
 
   for (const item of workItems) {
@@ -164,8 +181,14 @@ export async function nextAnswer(
       continue;
     }
     // `blocked`, `in_flight`, `done` and `superseded` are not candidates at all
-    // and are not counted as held — they are not work Erik could start.
-    if (!READY_STATUSES.has(item.status)) continue;
+    // and are not counted as HELD — they are not work Erik could start. B28:
+    // they are counted separately all the same, because a row that leaves no
+    // trace in any counter turns a correct short answer into one that reads as
+    // an empty database.
+    if (!READY_STATUSES.has(item.status)) {
+      notStartable += 1;
+      continue;
+    }
 
     if (
       (item.blocker !== null && openBlockerIds.has(item.blocker)) ||
@@ -220,6 +243,7 @@ export async function nextAnswer(
     unparsedCandidates,
     heldByDependency,
     heldByBlocker,
+    notStartable,
     truncated: items.length > filters.limit,
     engagementUnknown: false,
   };

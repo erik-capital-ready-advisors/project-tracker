@@ -6,7 +6,7 @@ import { runExport } from "@/lib/server/export/run";
 
 import { ExportPanel } from "./_components/export-panel";
 
-const NAV = OPERATOR_ROUTES[4];
+const NAV = OPERATOR_ROUTES.find((item) => item.href === "/settings/export")!;
 
 export const metadata = { title: `${NAV.label} — Delivery Ledger` };
 
