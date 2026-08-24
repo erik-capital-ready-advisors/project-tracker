@@ -26,6 +26,54 @@ You need three things in hand:
 If any of the three is missing, stop here and sort it out first. Nothing in the ledger is
 reachable without all three.
 
+## What each screen is for, at a glance
+
+Six of these answer a question. The rest hold the records those answers are computed from. If you
+only ever open three, make them Blocked, Next and Committed.
+
+| Screen | Open it when you want to know |
+|---|---|
+| **Blocked** | What is stopped, and who has to move for it to unstick |
+| **Next** | What you could actually start right now, nothing in its way |
+| **Committed** | What you promised a client, for how much, and whether you may invoice |
+| **Untested** | Which promises nothing has independently proven yet |
+| **Bottleneck** | What is waiting on *you*, worst first |
+| **Broken** | What is defective, and whether anyone has proved the fix |
+| Work items | The full list of work, every project, every way it gets done |
+| Waits | What you are waiting on other people for |
+| Registry | Your clients and projects, and the money milestones under each |
+| Questions | What your agents asked you and are proceeding without |
+| Fleet runs | What each autonomous build run actually did |
+| Stacks | Which technologies you keep working in, and where an agent would pay off |
+| Agent tokens | The keys your agents use. Issue and revoke them here |
+| Export | Everything, in one file, for the day this system is gone |
+
+## The words this product uses
+
+It uses a small number of words in an exact way, and guessing at them is how a screen gets
+misread. None of this is software jargon you need to learn - it is the vocabulary of your own
+delivery work, pinned down so two screens cannot mean different things by the same word.
+
+| Word | What it means here |
+|---|---|
+| **Engagement** | One client project. Everything else hangs off one of these. |
+| **Work item** | One piece of work. A fleet unit, a session you did by hand, or something you are waiting on someone else for - all three live in one list on purpose. |
+| **Execution mode** | How a work item gets done: `fleet` (your agents), `hand` (you, prompting), `external` (someone outside the studio). |
+| **Executor** | Who is doing it. An **Erik-gate** is work that cannot move until *you* personally do something. |
+| **`unparsed`** | **The most important word in the product.** It means: something was read and could not be understood, so nothing is being claimed about it. It is never a guess and never quietly treated as "done". Wherever you see it, the honest answer is "we do not know", and that is deliberate. |
+| **Requirement** (`FR-12`) | One numbered thing the product must do, from the agreed spec. |
+| **Acceptance criterion** | What a client agreed would count as a milestone being finished. |
+| **Contract milestone** | A dated, priced chunk of a client contract. |
+| **Defect** | Something broken. It stays **open** until somebody *other than whoever fixed it* proves it fixed - `fixed` on its own is a claim, not evidence. |
+| **Regression** | Something that used to work and stopped. |
+| **Wait** | A dependency on a person outside the studio: a client, a vendor, an app store. |
+| **Disposition** | `carried` means still live and travelling to the next session. `closed` means dealt with. |
+| **Fleet run** | One end-to-end job by your autonomous agents, with an id like `9b85cd`. |
+| **Stack** | A technology you work in - `nextjs-supabase`, say. Hours accumulate against these. |
+| **Ingest** | The ledger reading your agents' files and turning them into records. You do not type this in. |
+| **Planned** | Work you wrote down before any run claimed it. It goes **stale** if untouched for 30 days. |
+| **Archive vs delete** | Archiving is reversible and is the safe default. Deleting is permanent and makes you type the project name to confirm. |
+
 ## Signing in
 
 Open the ledger and you land on the sign-in screen. It says plainly what it is:
@@ -182,8 +230,11 @@ It shows no counts and no summary. Read it as a map, then click through.
 
 ## Blocked
 
-Blocked groups everything stopped by owner. Today it shows **5 blocked work items** and
-**1 open wait** across **2 owners**.
+**Open Blocked when something is not moving and you want to know who has to act.** It gathers
+everything that is stopped and groups it by the person or party holding it up, so the question
+stops being "what is stuck" and becomes "whose desk is it on".
+
+When it was last opened it showed **5 blocked work items** and **1 open wait** across **2 owners**.
 
 The top of the screen lists open external waits: what the wait is called, who owns it, when it
 started, when it is expected back, and how long it has been sitting. The one open wait is
@@ -336,6 +387,10 @@ data, which holds one recorded fleet run and 20 work items derived from it. Whet
 today was not tested.
 
 ## Work items
+
+**Open Work items when the six answers are not the shape you need and you just want the whole
+list.** It is the full record, and the three kinds of work sit in one list rather than three on
+purpose - splitting them would leave you merging them in your head.
 
 Work items lists every piece of work across every engagement and all three execution modes:
 **fleet** (your autonomous agents), **hand** (you prompting Claude on other stacks), and
@@ -519,7 +574,11 @@ every other screen shows.
 
 ## The registry
 
-The registry lists your engagements. Two exist: **delivery-ledger** and **Unassigned**, both
+**Open the registry when you want the client side of the picture rather than the work side** - who
+the project is for, what was contracted, and for how much. Everything else in the ledger hangs off
+an engagement registered here.
+
+It lists your engagements. Two exist: **delivery-ledger** and **Unassigned**, both
 `active`.
 
 The line at the top is the one to remember:
@@ -576,6 +635,9 @@ this does not do yet".
 
 ## Registering an engagement
 
+**Do this when you take on a new client project.** Nothing can be recorded against a project until
+it exists here.
+
 **Register engagement** opens a form in three parts.
 
 **Engagement** takes the client name and the slug, both required. The client name is the display
@@ -622,7 +684,8 @@ a milestone the engagement screen shows as `unreadable` and Committed shows as a
 
 ## One requirement
 
-A requirement's screen gathers everything recorded against it: what implements it, what tests it,
+**Open a requirement when you need to prove a specific promise was kept.** The screen gathers
+everything recorded against it: what implements it, what tests it,
 what violates it, and where it shipped.
 
 It opens with the requirement text, its coverage state, and whether it has shipped. Then four
@@ -640,7 +703,8 @@ been claimed about it either way." An absence of evidence, recorded as an absenc
 
 ## One defect
 
-A defect's screen holds everything recorded about it and what it points at.
+**Open a defect when you need to know whether it is really fixed, and what it is blocking.** The
+screen holds everything recorded about it and everything it points at.
 
 Identity covers engagement, status, severity, how it was graded, its source, when it was reported
 and by whom. **Prose** holds the full description, which on a real defect runs to several
@@ -659,7 +723,8 @@ encrypted at rest.
 
 ## One blocker
 
-A blocker's screen says what the blocker is, who owns it, and what it is holding.
+**Open a blocker when you want to know what unsticking it would release.** The screen says what the
+blocker is, who owns it, and what it is holding.
 
 It shows engagement, owner, disposition, opened date and resolved date, then the description in
 full, then **What this is holding**.
