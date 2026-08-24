@@ -103,7 +103,7 @@ const STATE_STYLE: Record<WorkState, { color: string; treatment: Treatment }> = 
  */
 const CLASS_BY_STATE: Record<WorkState, string> = {
   verified: "border-state-verified/40 bg-state-verified/10 text-state-verified",
-  carried: "border-state-carried/40 bg-state-carried/10 text-state-carried",
+  carried: "border-state-carried/40 bg-state-carried/10 text-state-carried-ink",
   blocked: "border-state-blocked/40 bg-state-blocked/10 text-state-blocked",
   "decided-against":
     "border-state-decided-against/40 text-state-decided-against bg-transparent",
@@ -113,12 +113,12 @@ const CLASS_BY_STATE: Record<WorkState, string> = {
   closed: "border-state-closed/40 text-state-closed bg-transparent",
 
   open: "border-state-open/50 text-state-open bg-transparent",
-  fixed: "border-state-fixed/40 bg-state-fixed/10 text-state-fixed",
+  fixed: "border-state-fixed/40 bg-state-fixed/10 text-state-fixed-ink",
   wont_fix:
     "border-state-wont-fix/50 text-state-wont-fix bg-transparent border-dashed",
 
   contested:
-    "border-state-contested/50 bg-state-contested/10 text-state-contested ring-1 ring-state-contested/30",
+    "border-state-contested/50 bg-state-contested/10 text-state-contested-ink ring-1 ring-state-contested/30",
 
   "observed-live":
     "border-state-observed-live/40 bg-state-observed-live/10 text-state-observed-live",

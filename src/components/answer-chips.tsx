@@ -227,7 +227,7 @@ export function ShippedChip({ environments }: { environments: readonly string[] 
 /** Literal class strings; see the severity note in this file's header. */
 const SEVERITY_CLASS: Record<string, string> = {
   critical: "border-state-blocked/50 bg-state-blocked/10 text-state-blocked font-semibold",
-  major: "border-state-carried/50 bg-state-carried/10 text-state-carried",
+  major: "border-state-carried/50 bg-state-carried/10 text-state-carried-ink",
   minor: RUNG.quiet,
 };
 

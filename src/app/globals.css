@@ -113,6 +113,20 @@
   --state-unproven: #b45309;         /* amber 700    -- dashed outline */
   --state-uncovered: #b91c1c;        /* red 700      -- dashed outline */
 
+  /* B65 - ink tokens: text colour for a chip that sits on a 10% tint OF ITSELF.
+     The identity token carries FR-43's greyscale duty and must not move; three
+     of them measured under 4.5:1 against their own tint (carried 4.20, contested
+     4.31, fixed 4.04) and darkening them to fix that broke FR-43 immediately,
+     with new greyscale collisions between `fixed`/`contested` and
+     `verified`/`carried`. Separating the two duties is what resolves it: the
+     identity token stays put, the ink is free to darken.
+     Only the three that fail have one. In DARK the tint is dark and every state
+     already clears 6.5:1 or better, so ink there is the identity token itself -
+     stated explicitly rather than left to a fallback nobody can see. */
+  --state-carried-ink: #a24b08;      /* 4.95:1 on bg-state-carried/10   */
+  --state-contested-ink: #af3b0b;    /* 5.06:1 on bg-state-contested/10 */
+  --state-fixed-ink: #0d6983;        /* 5.24:1 on bg-state-fixed/10     */
+
   --destructive: #b91c1c;
   --destructive-foreground: #fafafa;
 
@@ -181,6 +195,13 @@
   --state-unproven: #fbbf24;
   --state-uncovered: #f87171;
 
+  /* B65. Dark tints are dark, so every state already clears 6.5:1 against its
+     own chip; ink is the identity token, said out loud so a reader does not
+     have to infer it from an absence. */
+  --state-carried-ink: #fbbf24;
+  --state-contested-ink: #fb923c;
+  --state-fixed-ink: #22d3ee;
+
   --destructive: #f87171;
   --destructive-foreground: #09090b;
 
@@ -201,6 +222,9 @@
 }
 
 @theme inline {
+  --color-state-carried-ink: var(--state-carried-ink);
+  --color-state-contested-ink: var(--state-contested-ink);
+  --color-state-fixed-ink: var(--state-fixed-ink);
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
