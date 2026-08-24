@@ -7,10 +7,10 @@ and what is broken. It also holds the records those answers are computed from.
 One person uses this product. There are no teammates to invite, no roles to assign, and no
 permissions to configure. Everything below is written for you as the only operator.
 
-Everything in this guide describes what the screens did when someone opened them. They were last
-opened and re-checked on 2026-08-24, after the engagement filter and hand-entered planned work
-were added. Where a screen could not be opened, the section says so and marks itself
-`UNVERIFIED`.
+Everything in this guide describes what the screens did when someone opened them. All thirty-two
+were re-opened on 2026-08-24, after the Stacks register shipped, and the figures below are the ones
+that were on screen that day. Where a screen could not be opened, the section says so and marks
+itself `UNVERIFIED`.
 
 ## Before you start
 
@@ -58,12 +58,14 @@ ledger holds." A dash there means nobody looked, not that the answer is zero.
 
 A sidebar sits on every screen. It splits into **The six answers** (Blocked, Next, Committed,
 Untested, Bottleneck, Broken) and **Records** (Registry, Work items, Waits, Agent tokens, Export,
-Questions, Fleet runs). Click any of them to go there.
+Questions, Fleet runs, Stacks). Click any of them to go there.
 
-A badge at the top of the sidebar shows the unparsed count, currently **0 unparsed**. That number
-counts records the ledger could not classify. Zero means everything it holds, it understood. When
-it climbs, it is telling you something arrived in a shape the ledger does not recognise, and the
-honest thing it does is say so rather than guess.
+A badge at the top of the sidebar shows the unparsed count, currently **2 unparsed**. That number
+counts records the ledger could not classify. When it climbs, something arrived in a shape the
+ledger does not recognise, and it says so rather than guessing. Hover or read the panel each screen
+prints under its filters for the split: today it reads `2 work items`, `0 defects`,
+`0 test results`. Both work items are captured Claude sessions whose status the ledger could not
+read; open Work items and filter Status to `unparsed` to see them.
 
 Beside that badge sits a dropdown listing your engagements. It narrows every list in the product
 to one client, and it has a section of its own below.
@@ -81,7 +83,7 @@ land. Escape closes it and changes nothing.
 
 Most list screens carry filter controls across the top and an **Apply** button. Filters go into
 the address of the page, so a filtered view is a link you can keep. Filtering Work items to
-`blocked`, for example, narrowed the list from 20 rows to 5.
+`blocked`, for example, narrowed the list from 23 rows to 5.
 
 ## Filtering by engagement
 
@@ -95,7 +97,10 @@ Waits, Fleet runs and Registry.
 
 Nothing else does. Open a single work item, wait, defect, milestone, requirement or run and the
 dropdown is gone from the top bar, because a record you are already looking at cannot be narrowed
-any further.
+any further. **Stacks has no dropdown either**, and for a different reason worth knowing: it counts
+engagements per stack against a threshold, so narrowing it to one engagement would leave the
+threshold in place while changing what the number beside it means. Put `?engagement=` on the
+address of Stacks by hand and nothing happens to the page.
 
 **The filter lives in the address of the page and nowhere else.** Pick an engagement and the
 address gains `?engagement=acme`; clear it and the address goes back to the bare screen name.
@@ -123,14 +128,14 @@ on page seven of a list that just got shorter shows an empty page that reads lik
 This looks like a bug and is not. With a filter on, the badge in the top bar still counts the
 **whole ledger**, and it says so:
 
-> 3 unparsed (whole ledger)
+> 2 unparsed (whole ledger)
 
 The count is left alone on purpose. `unparsed` means the ledger could not classify a record, which
 is a fact about the ledger and not about the client you are looking at. Had the number shrunk when
 you picked an engagement, you could walk away believing a problem had gone when all you did was
 look elsewhere. The `(whole ledger)` note is what stops a ledger-wide number being read as a
-scoped one. It shows only while a filter is on; otherwise the badge reads `0 unparsed` and nothing
-more.
+scoped one. It shows only while a filter is on; without one the badge drops the note and reads
+`2 unparsed` and nothing more.
 
 ### When the address names an engagement that does not exist
 
@@ -161,8 +166,8 @@ nobody watched a screen render it.
 
 ## The home screen
 
-The home screen is a directory, not a dashboard. It lists the same thirteen destinations as the
-sidebar, each with the question it answers written underneath:
+The home screen is a directory rather than a dashboard. It lists the same fourteen destinations as
+the sidebar, each with the question it answers written underneath. The six answers first:
 
 - **Blocked**: what is stopped, who owns it, and for how long?
 - **Next**: what can be worked on right now with nothing in its way?
@@ -170,6 +175,8 @@ sidebar, each with the question it answers written underneath:
 - **Untested**: which requirements has nothing independently proven?
 - **Bottleneck**: what is waiting on Erik personally?
 - **Broken**: what is defective or has regressed?
+
+Then the eight record screens, Stacks among them, each carrying the same one-line question.
 
 It shows no counts and no summary. Read it as a map, then click through.
 
@@ -198,15 +205,21 @@ Where a date is missing the screen prints a dash rather than a guess.
 Next lists work you could start today, with every dependency finished and no blocker or wait
 holding it, nearest deadline first.
 
-**This screen is empty, and that is correct rather than broken.** It says:
+It holds **one row**: `b53-seed`, a planned item with no execution mode, marked `planned` with an
+age of `0d` beside it. Next draws from the `pending` status, and planning work by hand creates a
+`pending` row, so anything you record on the Plan work item form lands here without a run existing.
 
-> Nothing is startable.
+Under the table the screen accounts for everything it left out rather than leaving you to wonder:
 
-Underneath it accounts for the emptiness rather than leaving you to wonder: `0 held by a
-dependency`, `0 held by a blocker or wait`, `0 status could not be classified`. All three are
-zero because no work item currently sits in the `pending` state that this screen draws from.
-Nothing you can do inside the product will put a row here. Rows appear when new work arrives
-through ingest.
+- `0 held by a dependency`
+- `0 held by a blocker or wait`
+- `20 not in a startable status`
+- `2 status could not be classified`
+
+That last pair is the useful one. Twenty work items are `done`, `blocked` or `superseded`, so this
+screen correctly declines to offer them. Two more carry a status the ledger could not read at all,
+and it will not guess whether they are startable. They are the same two rows behind the `2 unparsed`
+badge in the top bar.
 
 ## Committed
 
@@ -258,19 +271,35 @@ release.
 
 > Nothing is waiting on Erik.
 
-with `0 Erik-owned items whose status could not be classified` underneath. No work item currently
-carries you or an Erik-gate as its executor, so there is nothing to rank. As with Next, no action
-inside the product will populate it. Rows arrive through ingest.
+with `2 Erik-owned items whose status could not be classified` underneath. No work item carries you
+or an Erik-gate as its executor with a status this screen can rank, so nothing appears.
+
+Read that second line rather than skipping it. Two rows **do** name you as executor, and both are
+captured Claude sessions whose status came in as `unparsed`. The screen refuses to rank them and
+refuses to drop them silently, so it counts them where you can see the number. An empty Bottleneck
+with a non-zero count underneath is not the same claim as an empty Bottleneck with a zero.
 
 ## Broken
 
-Broken lists defects and regressions, grouped by severity. Today: **13 defects, 0 regressed** -
-**10 still open** (3 major, 7 minor) and 3 already marked fixed. The only critical one is among the
-fixed, so nothing critical is currently open.
+Broken lists defects and regressions, grouped by engagement and then by severity. On
+delivery-ledger it reads **13 open · 0 regressed**, split **1 critical**, **5 major**, **7 minor**.
+The Unassigned engagement holds none.
+
+**Open here means something narrower than you would guess, and it is the most important word on the
+screen.** A defect stays open until it is `verified` or marked `wont_fix`. `fixed` is not enough.
+Three of the thirteen rows carry the status `fixed`, including the single critical one, and Broken
+still counts them, because `fixed` is a claim by whoever did the work and `verified` is somebody
+else confirming it. Beside each of those three the screen prints "no passing test names this
+defect", which is the ledger telling you nothing proves the fix. So the honest reading of the
+critical row is not *nothing critical is open*, it is *one critical defect has been called fixed and
+nothing has checked*.
 
 Each row shows the defect reference, its title, its status, why it is still open, the requirement
-it violates, the work item fixing it, the tests naming it, and when it was reported. Many rows
-read "no passing test names this defect", meaning nothing proves the fix.
+it violates, the work item fixing it, the tests naming it, and when it was reported.
+
+Below the severity groups sit **Test regressions** and **Requirement regressions**, both empty
+today, each with a line saying what an empty list there means: no test that used to pass is failing
+now, and no requirement has lost the proof it previously had.
 
 **Read the notice at the top of this screen before you write a defect title.** It says a defect
 title is the only part of a defect stored unencrypted, because the title is what this list is
@@ -313,9 +342,15 @@ Work items lists every piece of work across every engagement and all three execu
 **external** (waiting on somebody outside the studio). One list, deliberately, so you never merge
 three lists in your head.
 
-The screen paginates and reports **20 on this page** with **0 unparsed on this page**. Filters
-cover engagement, mode, executor, status, disposition, evidence, and the reason something was not
-automated. There is also a checkbox for items held by an external wait.
+The screen paginates and reports **23 on this page**, **2 unparsed on this page** and **0 only Erik
+can do**. Filters cover engagement, mode, executor, status, disposition, evidence, and the reason
+something was not automated. There is also a checkbox for items held by an external wait.
+
+All three modes now have rows in this list. Twenty came from fleet ingest, one is the planned item
+you can see on Next, and two arrived from the session hook as `hand` work with **Erik** as the
+executor. Those last two are the pair the unparsed badge counts: their work type reads
+`hand-prompted-session`, their status reads `unparsed`, and one of them also carries the stack
+`nextjs-supabase`, which is how it reached the Stacks register.
 
 The **Evidence** filter is the one to learn. Its four values stay separate on purpose:
 `observed live`, `observed elsewhere`, `asserted`, and `not verified`. An agent claiming it works
@@ -401,10 +436,11 @@ The item is created with status `pending` and **no execution mode** — nobody h
 whether it will be fleet work, hand work, or something waiting on a person outside the studio.
 That is what makes it planned rather than assigned.
 
-**UNVERIFIED: submitting the form.** The screen was opened and every field read, but nothing was
-submitted, because the only instance available holds your real records and this guide is not worth
-a stray row in them. The two refusals and the success path above are quoted from the product
-rather than watched.
+The form has been submitted once, on 2026-08-24, and it worked. That submission created the
+`b53-seed` row you can see on Next and on Work items, and it was checked against the database
+rather than against the screen, because the address does not change when the write lands. Nothing
+has been submitted since; the fields and the two refusals above were read from the form on
+2026-08-24 without sending anything.
 
 ## Planned work, and when it goes stale
 
@@ -435,11 +471,14 @@ Three things are worth knowing, because each one is easy to assume the other way
 A planned row is already a candidate for **Next**: `pending` is one of the statuses Next draws
 from, so planning work by hand is how you put something into Next before any run exists.
 
-**UNVERIFIED: the markers themselves.** The ledger holds no planned rows today — every work item
-in it arrived by ingest and carries an execution mode — so no `planned`, `planned stale` or `age?`
-marker was on screen while this was written. Filtering Work items to `pending` returned nothing,
-which is the same finding from the other direction. The rule above is read from what the product
-computes; the appearance of the markers is not.
+The `planned` marker and the age chip beside it have both been on screen. On `b53-seed` the
+Execution mode field reads `no mode yet`, with `planned` and `0d` under it, on Work items, on Next
+and on the item's own screen.
+
+**UNVERIFIED: `planned stale` and `age?`.** The first needs a row nobody has touched for 30 days
+and the second needs a row whose last-touched date will not read, and neither can be produced on
+demand against your real records. What those two markers look like is taken from what the product
+computes, not from a screen.
 
 ## Waits
 
@@ -447,7 +486,9 @@ Waits lists dependencies on people outside the studio. It shows **1 open** and *
 grouped by owner, with a checkbox to **Include resolved**.
 
 Each wait shows its label, engagement, owner type, start date, expected-by date, how long it has
-been waiting, and its resolution method. A **Resolve** button sits on each row.
+been waiting, and its resolution method. The one open wait is "§5a design approval", owned by the
+client, started 2026-08-20, expected `no date given`, waiting **4 days**, method `manual`. A
+**Resolve** button sits on each row.
 
 **Declare a wait** opens a form. It explains the point of recording one: the delay then shows on
 Blocked and moves the milestone's projected date. The form asks for engagement, owner, label,
@@ -515,8 +556,12 @@ token.
 **Watch the amount column.** On this engagement the milestone amount displays as `unreadable`,
 and the screen adds: "One milestone amount could not be read and contributes nothing to these
 totals — it is not zero." That is the ledger refusing to invent a number it could not decrypt.
-Opening that same milestone on its own screen shows the amount as `not recorded` instead. The two
-screens disagree about the same value, and neither is a number you should invoice from.
+
+Three screens now describe that same amount three different ways. The engagement screen says
+`unreadable`, the milestone's own screen says `not recorded`, and Committed prints a dash. Under the
+product's own vocabulary those are three separate claims: it holds a value it cannot decrypt, nobody
+entered a value, and nobody looked. Only the first is true. None of the three is a number to invoice
+from, and the disagreement is unresolved.
 
 **Archive and deletion** sits at the bottom with two buttons, **Archive** and
 **Delete permanently**, under the line "Archive it first, that step is reversible and this one is
@@ -572,8 +617,8 @@ The screen says outright that whether the milestone is open, claimed or billable
 once, on Committed, and not recomputed here, "because two answers to 'may I invoice this' is one
 answer too many."
 
-Note the amount disagreement described under "One engagement": this screen showed `not recorded`
-for a milestone the engagement screen showed as `unreadable`.
+Note the amount disagreement described under "One engagement": this screen shows `not recorded` for
+a milestone the engagement screen shows as `unreadable` and Committed shows as a dash.
 
 ## One requirement
 
@@ -668,8 +713,13 @@ best guess is the decision that is live in your code right now.
 ## Agent tokens
 
 This screen lists the credentials your agents use to read and write the ledger. It shows
-**4 tokens** with label, capabilities, status, expiry, last used, created date, and **Rotate** and
-**Revoke** buttons. Revoked tokens stay listed and marked `kept for audit`.
+**5 tokens** with label, capabilities, status, expiry, last used, created date, and **Rotate** and
+**Revoke** buttons. Three are active and two are revoked; revoked tokens stay listed and marked
+`kept for audit`.
+
+One of the active three is labelled `session-hook`, carries `ingest:write` only, and is the
+credential the Claude Code session hook posts with. If your hand-prompted sessions stop appearing
+in the ledger, that is the row to check first.
 
 Two capabilities exist. `answer:read` reads the six answer endpoints. `ingest:write` posts
 artifacts, sessions and waits. The screen states that neither reaches contract amounts, on the
@@ -693,8 +743,9 @@ and reading it. The one-time reveal screen was not seen and is not described her
 ## Getting your data out
 
 Export writes every record into one file, for the day this system is not here. It reports
-**1125 rows across 21 tables**, read in a single database operation so that no row limit can
-truncate it, and lists the row count per table.
+**1174 rows across 21 tables**, read in a single database operation so that no row limit can
+truncate it, and lists the row count per table. Two of those tables are what the Stacks register is
+built from: `work_session` holds 2 rows and `stack` holds 1.
 
 **Download export** produces a file named for the ledger and the moment you took it, such as
 `delivery-ledger-export-2026-08-23T20-57-07Z.json`. The one taken while writing this guide came
@@ -792,14 +843,105 @@ only within an engagement, so two engagements could one day hold the same id. Th
 screen for that case which lists every match and picks none. It cannot appear on today's data — one
 run, and nothing to collide with — so it is described here from the build and not from observation.
 
+## Stacks
+
+Stacks answers which technologies your ledger has seen, how many of your hours sit on each, and
+whether a fleet agent has been named for any of them. Read it when you are deciding which
+specialist to grow next.
+
+**Read the panel at the top before the table.** It is the first thing on the screen on purpose, and
+its largest number is the work this register could not place:
+
+> 1 of 2 sessions in the ledger name no stack at all — 50% of everything captured.
+
+Those sessions stay in the total. They build no row in the table and no figure on the screen quietly
+drops them. Half of what has been captured is unattributable right now, and a register that showed
+you the one populated row and put that in a footnote would be telling you it had looked when it had
+barely looked at all.
+
+The panel states one more thing you should not skip: **every session counted here is a Claude
+session you ran by hand, recorded by the session hook.** Nothing else in the product writes a work
+session today, and the hours are summed from all of them with no filter. If something else ever
+starts writing sessions, that sentence goes wrong where you can see it.
+
+Nine figures sit under it, and each one names its own denominator: sessions counted (2), name no
+stack (1), name a stack (1), recorded no duration (0), name a stack with no row (0), stacks observed
+(1), have an agent named (0), have earned a specialist (0), are actionable (0).
+
+### When a stack has earned a specialist
+
+The rule is printed on the screen rather than left for you to work out, and it has two clauses. Only
+one of them runs.
+
+**Clause 1, evaluated:** a stack has earned a specialist when it appears in **2 or more engagements**
+and carries **8 or more of your hours**. Every row states where it sits against both halves.
+
+**Clause 2, never evaluated:** *…or when one engagement's missing agent blocks a dated contract
+milestone.* The screen marks this one `not-verified` and explains why: evaluating it needs a link
+from a stack to the blocker stalling a dated milestone, and the database carries no such link. It
+was ruled unmet rather than built, and it is shown rather than dropped.
+
+That has a consequence you need to carry into every row you read. A stack that fails clause 1 is
+shown as **`undetermined`**, never as "has not earned a specialist". The product cannot make the
+second claim while clause 2 has never run. `undetermined` means *failed clause 1, and nothing
+checked the other one*.
+
+### The table
+
+One stack is in the register today:
+
+| stack | trigger | agent covering | hours | sessions | engagements | first seen | last seen |
+|---|---|---|---|---|---|---|---|
+| `nextjs-supabase` | `undetermined` — 1 of 2 engagements · 0h of 8h | nobody has said | 0h | 1 | 1 | 2026-08-24 | 2026-08-24 |
+
+Rows are ordered by name. The order says nothing about which stack matters most.
+
+Two things about this row are worth understanding, because both look like faults and are not. The
+hours read `0h` because the one session naming this stack recorded a duration of zero minutes, not
+because the hours are missing. And the register found `nextjs-supabase` from a captured session,
+while the delivery-ledger engagement's own **Stacks** field on the registry screen still reads
+`not recorded`. Those are two different facts: what you typed on the engagement, and what the ledger
+has watched you work on. This screen reports the second.
+
+### Naming the agent that covers a stack
+
+**Set agent** on any row opens a small dialog. It says what it is for:
+
+> This is recorded, not detected. The fleet's agent roster lives outside this product and it cannot
+> be read from here, so whatever you type is stored as typed — including a name no agent answers to.
+
+Type the agent's name and press **Save**. Leave the box empty and save to clear it, which is how you
+say no agent covers that stack any more. **Cancel** and Escape both close the dialog and change
+nothing.
+
+This field is yours alone. The product will never fill it in for you, because which stacks your
+fleet covers is a fact about the agent definitions on your disk and this product cannot see them. A
+stack that has earned a specialist and has nobody named against it is what the screen calls
+**actionable**, and that count is the one to act on.
+
+**Nobody pressed Save while writing this guide.** The dialog was opened, read, and closed with
+Escape; the row still reads `nobody has said` afterwards. The wording above comes from the dialog on
+screen, and the behaviour of the save itself is described from how the product is built.
+
+### Two rough edges on this screen
+
+Both were measured during review and neither stops you using it.
+
+- The `undetermined` chip and the `nobody has said` text are set in a grey too faint to meet the
+  contrast standard the rest of the product holds to. If either is hard to read, that is why.
+- The **recorded no duration** figure counts only sessions that named a stack. A session with
+  neither a stack nor a duration is missing from it. The figure reads `0` today and is right today,
+  but its denominator is 1, not 2.
+
 ## What this does not do yet
 
 Every item here was measured, not guessed.
 
-**Bottleneck is empty; Next no longer is.** Bottleneck ranks work whose executor is you or an
-Erik-gate, and **no work item carries either**, so the screen explains its own emptiness with a
-zero-count rather than showing a blank. Its rows arrive only through fleet ingest, and nothing you
-click will put one there.
+**Bottleneck is empty, and its zero is not zero.** It ranks work whose executor is you or an
+Erik-gate. Two work items name you and both carry a status the ledger could not read, so the screen
+shows no rows and prints `2 Erik-owned items whose status could not be classified` underneath. The
+count is the honest part. Nothing you click will populate the table; rows arrive through ingest or
+through the Plan work item form.
 
 **Next holds exactly one row, and you can add more.** Planning work by hand creates a `pending`
 row, and `pending` is the status Next draws from, so a planned item becomes a Next candidate the
@@ -811,6 +953,28 @@ so the `planned` marker and the age chip beside it have been observed on a real 
 stale` and `age?` have not.** The first needs a row untouched for 30 days and the second needs a
 row whose last-touched date cannot be read, and neither can be produced on demand - so this guide
 describes those two from the rule the product computes rather than from a screen.
+
+**The Stacks register is running on one stack and half a ledger.** One stack has ever been observed,
+one of the two captured sessions names no stack at all, and the hours column reads `0h` because that
+session recorded a zero duration. Nothing on that screen is wrong; there is close to nothing in it
+yet. It becomes useful once the session hook has been running for a while.
+
+**FR-106's second clause has never been evaluated and will not be until the schema carries the
+link.** Nothing connects a stack to the blocker stalling a dated contract milestone, so the rule
+runs on its first clause only. This is why every row that fails clause 1 reads `undetermined` rather
+than "not earned", and why you should not read `0 have earned a specialist` as a finding about your
+stacks.
+
+**Nobody has pressed Save on the agent-covering dialog.** The dialog was opened and read; the write
+behind it is described from how the product is built rather than from a save that landed.
+
+**Two pieces of text on Stacks fail the contrast standard.** The `undetermined` chip misses it in
+the light theme, and `nobody has said` misses it in both. Both are the product's existing grey used
+correctly, so the fix is a product-wide one.
+
+**One critical defect is called fixed and nothing has confirmed it.** Broken counts a defect as open
+until somebody other than the fixer verifies it, so the screen reads `1 critical open` while that
+row's own status reads `fixed`. The screen is right. Treat the critical row as unresolved.
 
 **One engagement-filter message has never been seen.** The notice shown when the engagement list
 itself cannot be read needs the lookup to fail, and nobody forced that against real records.
@@ -826,17 +990,18 @@ measurement.** It was carried as unverified through several milestones because p
 the signed-in session any agent check would have been running from. Erik pressed it on 2026-08-24
 and it behaved as described: the session ends and you are returned to sign-in.
 
-**One milestone amount will not decrypt, and two screens disagree about it.** The engagement
+**One milestone amount will not decrypt, and three screens describe it three ways.** The engagement
 screen shows `unreadable` and excludes it from every total, with a note saying it is not zero. The
-milestone's own screen shows `not recorded`. Both totals on Committed read `$0.00` while a
-milestone with an unreadable amount exists. Do not invoice from those totals until this is
-resolved.
+milestone's own screen shows `not recorded`. Committed prints a dash. In this product's vocabulary
+those are three different claims - a value that will not decrypt, a value nobody entered, and nobody
+looking - and only the first is true. All four totals on Committed read `$0.00` while a milestone
+with an unreadable amount exists. Do not invoice from those totals until this is resolved.
 
 **Nothing tests anything, by the ledger's own count.** Untested reports 79 requirements, 324
-tests, and **0 mapped** - no test in the ledger is tied to a requirement. Broken shows 13 defects,
-10 of them open, and the 3 marked `fixed` carry "no passing test names this defect" beside them,
-meaning nothing in the ledger proves those fixes. The ledger is reporting this correctly. It is your delivery state
-that the report describes, not a fault in the reporting.
+tests, and **0 mapped** - no test in the ledger is tied to a requirement. Broken shows 13 defects
+open, and every one of them carries "no passing test names this defect" beside it, meaning nothing
+in the ledger proves any fix. The ledger is reporting this correctly. It is your delivery state that
+the report describes, not a fault in the reporting.
 
 **96 questions are open.** Each carries a best guess that shipped unanswered.
 
@@ -864,8 +1029,15 @@ declining to make claims about data it did not read, not an empty ledger.
 
 **The unparsed count is above zero.** Something arrived in a shape the ledger does not recognise
 and it is telling you rather than guessing. Go to the screen for that record type and filter on
-`unparsed` to see which rows. This is information, not damage. The fix is to teach the ledger the
-shape, which is work for Erik and never a matter of loosening a rule until the row classifies.
+`unparsed` to see which rows. It reads `2` today: open Work items, set Status to `unparsed`, press
+Apply, and you get the two captured Claude sessions behind it. This is information rather than
+damage. The fix is to teach the ledger the shape, which is work for Erik and never a matter of
+loosening a rule until the row classifies.
+
+**A screen counts something it will not show you.** Next says `2 status could not be classified`,
+Bottleneck says `2 Erik-owned items whose status could not be classified`, and Stacks says `1 of 2
+sessions name no stack`. In all three the screen is declining to rank or place a row it holds, and
+saying how many. Follow the count to Work items and read the rows themselves.
 
 **A value reads `not recorded`, `unreadable`, or a dash.** These mean three different things.
 `not recorded` means nobody entered it. `unreadable` means the ledger holds a value it could not
