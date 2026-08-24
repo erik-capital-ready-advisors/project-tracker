@@ -225,8 +225,10 @@ describe("planRun", () => {
     const built = planRun({ ...ARTIFACTS, qaReportText: QA_REPORT });
     expect(built.defects.length).toBeGreaterThan(0);
     // The identity is the artifact's, not a generated one, so a second post of
-    // the same report updates rather than allocating a second set of refs.
-    expect(built.defects[0].source_key).toMatch(/^qa-report#\d+$/);
+    // the same report updates rather than allocating a second set of refs. The
+    // namespace carries the run id so that a DIFFERENT run's report does not
+    // update this one's rows -- see the collision test at the end of this file.
+    expect(built.defects[0].source_key).toMatch(/^qa-report-zz01#\d+$/);
     expect(built.defects.every((d) => d.status === "open")).toBe(true);
   });
 
@@ -260,7 +262,38 @@ describe("planRun", () => {
     const keys = built.defects.map((d) => d.source_key);
     expect(new Set(keys).size).toBe(keys.length);
     // Entry 0 is a struck-through closure record and is not ingested, so the
-    // first surviving defect is #1 rather than #0.
-    expect(keys[0]).toBe("qa-report#1");
+    // first surviving defect is #1 rather than #0. The `zz01` in the namespace
+    // is ARTIFACTS.runId; what this line pins is the ordinal, not the prefix.
+    expect(keys[0]).toBe("qa-report-zz01#1");
+  });
+
+  it("FR-22 two runs in one engagement do not collide on defect source_key", () => {
+    // `defect` is upserted on the unique index (engagement_id, source_key), so
+    // a source_key that repeats across runs is not a duplicate finding -- it is
+    // one run's defect row being overwritten by another's.
+    //
+    // These are two DIFFERENT runs' reports carrying DIFFERENT findings, posted
+    // into the SAME engagement, which is the normal case: every fleet run files
+    // its own QA report against the engagement it ran on.
+    const runA = planRun({
+      ...ARTIFACTS,
+      runId: "zz01",
+      qaReportText: QA_REPORT,
+    });
+    const runB = planRun({
+      ...ARTIFACTS,
+      runId: "zz02",
+      qaReportText: QA_REPORT_UNKNOWN_SHAPES,
+    });
+
+    expect(runA.defects.length).toBeGreaterThan(0);
+    expect(runB.defects.length).toBeGreaterThan(0);
+
+    const keysA = runA.defects.map((d) => d.source_key);
+    const keysB = runB.defects.map((d) => d.source_key);
+    const collisions = keysA.filter((k) => keysB.includes(k));
+
+    expect(collisions).toEqual([]);
+    expect(new Set([...keysA, ...keysB]).size).toBe(keysA.length + keysB.length);
   });
 });

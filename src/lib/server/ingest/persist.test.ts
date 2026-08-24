@@ -216,7 +216,11 @@ describe("persistPlan", () => {
     await persistPlan(fake.client as never, planRun({ ...ARTIFACTS, qaReportText: QA_REPORT }));
     const rows = fake.calls.find((c) => c.table === "defect" && c.op === "upsert")
       ?.rows as { ref: string; source_key: string }[];
-    const fresh = rows.filter((r) => r.source_key.startsWith("qa-report#"));
+    const fresh = rows.filter((r) => r.source_key.startsWith("qa-report-zz01#"));
+    // Without this the filter can go empty and the comparison below holds
+    // vacuously -- which is exactly what happened when the namespace gained the
+    // run id and this line still read `qa-report#`.
+    expect(fresh.length).toBeGreaterThan(0);
     expect(fresh.map((r) => r.ref)).toEqual(
       fresh.map((_, index) => `D-${index + 3}`),
     );
@@ -224,11 +228,11 @@ describe("persistPlan", () => {
 
   it("FR-22 reuses the ref a finding already has, so a second post does not duplicate it", async () => {
     // The idempotency case, and the one that only ever fails on the SECOND post.
-    fake.seed("defect", [{ ref: "D-7", source_key: "qa-report#0" }]);
+    fake.seed("defect", [{ ref: "D-7", source_key: "qa-report-zz01#0" }]);
     await persistPlan(fake.client as never, planRun({ ...ARTIFACTS, qaReportText: QA_REPORT }));
     const rows = fake.calls.find((c) => c.table === "defect" && c.op === "upsert")
       ?.rows as { ref: string; source_key: string }[];
-    expect(rows.find((r) => r.source_key === "qa-report#0")?.ref).toBe("D-7");
+    expect(rows.find((r) => r.source_key === "qa-report-zz01#0")?.ref).toBe("D-7");
   });
 
   it("§7a encrypts a defect description and leaves the title clear", async () => {
