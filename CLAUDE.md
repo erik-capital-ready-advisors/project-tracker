@@ -293,3 +293,14 @@ Behavioral rules earned on this project. Append one line per lesson, in the mome
   plaintext `description` — the result object is exactly what ends up in a log line. Pick the
   count fields with `Omit<…, "inputs">` and destructure the prose out at the call site; u2 made
   the same call in leaving `description` off `PlannedWorkRecord`.
+- Before naming milestones as a fleet run's scope, map each `Not Started` row in `prod.md`'s tracker
+  onto the numbered FRs the **resolved** spec actually defines, and treat a row backed by zero FRs as
+  **not dispatchable**. The tracker is written forward — a milestone gets a row as soon as anyone can
+  imagine it — while the requirement set moves only when a CR is approved, so the two drift apart and
+  the tracker is the one a session reads first. On run `9d4658` the dispatch brief told the
+  orchestrator that M2.1–M2.6 were "the actual candidate scope", reading `Not Started` as
+  ready-to-dispatch; all six carry **zero FRs between them** (five are §4.3 "Deferred (Phase 2+)"
+  bullets, M2.6 is one sentence in §12). Had the orchestrator decomposed from that brief, specialists
+  would have authored the requirements they then built against. The tracker even has a separate
+  `Deferred` status, used for a *different* set — which actively signals these rows are not the
+  deferred ones. They are.
