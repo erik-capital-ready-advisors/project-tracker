@@ -80,7 +80,15 @@ export interface TrackerMilestone {
 export interface ProdMdResult {
   milestones: TrackerMilestone[];
   blockers: Blocker[];
-  /** FR-58: milestone rows whose status word this parser does not recognise. */
+  /**
+   * FR-58. Rows this parser could not read AT ALL -- a wrong column count in
+   * either table, or a blocker row naming no `Bn` -- plus milestone rows whose
+   * status word it does not recognise.
+   *
+   * B59: the first group used to be dropped by a bare `continue` and counted
+   * nowhere, so a malformed row was absent from the numerator and the
+   * denominator both.
+   */
   unparsed: number;
 }
 
@@ -101,10 +109,17 @@ function milestoneRows(text: string): string[][] {
 
 export function parseProdMd(text: string, engagement: string): ProdMdResult {
   const milestones: TrackerMilestone[] = [];
+  // B59. Rows no record can be built from. Counted here rather than dropped.
+  let unreadableRows = 0;
 
   for (const cells of milestoneRows(text)) {
-    if (cells.length !== MILESTONE_COLUMNS) continue;
+    if (cells.length !== MILESTONE_COLUMNS) {
+      unreadableRows += 1;
+      continue;
+    }
     const [name, status, notes] = cells;
+    // A nameless row is a separator or a spacer, not a milestone the artifact
+    // failed to state. It is not counted.
     if (plain(name) === "") continue;
 
     milestones.push({
@@ -118,13 +133,21 @@ export function parseProdMd(text: string, engagement: string): ProdMdResult {
   const blockers = new Map<string, Blocker>();
 
   for (const cells of tableRows(text, "## Active blockers")) {
-    if (cells.length !== BLOCKER_COLUMNS) continue;
+    if (cells.length !== BLOCKER_COLUMNS) {
+      unreadableRows += 1;
+      continue;
+    }
     const [idCell, description, owner] = cells;
 
     // A row naming no `Bn` gets no invented identifier — the same rule
     // `blocked.ts` applies to the manifest's Blocked table.
     const match = BLOCKER_REF.exec(plain(idCell));
-    if (!match) continue;
+    if (!match) {
+      // Well-formed as a table row, but it names no blocker. No identifier is
+      // invented for it -- and B59 says it is not silently forgotten either.
+      unreadableRows += 1;
+      continue;
+    }
 
     const id = `${engagement}:B${match[1]}`;
     if (blockers.has(id)) continue;
@@ -142,6 +165,7 @@ export function parseProdMd(text: string, engagement: string): ProdMdResult {
   return {
     milestones,
     blockers: [...blockers.values()],
-    unparsed: milestones.filter((m) => m.status === "unparsed").length,
+    unparsed:
+      milestones.filter((m) => m.status === "unparsed").length + unreadableRows,
   };
 }

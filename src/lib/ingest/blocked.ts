@@ -46,7 +46,35 @@ export function parseBlocked(
   const blockers = new Map<string, Blocker>();
 
   for (const cells of tableRows(text, "## Blocked")) {
-    if (cells.length !== BLOCKED_COLUMNS) continue;
+    if (cells.length !== BLOCKED_COLUMNS) {
+      // B59. This used to be a bare `continue`, so a malformed row left no
+      // record and no count and simply shortened the Blocked screen. The rule
+      // `workUnits.ts` already followed is the one that holds here: emit the
+      // row, mark it `unparsed`, and keep the raw cells so a person can read
+      // what the artifact actually said.
+      items.push({
+        id: `${engagement}:${run}:${cells[0] ?? "unparsed"}`,
+        engagement,
+        run,
+        unit: cells[0] ?? "",
+        executionMode: "fleet",
+        workType: null,
+        phase: null,
+        description: null,
+        executor: null,
+        executorKind: "unassigned",
+        dependsOn: [],
+        implements: [],
+        blocker: null,
+        evidenceScope: null,
+        status: "unparsed",
+        rawStatus: cells.join(" | "),
+        unautomatedReason: null,
+        unautomatedDisposition: null,
+        notVerifiedCount: 0,
+      });
+      continue;
+    }
     const [unit, workType, milestone, blockerCell, status] = cells;
 
     const match = BLOCKER_ID.exec(blockerCell);

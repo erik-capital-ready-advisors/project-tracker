@@ -22,7 +22,7 @@ import { UnclassifiedConfidence } from "./_components/unclassified-confidence";
 // Appended at the end of `OPERATOR_ROUTES` -- see nav.ts's own comment on why
 // an insert after `/waits` would have silently broken two settings pages that
 // index this array positionally.
-const NAV = OPERATOR_ROUTES[5];
+const NAV = OPERATOR_ROUTES.find((item) => item.href === "/questions")!;
 
 export const metadata = { title: `${NAV.label} — Delivery Ledger` };
 

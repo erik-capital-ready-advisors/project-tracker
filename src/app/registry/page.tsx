@@ -16,7 +16,7 @@ import { EngagementTable } from "./_components/engagement-table";
 import { OperatorGatePanel } from "./_components/operator-gate";
 import { readOperatorGate, type GateRefusal } from "./_lib/gate";
 
-const NAV = OPERATOR_ROUTES[0];
+const NAV = OPERATOR_ROUTES.find((item) => item.href === "/registry")!;
 
 export const metadata = { title: `${NAV.label} — Delivery Ledger` };
 

@@ -158,6 +158,9 @@ export const NEXT: NextAnswer = {
   unparsedCandidates: 4,
   heldByDependency: 6,
   heldByBlocker: 2,
+  // B28's fourth counter. Non-zero here on purpose: a sample in which every
+  // item is startable would not exercise the accounting this counter exists for.
+  notStartable: 3,
   truncated: false,
   engagementUnknown: false,
   items: [

@@ -22,7 +22,7 @@ import { DeclareWaitDialog } from "./_components/declare-wait-dialog";
 import { WaitList } from "./_components/wait-list";
 import { readEngagements, readWaits } from "./_lib/load";
 
-const NAV = OPERATOR_ROUTES[2];
+const NAV = OPERATOR_ROUTES.find((item) => item.href === "/waits")!;
 
 export const metadata = { title: `${NAV.label} — Delivery Ledger` };
 

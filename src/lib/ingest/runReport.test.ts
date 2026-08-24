@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 
-import { QA_REPORT } from "./__fixtures__/qaReport";
+import { QA_REPORT, QA_REPORT_REAL_GATE_LINES } from "./__fixtures__/qaReport";
 import {
   CHECKPOINT,
   CHECKPOINT_FAILED,
@@ -113,5 +113,49 @@ describe("parseQaGates", () => {
 
   it("FR-21 null counts are not zero — the artifact stated none", () => {
     expect(parseQaGates(QA_REPORT).testsPassed).toBeNull();
+  });
+});
+
+/**
+ * B58. The bug this suite could not see, and why.
+ *
+ * `parseQaGates` extracted ZERO gate outcomes from ZERO of 103 non-empty lines
+ * across all four tracked QA reports, and reported nothing about it: the
+ * unrecognised line was dropped by a `continue` sitting ABOVE the counter that
+ * exists to notice exactly that, so `unparsed` read 0 as well.
+ *
+ * These assert on the shapes the artifacts actually carry, not on a shape the
+ * parser is believed to want.
+ */
+describe("parseQaGates against the real corpus shapes (B58)", () => {
+  const real = parseQaGates(QA_REPORT_REAL_GATE_LINES);
+
+  it("reads a bold label with the colon INSIDE the bold span", () => {
+    expect(real.gates.build).toBe("PASS");
+  });
+
+  it("reads a bold label with the colon OUTSIDE the bold span", () => {
+    expect(real.gates.typecheck).toBe("PASS");
+  });
+
+  it("reads a bold OUTCOME word, which the raw value hides behind asterisks", () => {
+    // `- **Lint** (oxlint): **PASS** - exit 0` leaves the value as
+    // `**PASS** - exit 0`, and /^PASS\\b/ never matches that. Both layers of
+    // B58 had to be fixed before a single gate could be read.
+    expect(real.gates.lint).toBe("PASS");
+  });
+
+  it("reads NOT RUN, so a gate that did not run is not silently absent", () => {
+    expect(real.gates.playwright).toBeDefined();
+  });
+
+  it("counts every gate bullet it cannot classify instead of dropping it", () => {
+    // `Unit tests` and `pnpm gate:m27:e2e` are not in GATE_LABELS. They stay
+    // LOUD rather than being widened into the map to make this pass.
+    expect(real.unparsed).toBeGreaterThan(0);
+  });
+
+  it("never reports zero gates for a report that states its gates", () => {
+    expect(Object.keys(real.gates).length).toBeGreaterThan(0);
   });
 });

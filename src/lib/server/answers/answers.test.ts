@@ -495,6 +495,30 @@ describe("FR-53 next lists only work that is genuinely ready", () => {
     expect(answer.heldByDependency).toBeGreaterThan(0);
   });
 
+  /**
+   * B28. The three counters count exclusions from the `{pending,
+   * not_dispatched}` candidate set. Items in `blocked`, `in_flight`, `done` and
+   * `superseded` were skipped by a bare `continue` before any counter, so they
+   * left the accounting entirely -- and the empty state promises to say why the
+   * list is short. Found 2026-08-20: the screen was indistinguishable from an
+   * empty database.
+   */
+  it("B28 counts items that are not in a startable status at all", async () => {
+    const answer = await nextAnswer(db(), filters, { today: TODAY, milestones: true });
+    expect(answer.notStartable).toBeGreaterThan(0);
+  });
+
+  it("B28 every work item is accounted for by exactly one outcome", async () => {
+    const answer = await nextAnswer(db(), filters, { today: TODAY, milestones: true });
+    const total =
+      answer.items.length +
+      answer.heldByDependency +
+      answer.heldByBlocker +
+      answer.unparsedCandidates +
+      answer.notStartable;
+    expect(total).toBe(ledger().work_item.length);
+  });
+
   it("treats an unparsed dependency as unsatisfied rather than as satisfied", async () => {
     const rows = ledger();
     const dependsOnUnparsed = {

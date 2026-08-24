@@ -40,7 +40,14 @@ describe("parseProdMd", () => {
       "unparsed",
       "unparsed",
     ]);
-    expect(unknown.unparsed).toBe(3);
+    // B59 changed this number from 3 to 4, and the fixture was NOT touched.
+    // Three milestone rows carry a status word this parser refuses to guess at
+    // (`Nearly done`, `Started`, an emoji). The fourth is the blocker row whose
+    // ID cell names no `Bn`: it is a well-formed row that yields no record, and
+    // before B59 it left no count either -- absent from the numerator and the
+    // denominator both. `blockers` is still `[]`, asserted below: nothing is
+    // invented for it, it is merely no longer forgotten.
+    expect(unknown.unparsed).toBe(4);
   });
 
   it("FR-58 reports zero unparsed when every row classified", () => {
