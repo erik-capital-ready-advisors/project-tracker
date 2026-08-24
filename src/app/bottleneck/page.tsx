@@ -17,6 +17,7 @@ import type { SearchParams } from "@/lib/answer-query";
 import { readBottleneck } from "@/lib/answer-load";
 import { ANSWER_ROUTES } from "@/lib/nav";
 import { loadForOperator } from "@/lib/operator-load";
+import { isoToday } from "@/lib/today";
 import { readUnparsedCensus } from "@/lib/unparsed-census";
 
 import { BottleneckTable } from "./_components/bottleneck-table";
@@ -105,7 +106,7 @@ export default async function BottleneckPage({
               detail="Work whose executor is Erik or an Erik-gate appears here, ranked by how much other work it releases and by the nearest milestone at risk."
             />
           ) : (
-            <BottleneckTable answer={answer} />
+            <BottleneckTable answer={answer} asOf={isoToday()} />
           )}
 
           <SetAsideCounts

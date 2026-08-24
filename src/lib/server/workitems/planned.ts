@@ -18,17 +18,23 @@
  *
  * ## Why `planned` is read from the raw columns and not from the domain object
  *
- * `fromExecutionMode(null)` returns `"fleet"` (`answers/from-db.ts`), so by the
- * time a row has become a `LoadedWorkItem` the very signal FR-87 defines planned
- * work by is **gone** — a planned row reads as fleet work, which is precisely
- * the misread FR-91 forbids. `isPlannedRow` therefore takes the raw `work_item`
- * columns, spelled snake_case so a caller cannot pass a domain object to it by
- * accident, and each read path records the answer as a field before the lossy
- * conversion happens.
+ * `fromExecutionMode` is lossy about the one thing FR-87 defines planned work
+ * by, so by the time a row has become a `LoadedWorkItem` that signal is
+ * **gone**. `isPlannedRow` therefore takes the raw `work_item` columns, spelled
+ * snake_case so a caller cannot pass a domain object to it by accident, and each
+ * read path records the answer as a field before the lossy conversion happens.
  *
- * (The domain-side half of that defect is manifest d4000f's D-1 and belongs to
- * u4. Nothing here depends on it being fixed, and nothing here breaks when it
- * is.)
+ * **Corrected 2026-08-24 by d4000f's u4, and the conclusion is unchanged.** This
+ * paragraph used to say `fromExecutionMode(null)` returns `"fleet"`, and it did
+ * — that was defect D-1, and a planned row reading as fleet work was precisely
+ * the misread FR-91 forbids. It now returns the explicit `unparsed` sentinel, so
+ * the *fabrication* is gone. What is not gone is the *loss*: the sentinel is
+ * returned for a SQL NULL and for an unreadable value alike, and only the NULL
+ * is planned. So the domain object still cannot answer FR-87's question and this
+ * module still must not read one.
+ *
+ * Nothing here changed behaviour when D-1 was fixed, and nothing here routes
+ * through the fixed function.
  *
  * ## Days, not instants, and the boundary is inclusive
  *

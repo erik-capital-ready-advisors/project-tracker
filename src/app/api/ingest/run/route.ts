@@ -2,6 +2,8 @@ import { apiError, apiOk, INGEST_WRITE, withAgentRoute } from "@/lib/api";
 import { parseRunPayload } from "@/lib/server/ingest/payload";
 import { persistPlan } from "@/lib/server/ingest/persist";
 import { planRun } from "@/lib/server/ingest/plan";
+import { markPlanCollisions } from "@/lib/server/planned-work/mark-collisions";
+import type { ReleaseDb } from "@/lib/server/releases/db";
 
 /**
  * `POST /api/ingest/run` — FR-14 to FR-23.
@@ -55,12 +57,40 @@ export const POST = withAgentRoute(INGEST_WRITE, async ({ db, request }) => {
 
   const result = await persistPlan(db, plan);
 
+  /**
+   * FR-90, the direction that lands second.
+   *
+   * A run ingested into an engagement that already holds planned rows is the
+   * same reconciliation as a plan ingested into one that already holds run
+   * work items — the meeting FR-90 describes, arriving in the other order.
+   * Marking only on the plan path would leave a real collision unmarked
+   * whenever the run came last, so both paths call the one shared function and
+   * cannot disagree about what a collision is.
+   *
+   * It is idempotent (`plan_reconciliation = 'unreconciled'` is a filter on the
+   * update, not just a read), so re-posting a run marks nothing twice, and it
+   * never resets a row some later milestone has marked `keyed`.
+   *
+   * Nothing is merged here. CR-005 §3.1a defers FR-90's write half, and no
+   * artifact carries a shared key today in any case.
+   */
+  const reconciliation = await markPlanCollisions(
+    db as unknown as ReleaseDb,
+    result.engagementId,
+  );
+
   return apiOk(
     {
       engagement: plan.engagementSlug,
       run: plan.runId,
       fleetRunId: result.fleetRunId,
       persisted: result.counts,
+      reconciliation: {
+        marked: reconciliation.marked,
+        collisions: reconciliation.collisionIds.length,
+        plannedRows: reconciliation.plannedCount,
+        merged: 0,
+      },
       unresolved: {
         dependencies: result.unresolvedDependencies,
         blockers: result.unresolvedBlockers,

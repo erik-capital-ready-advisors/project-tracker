@@ -4,6 +4,7 @@ import { OperatorLoadNotice } from "@/components/operator-load-notice";
 import { Screen } from "@/components/screen";
 import { readWorkItemDetail } from "@/lib/detail-load";
 import { loadForOperator } from "@/lib/operator-load";
+import { isoToday } from "@/lib/today";
 
 import { WorkItemDetailView } from "./_components/work-item-detail-view";
 
@@ -79,5 +80,5 @@ export default async function WorkItemDetailPage({
   // A uuid that names no work item is a 404, not an empty work item.
   if (result.data === null) notFound();
 
-  return <WorkItemDetailView detail={result.data} />;
+  return <WorkItemDetailView detail={result.data} asOf={isoToday()} />;
 }

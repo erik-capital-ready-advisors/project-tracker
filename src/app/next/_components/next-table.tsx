@@ -11,6 +11,7 @@ import {
 
 import { Absent, ExecutorChip } from "@/components/answer-chips";
 import { EntityRef, EntityRefList } from "@/components/entity-ref";
+import { PlannedChip } from "@/components/planned-chip";
 import { StateBadge } from "@/components/state-badge";
 import type { RefEntry, RefLookup } from "@/lib/answer-screen-refs";
 import { isoDay } from "@/lib/display-format";
@@ -67,9 +68,12 @@ export function nextTableRefEntries(answer: NextAnswer): RefEntry[] {
 export function NextTable({
   answer,
   refs,
+  asOf,
 }: {
   answer: NextAnswer;
   refs: RefLookup;
+  /** `YYYY-MM-DD`. FR-91's reference date, read once at the page. */
+  asOf: string;
 }) {
   const ordered = answer.ordering === "milestone-due-date";
 
@@ -183,14 +187,21 @@ export function NextTable({
                 />
               </TableCell>
 
+              {/* FR-91. A planned row IS a Next candidate — `pending` is a
+                  ready status — so this screen is precisely where "nobody has
+                  started this" could read as "this is in flight". The chip goes
+                  beside the status, which is the word it qualifies. */}
               <TableCell>
-                {item.status === "unparsed" ? (
-                  <StateBadge state="unparsed" />
-                ) : (
-                  <span className="ident text-muted-foreground text-xs">
-                    {item.status}
-                  </span>
-                )}
+                <div className="flex flex-col items-start gap-1">
+                  {item.status === "unparsed" ? (
+                    <StateBadge state="unparsed" />
+                  ) : (
+                    <span className="ident text-muted-foreground text-xs">
+                      {item.status}
+                    </span>
+                  )}
+                  <PlannedChip item={item} asOf={asOf} />
+                </div>
               </TableCell>
 
               <TableCell className="whitespace-nowrap">

@@ -152,7 +152,7 @@ describe("one selector covers every Prose slot on every FR-81 view that has one"
       blocks: [],
       fixesDefects: [],
     };
-    const { container } = render(<WorkItemDetailView detail={detail} />);
+    const { container } = render(<WorkItemDetailView detail={detail} asOf={"2026-08-24"} />);
     assertUniformContract(container, "work item");
   });
 
@@ -175,7 +175,7 @@ describe("one selector covers every Prose slot on every FR-81 view that has one"
       releases: [],
       milestones: [],
     };
-    const { container } = render(<RequirementView detail={detail} />);
+    const { container } = render(<RequirementView detail={detail} asOf={"2026-08-24"} />);
     assertUniformContract(container, "requirement");
   });
 

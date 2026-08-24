@@ -9,6 +9,7 @@ import {
   resolveEngagementSlug,
 } from "@/lib/engagement-resolve";
 import { OPERATOR_ROUTES } from "@/lib/nav";
+import { isoToday } from "@/lib/today";
 import { loadForOperator } from "@/lib/operator-load";
 
 import { WorkItemFilterBar } from "./_components/filter-bar";
@@ -202,7 +203,7 @@ export default async function WorkItemsPage({
             ) : null}
           </div>
 
-          <WorkItemTable items={items} query={query} />
+          <WorkItemTable items={items} query={query} asOf={isoToday()} />
 
           <div className="flex items-center justify-between gap-3">
             <div className="text-muted-foreground ident text-xs">

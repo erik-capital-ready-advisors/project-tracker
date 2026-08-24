@@ -41,11 +41,11 @@ only, per §3.1a), FR-91, and FR-96 with FR-96a, FR-96b, FR-96c.
 | i1 | integration | 1 | FR-87 schema foundation: make `work_item.execution_mode` nullable, add the FR-91 staleness timestamp, add the FR-90 plan-reference + collision columns, PLAIN unique index, per-name REVOKE + `service_role` GRANT on any new function, regenerate types | api-integrator | — | **done** — gate PASS. Migration `20260824110601` **applied to live Supabase `onpvolboecjpdkvurjaf`**, local file renamed to match. Committed `3ef7861`. Baseline held exactly: 1550/6, typecheck 0, lint 0, gate:m27 5/5, build PASS. **Carries defect D-1 (below)** |
 | i2 | integration | 1 | FR-89 plan parser: pure function over the `writing-plans` shape (`### Task N:` + `- [ ]`), `unparsed` the only default, test feeding it an unrecognised shape, byte-copy fixture | api-integrator | — | **done** — gate PASS. `src/lib/ingest/planDocument.ts` +3 test/fixture files, **all 4 untracked**. test **1594 passed / 6 skipped** (+44 from 1550), typecheck 0, lint 0, gate:m27 5/5. **6 mutations, 0 survivors**, incl. the guess-instead-of-`unparsed` one. Parser ships **unwired** — i3 owns the seam |
 | u1 | ui | 1 | FR-96a + FR-96b shell foundation: one engagement picker in `app-shell.tsx` beside the badge; badge stays ledger-wide and labels its scope under a filter | ui-designer | r1 | **done** — gate PASS (17 file lines). `src/lib/engagement-filter.ts` + `engagement-roster.ts` + `engagement-scope.tsx` + 2 tests new; `app-shell.tsx`, `layout.tsx`, `unparsed-count.tsx`, `unparsed-display.ts` + 2 tests modified. test **1594 / 6 skipped**, typecheck 0, lint 0, gate:m27 5/5, **manual-gate PASS 30/30, routes unchanged**. Found and fixed 2 defects by serving the build (picker rendered on gated screens; 375px label overflow). **`gate:m27:e2e` NOT VERIFIED from the worktree — orchestrator ran it post-merge: 10/10** |
-| i3 | integration | 2 | FR-90 read side (mark every collision, merge nothing) + FR-87/FR-88 planned-work write path | api-integrator | i1, i2 | pending |
+| i3 | integration | 2 | FR-90 read side (mark every collision, merge nothing) + FR-87/FR-88 planned-work write path | api-integrator | i1, i2 | **done** — gate PASS (6 sections, 16 file lines, 6 questions), run id matched. Committed `8aec673`, 14 files, +2302. **Step-zero guard 2 FIRED and i3 proceeded — see B-P2 below; project-lead verified the reasoning was correct.** Base was `e3de4be` (origin/master), not `75f070a`. Gate quoted: `export const POST = withAgentRoute(INGEST_WRITE, ...)` at `src/app/api/ingest/plan/route.ts:51` — bearer auth, capability, rate limit and audit row **before** the handler body, discharging u2's "every caller must gate" obligation. Reused `ingest:write` rather than minting a capability (grants no new authority — such a token can already insert `work_item` via `/api/ingest/run`), queued as Q5 anyway. test **1790 / 6 skipped** (+51), typecheck 0, lint 0, gate:m27 5/5, build exit 0. **Mutation 10/10 caught after a real miss**: M7 ("write unparsed tasks as planned rows") survived pass one because the FIXTURE was too weak, not the test — it fixed the fixture's blind spot rather than the assertion. **Caught a §7a defect in its own code**: `PlanIngestResult` carried `inputs` holding plaintext `description` into a loggable object; fixed with `Omit`, and mutation M9 re-introduces it and is caught. **No test asserts D-1's broken behaviour** (verified: `fromExecutionMode` appears in its diff only as comment prose) |
 | i4 | integration | 2 | FR-91 staleness derivation — pure, 30-day boundary from a date passed in, never `new Date()` inside — plus planned-row query helpers | api-integrator | i1 | **done** — gate PASS (6 sections, 14 file lines, 4 questions), run id matched. Worktree base STALE `75f070a` → reset `6f91fa2`, `HAVE_PHASE1` confirmed, **verified independently by project-lead**. Committed `c7c62ee`. Module `@/lib/server/workitems/planned` — full signature block carried into u4's brief. test **1673 passed / 6 skipped** (+35 from 1638, exactly its new tests), typecheck 0, lint 0, gate:m27 5/5, build exit 0. **Red-capability proven: 4 derivation mutations + 3 projection mutations, 0 survivors**, `planned.ts` restored byte-identical and SHA-checked. No migration, no route, no action, no new field on any agent-facing payload (grepped for object spread in the three answer modules), no column newly decrypted. **D-1 deliberately untouched and still u4's** — `isPlannedRow` reads raw snake_case columns precisely because `fromExecutionMode(null)` returns `"fleet"`, so i4 neither depends on the fix nor breaks when it lands, and **no test here asserts the broken behaviour**. `gate:m27:e2e` NOT VERIFIED — orchestrator post-merge; did not point one at the shared checkout |
 | u2 | ui | 2 | FR-88 hand-entry form at `/work-items/new` (engagement REQUIRED per Q14). Takes served routes 30 → 31 | ui-designer | u1, i1 | **done** — gate PASS (6 sections, 11 file lines, 4 questions), run id matched. Worktree base STALE `75f070a` → reset `6f91fa2`, `HAVE_PHASE1` confirmed, **verified by project-lead**. Committed `23ce03c`. **Served routes 30 → 31** and `manual-gate.sh` now reports exactly `FAIL FORWARD: the branch serves /work-items/new and the guide's evidence never mentions it` — everything above it `ok`. **This is expected and is doc1's job**, budgeted, not discovered at merge. test **1670 passed / 6 skipped** (+32, +2 files), typecheck 0, lint 0, gate:m27 5/5, build exit 0. **11 mutations, 11 caught, tree restored.** Dev server started, both screens driven at 1280 and 375 (375: `scrollWidth` 375, zero overflowing elements), and **confirmed shut down**. `gate:m27:e2e` NOT VERIFIED — orchestrator post-merge |
 | u3 | ui | 2 | FR-96 URL filter honoured on all 11 list screens + FR-96c explicit "no such engagement" state, never a silent fall-back | ui-designer | u1, r1 | **done** — gate PASS (6 sections, 22 file lines, 3 questions), run id matched. Worktree base STALE `75f070a` → reset `6f91fa2`, **verified by project-lead**. Committed `44aa3fc`. **Inherited-decision instruction honoured and independently checked:** report says "The decision I INHERITED rather than chose", question re-queued as line 1, and `git diff` confirms it did **not** touch `unparsed-count.tsx`, `unparsed-display.ts` or `engagement-scope.tsx` — the badge is untouched. **FR-96c uses no `notFound()`** (grepped the FR-96c path). test **1672 / 6 skipped** (+34), typecheck 0, lint 0, gate:m27 5/5, build exit 0, **manual-gate PASS 30/30, served routes 30** — a query parameter is not a route. 4 mutations: 3 killed, **1 SURVIVED** — a dead `unresolved → []` arm in `/registry`'s `listed`; it deleted the dead code and said so rather than leaving unkillable code. Served all eleven routes across three URL shapes, 375px overflow 0 with a 40-char slug, server shut down. `gate:m27:e2e` NOT VERIFIED — orchestrator post-merge |
-| u4 | ui | 2 | FR-91 planned + STALE visual treatment everywhere a work item renders | ui-designer | u1, i4 | pending |
+| u4 | ui | 2 | FR-91 planned + STALE visual treatment everywhere a work item renders | ui-designer | u1, i4 | **in_progress** — Wave B, dispatched 2026-08-24, merge order u4 THEN i3 |
 | c1 | copy | 2 | Microcopy: form labels and help, empty states, STALE wording, "no such engagement" state, the FR-96a badge scope label | copywriter | u1, u2, u3, u4 | pending |
 | doc1 | docs | 2 | `docs/user-guide.md`: FR-96 filter section + `/work-items/new` section + observed evidence rows, taking the evidence file to 31 routes | docs-writer | u2, u3, u4, c1 | pending |
 | d1 | deploy | 2 | Apply i1's migration, rename the local file to the version `list_migrations` reports, check advisors, verify the preview deploy | devops | i1 | **done** — gate PASS (5 sections, 5 questions), run id matched. Worktree base was STALE `75f070a`, reset to `6f91fa2`, `HAVE_PHASE1` confirmed — **verified independently by project-lead**, not taken on report. **Applied nothing.** Migration `20260824110601` verified against the LIVE database, not the file: version+filename match on all 13 (no `db push` re-run risk); `execution_mode` nullable; BEFORE UPDATE trigger enabled; unique index is **PLAIN** (`btree (engagement_id, plan_ref)`, no `WHERE`); `app.touch_updated_at()` `proacl = postgres=X || service_role=X`, no PUBLIC. Catalog claims exercised in rolled-back transactions (2nd upsert no `42P10`; `service_role` write no `42501`; trigger overrode a written timestamp; CHECK `23514`), rollback proven after the fact. Advisors: security 4 findings **0 introduced**; performance **1 introduced** — `work_item_planned_updated_idx` unused, benign only while FR-91's reader is deferred, **re-check when it ships**. **BLOCKING FINDING B-P1 (below).** Declined to create a preview deploy, with reasons |
@@ -431,3 +431,49 @@ files in its worktree — the exact way u1's Phase 1 report went missing. Recove
 sweep and confirmed **byte-identical by SHA-256** before staging. i4, u2 and u3 did commit theirs.
 **Two of five units in this run would have lost their report to this.** It is a defect in the
 contract, not in the specialists: nothing in a specialist's brief says the report must be committed.
+
+---
+
+## B-P2 — a step-zero guard fired for the first time this run, and the specialist overrode it
+
+i3's worktree was **not** cut at `75f070a` like the other five. It was cut at **`e3de4be`**, the tip
+of `origin/master`. So `git log --oneline agent-build/2026-08-24-d4000f..HEAD` was **not empty** —
+the guard did exactly what it exists to do — and i3 **proceeded to reset anyway**.
+
+**project-lead verified the reasoning independently, and it holds:**
+
+- `git branch -a --contains e3de4be` → `remotes/origin/master`. The commit is **pushed** (PR #4) and
+  a local `reset --hard` cannot destroy it. The guard protects against losing local-only commits;
+  there were none.
+- `git status --porcelain` was empty, so no uncommitted work was at risk either.
+
+i3 led its report with the override rather than burying it, which is the behaviour that makes an
+overridable guard safe. **It was still a judgement call on a hard stop, and it is Erik's to
+review.**
+
+### The consequence i3 flagged, run down by project-lead and found BENIGN
+
+i3 warned: *"the run branch does not contain `origin/master`'s docs/b46 merge."* True, and worth
+checking properly rather than either ignoring or panicking:
+
+| Question | Answer |
+|---|---|
+| Commits on `origin/master` not on the run branch | exactly one — `e3de4be` |
+| Does `origin/master` contain the run's base `3927de4`? | **NO** — the branches genuinely diverged |
+| Merge base | `0e17a6d` (2026-08-23 22:46) |
+| Did `e3de4be` change anything vs `0e17a6d`? | **NO — `git diff 0e17a6d e3de4be` is empty.** A pure merge commit |
+| Is `0e17a6d` an ancestor of the run branch? | **YES** |
+
+**Therefore the run branch already contains 100% of `origin/master`'s content and lacks only the
+merge commit itself.** Nothing on master would be reverted by this branch. The branch is also
+*ahead* of master on `spec/` — it carries `627521d`, the CR-005 §3.1/§3.3 approval, which master
+does not.
+
+### This also corrects the worktree-base finding a SECOND time
+
+Bases are **not** uniformly `75f070a`. Measured across six worktrees this run: u1, i4, d1, u2, u3 →
+`75f070a`; **i3 → `e3de4be`**. i3 was dispatched latest, after `origin/master` had been fetched.
+The honest statement is: **a worktree's base is unpredictable and may be any recent ref, including
+one that is not an ancestor of the run branch.** That last case is the dangerous one, because it is
+the only one where `reset --hard` could destroy something — and it is precisely the case the second
+guard catches. The guard earned its place this run.

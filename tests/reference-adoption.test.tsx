@@ -138,7 +138,7 @@ function anchorFor(el: HTMLElement): HTMLAnchorElement | null {
 describe("/work-items — FR-80 on the unified list", () => {
   it("makes a fleet row's unit id navigable to that work item", () => {
     const container = draw(
-      <WorkItemTable items={[listed()]} query={QUERY} />,
+      <WorkItemTable items={[listed()]} query={QUERY} asOf={"2026-08-24"} />,
     );
 
     const el = token(container, "u4");
@@ -150,7 +150,7 @@ describe("/work-items — FR-80 on the unified list", () => {
   it("links to the database uuid and never to the human reference", () => {
     // FR-83's most likely failure and the one i1 and u1 both flagged by name:
     // `/work-items/u4` is a broken link that looks exactly like a working one.
-    const container = draw(<WorkItemTable items={[listed()]} query={QUERY} />);
+    const container = draw(<WorkItemTable items={[listed()]} query={QUERY} asOf={"2026-08-24"} />);
     const href = anchorFor(token(container, "u4"))?.getAttribute("href") ?? "";
     expect(href).not.toContain("u4");
   });
@@ -170,6 +170,7 @@ describe("/work-items — FR-80 on the unified list", () => {
           }),
         ]}
         query={QUERY}
+        asOf={"2026-08-24"}
       />,
     );
 
@@ -190,6 +191,7 @@ describe("/work-items — FR-80 on the unified list", () => {
           }),
         ]}
         query={QUERY}
+        asOf={"2026-08-24"}
       />,
     );
 
@@ -207,7 +209,7 @@ describe("/work-items — FR-80 on the unified list", () => {
     // `tests/m27-gate.test.ts`, and `/registry/[slug]` has been the engagement's
     // detail view since M1.3. Asserted here so a later unit does not "fix" the
     // inconsistency by adding a kind and turning that gate red.
-    const container = draw(<WorkItemTable items={[listed()]} query={QUERY} />);
+    const container = draw(<WorkItemTable items={[listed()]} query={QUERY} asOf={"2026-08-24"} />);
 
     const link = container.querySelector<HTMLAnchorElement>(
       "[data-verify-unit='engagement-link']",
@@ -225,6 +227,7 @@ describe("/work-items — FR-80 on the unified list", () => {
       <WorkItemTable
         items={[listed({ description: "a client's confidential summary" })]}
         query={QUERY}
+        asOf={"2026-08-24"}
       />,
     );
 

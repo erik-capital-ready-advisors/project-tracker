@@ -9,6 +9,7 @@ import {
   NO_IDENTIFIER,
 } from "@/components/entity-detail";
 import { EntityRef, EntityRefList } from "@/components/entity-ref";
+import { PlannedChip } from "@/components/planned-chip";
 import { ProseValue } from "@/components/prose-value";
 import { isoMinute } from "@/lib/display-format";
 import type { WorkItemDetail } from "@/lib/detail-load";
@@ -115,7 +116,14 @@ function Fact({ value }: { value: string | null }) {
   );
 }
 
-export function WorkItemDetailView({ detail }: { detail: WorkItemDetail }) {
+export function WorkItemDetailView({
+  detail,
+  asOf,
+}: {
+  detail: WorkItemDetail;
+  /** `YYYY-MM-DD`. FR-91 reference date, read once at the page. */
+  asOf: string;
+}) {
   const title = detail.unit ?? fallbackLabel("work_item", detail.id);
 
   return (
@@ -147,7 +155,16 @@ export function WorkItemDetailView({ detail }: { detail: WorkItemDetail }) {
           </DetailField>
 
           <DetailField label="Execution mode" absent="No mode is recorded.">
-            <ExecutionModeChip mode={detail.executionMode} />
+            <div className="flex flex-wrap items-center gap-1.5">
+              <ExecutionModeChip
+                mode={detail.executionMode}
+                planned={detail.planned}
+              />
+              {/* FR-91. The detail view is the one screen that shows a single
+                  row in full, so the staleness age belongs beside the absence
+                  it explains rather than in a section of its own. */}
+              <PlannedChip item={detail} asOf={asOf} />
+            </div>
           </DetailField>
 
           <DetailField label="Status" absent="No status is recorded.">

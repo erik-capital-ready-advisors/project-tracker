@@ -23,6 +23,7 @@ import { fetchWhere, num, requiredText, text } from "@/lib/server/detail/rows";
 import type { Row } from "@/lib/server/detail/rows";
 import type { DetailEngagement, DetailRef } from "@/lib/server/detail/types";
 import { danglingRef, toRef } from "@/lib/server/detail/types";
+import { isPlannedRow } from "@/lib/server/workitems/planned";
 
 import {
   FLEET_RUN_COLUMNS,
@@ -205,6 +206,14 @@ async function loadWorkUnits(db: RunsDb, fleetRunId: string): Promise<LoadedWork
         notVerifiedCount: num(row.not_verified_count) ?? 0,
         startedAt: text(row.started_at),
         endedAt: text(row.ended_at),
+        // FR-87 read off the raw columns, deliberately: `execution_mode` above
+        // has already been through `fromExecutionMode`, which folds a planned
+        // row's NULL into the `unparsed` sentinel.
+        planned: isPlannedRow({
+          execution_mode: row.execution_mode,
+          status: row.status,
+        }),
+        updatedAt: text(row.updated_at),
       },
     };
   });

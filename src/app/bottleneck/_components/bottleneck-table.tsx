@@ -14,6 +14,7 @@ import {
   ExecutorChip,
 } from "@/components/answer-chips";
 import { EntityRef } from "@/components/entity-ref";
+import { PlannedChip } from "@/components/planned-chip";
 import { StateBadge } from "@/components/state-badge";
 import { isoDay } from "@/lib/display-format";
 import { cn } from "@/lib/utils";
@@ -49,7 +50,14 @@ import type { BottleneckAnswer } from "@/lib/server/answers/bottleneck";
  * against. A row that reads `closed` is not a bottleneck he needs to clear, and
  * merging the two would put settled decisions at the top of his own to-do list.
  */
-export function BottleneckTable({ answer }: { answer: BottleneckAnswer }) {
+export function BottleneckTable({
+  answer,
+  asOf,
+}: {
+  answer: BottleneckAnswer;
+  /** `YYYY-MM-DD`. FR-91's reference date, read once at the page. */
+  asOf: string;
+}) {
   const ranked = answer.ranking === "unblocks-then-milestone";
 
   return (
@@ -174,6 +182,10 @@ export function BottleneckTable({ answer }: { answer: BottleneckAnswer }) {
                       {item.status}
                     </span>
                   )}
+                  {/* FR-91. "What is Erik the bottleneck on" reads a planned row
+                      and a dispatched one as the same kind of urgent, and they
+                      are not: nobody has claimed the planned one. */}
+                  <PlannedChip item={item} asOf={asOf} />
                   {/* An item that is both Erik's and held by something else is
                       not one he can simply start, and the ranking does not know
                       that — so the row says it. */}

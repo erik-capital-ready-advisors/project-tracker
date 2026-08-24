@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ArrowDown, ArrowUp } from "lucide-react";
 
 import { EntityRef } from "@/components/entity-ref";
+import { PlannedChip } from "@/components/planned-chip";
 import {
   Table,
   TableBody,
@@ -134,9 +135,12 @@ function Absent({ title }: { title: string }) {
 export function WorkItemTable({
   items,
   query,
+  asOf,
 }: {
   items: readonly ListedWorkItem[];
   query: WorkItemQuery;
+  /** `YYYY-MM-DD`. FR-91's reference date, read once at the page. */
+  asOf: string;
 }) {
   return (
     <div className="border-border overflow-x-auto rounded-lg border">
@@ -172,7 +176,8 @@ export function WorkItemTable({
                 data-verify-unit="work-item-row"
                 data-verify-id={item.id}
                 data-verify-status={item.status}
-                data-verify-mode={item.executionMode}
+                data-verify-mode={item.executionMode ?? "none"}
+                data-verify-planned={item.planned ? "true" : "false"}
                 data-verify-executor-kind={item.executorKind}
                 data-verify-evidence={item.evidenceScope ?? "not-recorded"}
                 data-verify-disposition={item.disposition ?? "not-recorded"}
@@ -210,8 +215,14 @@ export function WorkItemTable({
                   )}
                 </TableCell>
 
+                {/* FR-87 defines planned work as `execution_mode IS NULL`, so
+                    the chip that says the mode is absent and the chip that says
+                    how long it has been absent belong in one cell. */}
                 <TableCell>
-                  <ExecutionModeChip mode={item.executionMode} />
+                  <div className="flex flex-col items-start gap-1">
+                    <ExecutionModeChip mode={item.executionMode} planned={item.planned} />
+                    <PlannedChip item={item} asOf={asOf} />
+                  </div>
                 </TableCell>
 
                 <TableCell>

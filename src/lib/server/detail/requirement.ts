@@ -71,6 +71,15 @@ export interface RequirementWorkItem {
   status: WorkStatus;
   executor: string | null;
   executorKind: string;
+  /**
+   * FR-87 — planned work. FR-91 wants it distinguishable on every screen that
+   * shows a work item, and "which work items implement this requirement" is
+   * one: a planned row here says the requirement is *intended* to be covered,
+   * which is a different claim from work being underway against it.
+   */
+  planned: boolean;
+  /** `work_item.updated_at`. FR-91's staleness timestamp. */
+  updatedAt: string | null;
 }
 
 /** FR-45. A test naming this requirement. `test_case` has no detail view. */
@@ -242,6 +251,8 @@ export async function loadRequirementDetail(
       status: one.status,
       executor: one.executor,
       executorKind: one.executorKind,
+      planned: one.planned,
+      updatedAt: one.updatedAt,
     }));
 
   const tests: RequirementTest[] = slice.tests

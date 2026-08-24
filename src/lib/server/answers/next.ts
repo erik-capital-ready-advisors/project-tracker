@@ -67,6 +67,17 @@ export interface NextItem {
   nearestMilestone: NearestMilestone | null;
   /** FR-53. A unit id and a work type do not tell Erik what he would be starting. */
   description: string | null;
+  /**
+   * FR-87 — planned work: `execution_mode IS NULL` and `status = 'pending'`.
+   *
+   * A planned row **is** a Next candidate — `pending` is a ready status — and
+   * that is exactly why FR-91 needs it labelled here. Next is the screen that
+   * says "you could start this", and a row nobody has ever claimed reads
+   * identically to a dispatched one unless it says so.
+   */
+  planned: boolean;
+  /** `work_item.updated_at`. FR-91's staleness timestamp. */
+  updatedAt: string | null;
 }
 
 export interface NextAnswer {
@@ -194,6 +205,8 @@ export async function nextAnswer(
     executor: item.executor,
     executorKind: item.executorKind,
     implements: item.implements,
+    planned: item.planned,
+    updatedAt: item.updatedAt,
     unblocks: dependents.get(item.id) ?? 0,
     nearestMilestone: nearestMilestoneFor(item, nearest),
   }));

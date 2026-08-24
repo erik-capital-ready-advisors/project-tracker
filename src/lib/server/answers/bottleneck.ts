@@ -76,6 +76,17 @@ export interface BottleneckItem {
   nearestMilestone: NearestMilestone | null;
   /** FR-56. What Erik is the bottleneck ON, not merely which unit it is. */
   description: string | null;
+  /**
+   * FR-87 — planned work: `execution_mode IS NULL` and `status = 'pending'`.
+   *
+   * Carried onto this answer because FR-91 wants the distinction on **every**
+   * screen that shows a work item, and Bottleneck is one: a planned row Erik has
+   * not started and a dispatched row waiting on him are the same colour of
+   * urgent here, and they are not the same thing.
+   */
+  planned: boolean;
+  /** `work_item.updated_at`. FR-91's staleness timestamp. */
+  updatedAt: string | null;
 }
 
 export interface BottleneckAnswer {
@@ -162,6 +173,8 @@ export async function bottleneckAnswer(
       executorKind: item.executorKind,
       unautomatedReason: item.unautomatedReason,
       disposition: item.unautomatedDisposition,
+      planned: item.planned,
+      updatedAt: item.updatedAt,
       unblocks: transitiveDependents(item.id, dependents),
       directDependents: (dependents.get(item.id) ?? []).length,
       alsoHeld:

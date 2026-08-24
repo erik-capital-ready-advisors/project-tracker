@@ -66,7 +66,18 @@ export interface ListedWorkItem {
   engagementId: string;
   engagementSlug: string | null;
   unit: string | null;
-  executionMode: StoredExecutionMode;
+  /**
+   * Null on an FR-87 planned row: `work_item.execution_mode` is nullable and
+   * this is the raw column, passed through.
+   *
+   * **The `| null` is the fix, not a decoration.** It was declared
+   * non-nullable while the column underneath it was not, which is the shape of
+   * defect D-1: a hand-written row interface that does not derive from the
+   * generated `Tables<"work_item">`, so i1's correctly widened database type
+   * reached nothing and `tsc` stayed silent while a planned row's NULL flowed
+   * to `EXECUTION_MODE_LABELS[…]`, came back `undefined` and drew a blank chip.
+   */
+  executionMode: StoredExecutionMode | null;
   executorKind: StoredExecutorKind;
   executor: string | null;
   status: StoredWorkStatus;
@@ -127,7 +138,8 @@ interface WorkItemRow {
   id: string;
   engagement_id: string;
   unit: string | null;
-  execution_mode: StoredExecutionMode;
+  /** Nullable in Postgres — an FR-87 planned row has no mode yet. */
+  execution_mode: StoredExecutionMode | null;
   executor_kind: StoredExecutorKind;
   executor: string | null;
   status: StoredWorkStatus;

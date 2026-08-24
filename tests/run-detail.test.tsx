@@ -131,6 +131,8 @@ function base(): RunDetail {
         },
         unit: "u4",
         status: "done",
+        planned: false,
+        updatedAt: "2026-08-20T09:00:00Z",
         executionMode: "fleet",
         executorKind: "agent",
         executor: "ui-designer",
@@ -181,7 +183,7 @@ const all = (c: HTMLElement, s: string) => [...c.querySelectorAll(s)];
 function view(run: RunDetail = base()) {
   return render(
     <StrictMode>
-      <RunDetailView run={run} />
+      <RunDetailView run={run} asOf={"2026-08-24"} />
     </StrictMode>,
   );
 }

@@ -62,7 +62,7 @@ export const CIPHERTEXT_COLUMNS: readonly string[] = [
 export const RUN_WORK_ITEM_COLUMNS =
   "id, engagement_id, fleet_run_id, unit, execution_mode, work_type, phase, " +
   "executor, executor_kind, status, unautomated_reason, disposition, " +
-  "evidence_scope, not_verified_count, started_at, ended_at";
+  "evidence_scope, not_verified_count, started_at, ended_at, updated_at";
 
 /**
  * The questions a run queued, for FR-93.

@@ -125,6 +125,14 @@ export interface RunWorkUnit {
   notVerifiedCount: number;
   startedAt: string | null;
   endedAt: string | null;
+  /**
+   * FR-87 — planned work: `execution_mode IS NULL` and `status = 'pending'`.
+   * Read from the raw column by `isPlannedRow`, before `fromExecutionMode`
+   * folds the NULL into the `unparsed` sentinel and the FR-87 signal is gone.
+   */
+  planned: boolean;
+  /** `work_item.updated_at`. FR-91's staleness timestamp. */
+  updatedAt: string | null;
 }
 
 /** One of the questions a run queued, for FR-93. Clear columns only. */

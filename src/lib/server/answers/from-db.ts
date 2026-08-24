@@ -18,6 +18,7 @@
  * nobody could read.
  */
 
+import { EXECUTION_MODE_UNPARSED } from "@/lib/ingest/types";
 import type {
   Disposition,
   EvidenceScope,
@@ -91,9 +92,29 @@ export function fromWorkStatus(value: unknown): WorkStatus {
   return WORK_STATUS[String(value)] ?? "unparsed";
 }
 
-/** `execution_mode`. Unknown becomes `fleet` — see the note on `fromExecutorKind`. */
+/**
+ * `execution_mode`. Unknown becomes `unparsed`, the explicit sentinel.
+ *
+ * **This line was manifest d4000f's D-1 and it read `?? "fleet"`.** The column
+ * is nullable — i1 widened it so an FR-87 planned row can exist with no mode
+ * set — and `String(null)` is `"null"`, which is not a key of the table above.
+ * So every planned row came back as `fleet`: *"nobody has started this"*
+ * rendered as *"this is in flight"*, which is precisely the misread FR-91 exists
+ * to prevent and the wrong-`done` class this product is built against. Nothing
+ * caught it, because these read paths use hand-written row interfaces rather
+ * than the generated `Tables<"work_item">`, so `tsc` never saw the widened type.
+ *
+ * A default reached by `??` that asserts a **positive** fact is a fabrication
+ * with no error path. `fromWorkStatus` directly above already had this right;
+ * the `unparsed`-only-default discipline simply had not been applied here.
+ *
+ * Folding SQL NULL together with an unreadable value loses nothing: both mean
+ * "no mode was readable", and the FR-87 planned signal — which is *only* the
+ * NULL — is decided from the raw column by `isPlannedRow` before this
+ * conversion and recorded as its own field. See `@/lib/server/workitems/planned`.
+ */
 export function fromExecutionMode(value: unknown): ExecutionMode {
-  return EXECUTION_MODE[String(value)] ?? "fleet";
+  return EXECUTION_MODE[String(value)] ?? EXECUTION_MODE_UNPARSED;
 }
 
 /**

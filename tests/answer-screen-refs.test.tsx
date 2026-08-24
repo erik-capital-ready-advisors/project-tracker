@@ -218,7 +218,7 @@ describe("FR-83 — a reference that resolves to nothing is never a link", () =>
     // correct one until it is followed, so the check is that EVERY requirement
     // dangles when the lookup resolves nothing.
     const screens: HTMLElement[] = [
-      render(<NextTable answer={NEXT} refs={NOTHING_RESOLVES} />).container,
+      render(<NextTable answer={NEXT} refs={NOTHING_RESOLVES} asOf={"2026-08-24"} />).container,
       render(<CommittedTable milestones={COMMITTED} refs={NOTHING_RESOLVES} />)
         .container,
       render(<EngagementCoverage coverage={COVERAGE} refs={NOTHING_RESOLVES} />)
@@ -244,12 +244,12 @@ describe("FR-83 — a reference that resolves to nothing is never a link", () =>
     const screens: HTMLElement[] = [
       render(<BlockedGroup group={BLOCKED.groups[0]} refs={NOTHING_RESOLVES} />)
         .container,
-      render(<NextTable answer={NEXT} refs={NOTHING_RESOLVES} />).container,
+      render(<NextTable answer={NEXT} refs={NOTHING_RESOLVES} asOf={"2026-08-24"} />).container,
       render(<CommittedTable milestones={COMMITTED} refs={NOTHING_RESOLVES} />)
         .container,
       render(<EngagementCoverage coverage={COVERAGE} refs={NOTHING_RESOLVES} />)
         .container,
-      render(<BottleneckTable answer={BOTTLENECK} />).container,
+      render(<BottleneckTable answer={BOTTLENECK} asOf={"2026-08-24"} />).container,
       render(<EngagementBroken broken={BROKEN} refs={NOTHING_RESOLVES} />)
         .container,
     ];
@@ -294,7 +294,7 @@ describe("FR-80 — every answer screen renders at least one entity reference", 
   });
 
   it("Next", () => {
-    const { container } = render(<NextTable answer={NEXT} refs={RESOLVES} />);
+    const { container } = render(<NextTable answer={NEXT} refs={RESOLVES} asOf={"2026-08-24"} />);
     const kinds = new Set(refsIn(container).map((one) => one.kind));
     expect(kinds).toContain("work_item");
     expect(kinds).toContain("requirement");
@@ -320,7 +320,7 @@ describe("FR-80 — every answer screen renders at least one entity reference", 
   });
 
   it("Bottleneck, which resolves nothing and still carries references", () => {
-    const { container } = render(<BottleneckTable answer={BOTTLENECK} />);
+    const { container } = render(<BottleneckTable answer={BOTTLENECK} asOf={"2026-08-24"} />);
     const kinds = new Set(refsIn(container).map((one) => one.kind));
     expect(kinds).toContain("work_item");
     expect(kinds).toContain("contract_milestone");

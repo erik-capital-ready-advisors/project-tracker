@@ -4,6 +4,7 @@ import { OperatorLoadNotice } from "@/components/operator-load-notice";
 import { Screen } from "@/components/screen";
 import { loadForOperator } from "@/lib/operator-load";
 import { readRunDetail } from "@/lib/runs-load";
+import { isoToday } from "@/lib/today";
 
 import { AmbiguousRuns } from "./_components/ambiguous-runs";
 import { RunDetailView } from "./_components/run-detail-view";
@@ -119,5 +120,5 @@ export default async function RunDetailPage({
     );
   }
 
-  return <RunDetailView run={result.data.run} />;
+  return <RunDetailView run={result.data.run} asOf={isoToday()} />;
 }
