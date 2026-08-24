@@ -32,7 +32,19 @@ export interface Unmappable {
   value: string;
 }
 
-const EXECUTION_MODE: Record<ExecutionMode, Enums["execution_mode"]> = {
+/**
+ * `unparsed` has no Postgres label, deliberately: `execution_mode` is
+ * `fleet | hand | external`, and the sentinel exists only on the **read** side,
+ * for a NULL or unreadable column (see `EXECUTION_MODE_UNPARSED`). Leaving it
+ * unmapped is what makes it unwritable: `toExecutionMode` answers null and the
+ * caller counts the record rather than filing it under a mode nobody recorded.
+ *
+ * `validateWorkItem` already refuses it from an artifact — `EXECUTION_MODES`,
+ * the wire vocabulary, does not contain it — so this gap is unreachable from
+ * ingest and is left `Partial` rather than closed anyway, on the same argument
+ * as `HARNESS` below.
+ */
+const EXECUTION_MODE: Partial<Record<ExecutionMode, Enums["execution_mode"]>> = {
   fleet: "fleet",
   hand: "hand",
   external: "external",

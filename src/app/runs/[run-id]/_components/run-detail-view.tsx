@@ -292,7 +292,14 @@ function Count({ n, noun }: { n: number; noun: string }) {
   );
 }
 
-export function RunDetailView({ run }: { run: RunDetail }) {
+export function RunDetailView({
+  run,
+  asOf,
+}: {
+  run: RunDetail;
+  /** `YYYY-MM-DD`. FR-91 reference date, read once at the page. */
+  asOf: string;
+}) {
   return (
     <Screen
       title={run.runId}
@@ -398,7 +405,7 @@ export function RunDetailView({ run }: { run: RunDetail }) {
               queried; nothing carries it.
             </p>
           ) : (
-            <RunWorkUnitTable units={run.workUnits} />
+            <RunWorkUnitTable units={run.workUnits} asOf={asOf} />
           )}
         </DetailSection>
 

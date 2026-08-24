@@ -15,7 +15,35 @@ export const EVIDENCE_SCOPES = [
   "observed-live", "observed-elsewhere", "asserted", "not-verified",
 ] as const;
 
-export type ExecutionMode = (typeof EXECUTION_MODES)[number];
+/**
+ * The read-path sentinel for an execution mode nothing could read. **Not a
+ * fourth mode.**
+ *
+ * `work_item.execution_mode` is nullable (FR-87: a planned row has no mode yet)
+ * and its Postgres enum has three labels. So a read can produce three outcomes,
+ * and only two of them are a mode: a recognised label, SQL NULL, or a value this
+ * build does not recognise. The last two are folded together here under the
+ * product's one default, because both mean *nothing readable was recorded* —
+ * and the planned/not-planned distinction between them is **not** lost, it is
+ * decided from the raw column by `isPlannedRow` in
+ * `@/lib/server/workitems/planned` and recorded as its own field by every read
+ * path.
+ *
+ * It is deliberately absent from `EXECUTION_MODES`, which is the *writable*
+ * vocabulary: `validateWorkItem` therefore rejects it from an artifact, and
+ * `toExecutionMode` answers null for it, so it cannot be written to a column
+ * whose enum has no such label. Read-only, by construction rather than by
+ * comment.
+ *
+ * Was manifest d4000f's D-1: `fromExecutionMode` defaulted to `"fleet"`, so
+ * every planned row read as fleet work — "nobody has started this" rendering as
+ * "this is in flight", which is the misread FR-91 exists to prevent.
+ */
+export const EXECUTION_MODE_UNPARSED = "unparsed" as const;
+
+export type ExecutionMode =
+  | (typeof EXECUTION_MODES)[number]
+  | typeof EXECUTION_MODE_UNPARSED;
 export type ExecutorKind = (typeof EXECUTOR_KINDS)[number];
 export type WorkStatus = (typeof WORK_STATUSES)[number];
 export type Disposition = (typeof DISPOSITIONS)[number];

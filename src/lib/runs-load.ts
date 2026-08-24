@@ -70,15 +70,20 @@ function db(): RunsDb {
 }
 
 /**
- * FR-92 — every ingested fleet run, across every engagement, newest first.
+ * FR-92 — every ingested fleet run, newest first, across every engagement
+ * unless FR-96's filter narrows it.
  *
  * Exhaustive rather than paged: FR-92 says "every", and `fetchAllRows` pages to
  * an exact count and reports a stalled read as an error rather than as a short
  * page. See `RunListing`'s note on why there is deliberately no limit.
+ *
+ * The parameter is a resolved engagement **id** or `null`, and a primitive for
+ * the reason this file's header already gives: `cache()` memoises on argument
+ * identity, and an options object would be a fresh literal at every call site.
  */
-export const readRuns = cache(async () => {
+export const readRuns = cache(async (engagementId: string | null = null) => {
   await requireOperator();
-  return listRuns(db());
+  return listRuns(db(), engagementId);
 });
 
 /**

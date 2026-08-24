@@ -29,12 +29,32 @@ import type {
   WorkItemSortColumn,
 } from "@/lib/server/workitems/rules";
 
-/** FR-39. Three modes, one table, one list. */
+/**
+ * FR-39. Three modes, one table, one list.
+ *
+ * Stays exactly three members: it is what the filter bar's options are built
+ * from (`EXECUTION_MODES` below), and the two display states beneath it are
+ * *absences of a mode*, not modes anyone can filter for.
+ */
 export const EXECUTION_MODE_LABELS: Record<StoredExecutionMode, string> = {
   fleet: "fleet",
   hand: "hand",
   external: "external",
 };
+
+/**
+ * FR-87. `execution_mode IS NULL` — the row is planned and no run has claimed
+ * it, so there is no mode to name yet.
+ *
+ * A named label rather than an empty chip. Before d4000f's D-1 fix a NULL mode
+ * reached `EXECUTION_MODE_LABELS[…]`, came back `undefined`, and rendered as a
+ * **blank chip** on `/work-items` — a silent unknown, which this product does
+ * not permit. An absence that says it is an absence is the whole point.
+ */
+export const EXECUTION_MODE_NONE = "no mode yet";
+
+/** An `execution_mode` this build could not read at all. Not the same fact. */
+export const EXECUTION_MODE_UNREADABLE = "mode unparsed";
 
 /**
  * FR-39 and FR-40. `erik_gate` reads as its own kind rather than as a decorated

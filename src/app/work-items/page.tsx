@@ -1,9 +1,15 @@
 import Link from "next/link";
 
+import { EngagementScopeNotice } from "@/components/engagement-scope-notice";
 import { EmptyState, Screen } from "@/components/screen";
 import { OperatorLoadNotice } from "@/components/operator-load-notice";
 import { Button } from "@/components/ui/button";
+import {
+  engagementScopeBlocksRows,
+  resolveEngagementSlug,
+} from "@/lib/engagement-resolve";
 import { OPERATOR_ROUTES } from "@/lib/nav";
+import { isoToday } from "@/lib/today";
 import { loadForOperator } from "@/lib/operator-load";
 
 import { WorkItemFilterBar } from "./_components/filter-bar";
@@ -41,6 +47,16 @@ export const metadata = { title: `${NAV.label} — Delivery Ledger` };
  *   * It does not report `0 unparsed` when it has no listing. The count comes
  *     from the listing when there is one and is `null` otherwise, and `null`
  *     renders "unavailable".
+ *
+ * ## FR-96c -- a fourth refusal, added in M2.9
+ *
+ * This screen has filtered by engagement slug since M2.7, and until now a slug
+ * naming nothing produced "No work items match these filters." That sentence is
+ * true and it is not the answer: an engagement with no work items and an
+ * engagement that does not exist render byte-identically under it, and only one
+ * of them means Erik mistyped a slug. So the slug is resolved before the listing
+ * is read, and an unresolvable one renders FR-96c's explicit state with **no
+ * rows** rather than an empty-looking scoped list.
  */
 export default async function WorkItemsPage({
   searchParams,
@@ -48,9 +64,22 @@ export default async function WorkItemsPage({
   searchParams: Promise<SearchParams>;
 }) {
   const query = parseWorkItemQuery(await searchParams);
-  const result = await loadForOperator(() => readWorkItems(query));
 
-  const listing = result.ok ? result.data : null;
+  // Resolved INSIDE the load wrapper, so a gated visitor gets one refusal from
+  // the machinery that owns it rather than a sign-in notice and an engagement
+  // notice about the same missing session. See `@/lib/engagement-resolve`.
+  const result = await loadForOperator(async () => {
+    const scope = await resolveEngagementSlug(query.engagementSlug);
+    return {
+      scope,
+      listing: engagementScopeBlocksRows(scope)
+        ? null
+        : await readWorkItems(query),
+    };
+  });
+
+  const scope = result.ok ? result.data.scope : null;
+  const listing = result.ok ? result.data.listing : null;
   const items = listing?.items ?? [];
 
   return (
@@ -59,7 +88,18 @@ export default async function WorkItemsPage({
       question={NAV.question}
       requirements={[...NAV.requirements, "FR-30", "FR-43"]}
     >
-      <WorkItemTabs active="list" />
+      {/* FR-88's hand-entry path is reached from the listing it belongs to,
+          exactly as /registry/new is reached from /registry. It is not a nav
+          entry: a creation form is not one of the product's surfaces, it is a
+          thing you do to one. */}
+      <div className="flex flex-wrap items-center gap-3">
+        <WorkItemTabs active="list" />
+        <Button asChild size="sm" variant="outline" className="ml-auto">
+          <Link href="/work-items/new" data-verify-unit="planned-work-new-link">
+            Plan work item
+          </Link>
+        </Button>
+      </div>
 
       <WorkItemFilterBar query={query} />
 
@@ -102,6 +142,11 @@ export default async function WorkItemsPage({
           screen={NAV.label}
         />
       )}
+
+      {/* FR-96c. Renders only for the two unresolvable states, and the same
+          `engagementScopeBlocksRows` that produced `listing === null` above is
+          what guarantees there is nothing beneath it. */}
+      {scope === null ? null : <EngagementScopeNotice resolution={scope} />}
 
       {listing === null ? null : items.length === 0 ? (
         <EmptyState
@@ -158,7 +203,7 @@ export default async function WorkItemsPage({
             ) : null}
           </div>
 
-          <WorkItemTable items={items} query={query} />
+          <WorkItemTable items={items} query={query} asOf={isoToday()} />
 
           <div className="flex items-center justify-between gap-3">
             <div className="text-muted-foreground ident text-xs">

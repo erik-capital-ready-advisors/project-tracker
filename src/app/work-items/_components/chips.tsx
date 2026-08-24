@@ -1,5 +1,6 @@
 import { StateBadge } from "@/components/state-badge";
 import type { WorkState } from "@/components/state-badge";
+import { EXECUTION_MODE_UNPARSED } from "@/lib/ingest/types";
 import { cn } from "@/lib/utils";
 
 import type {
@@ -15,6 +16,8 @@ import {
   EVIDENCE_NOT_RECORDED,
   EVIDENCE_SCOPE_LABELS,
   EXECUTION_MODE_LABELS,
+  EXECUTION_MODE_NONE,
+  EXECUTION_MODE_UNREADABLE,
   EXECUTOR_KIND_LABELS,
   WORK_STATUS_LABELS,
 } from "../_lib/labels";
@@ -55,7 +58,7 @@ const STATUS_CLASS: Record<StoredWorkStatus, string> = {
   done: "border-foreground/40 text-foreground bg-foreground/10 font-medium",
   superseded:
     "border-border text-muted-foreground bg-transparent border-dashed line-through",
-  not_dispatched: "border-border/60 text-muted-foreground/80 border-dashed",
+  not_dispatched: "border-border/60 text-muted-foreground border-dashed",
   // Both of these are states the semantic scale names, so they are rendered by
   // the component that owns the scale and never reach this map.
   blocked: "",
@@ -122,7 +125,7 @@ export function EvidenceScopeChip({
         data-verify-unit="evidence-scope"
         data-verify-scope="not-recorded"
         title="No evidence scope was recorded. That is a gap in the record, and it is not the same as a recorded `not verified`."
-        className="ident text-muted-foreground/70 inline-flex shrink-0 items-center rounded-md border border-dotted px-1.5 py-0.5 text-xs leading-none whitespace-nowrap"
+        className="ident text-muted-foreground inline-flex shrink-0 items-center rounded-md border border-dotted px-1.5 py-0.5 text-xs leading-none whitespace-nowrap"
       >
         {EVIDENCE_NOT_RECORDED}
       </span>
@@ -158,7 +161,7 @@ export function DispositionChip({
       <span
         data-verify-unit="disposition"
         data-verify-disposition="not-recorded"
-        className="text-muted-foreground/60 ident text-xs"
+        className="text-muted-foreground ident text-xs"
         title="No disposition was recorded."
       >
         &mdash;
@@ -216,7 +219,7 @@ export function ExecutorChip({
     >
       {EXECUTOR_KIND_LABELS[kind]}
       {executor === null || kind === "erik" || kind === "erik_gate" ? null : (
-        <span className="text-muted-foreground/70">{executor}</span>
+        <span className="text-muted-foreground">{executor}</span>
       )}
     </span>
   );
@@ -225,14 +228,77 @@ export function ExecutorChip({
 /* ---------------------------------------------------------------------- */
 
 /**
- * FR-39's execution mode.
+ * FR-39's execution mode, and the two ways there can fail to be one.
  *
  * One list, three modes, and the mode is a *column* rather than a tab. This is
  * the visual form of the architecture decision in `CLAUDE.md`: "Splitting them
  * yields three lists Erik has to merge in his head, which is the state this
  * product exists to end."
+ *
+ * ## Three outcomes, three chips, and none of them blank
+ *
+ * `work_item.execution_mode` is nullable, so the prop is too, and an absent mode
+ * means one of two different things:
+ *
+ *   * **FR-87 planned work** — no run has claimed the row, so no mode has been
+ *     recorded *yet*. Drawn dotted and drained, the same treatment
+ *     `EvidenceScopeChip` gives an unrecorded scope, because it is the same kind
+ *     of fact: a gap in the record rather than a value.
+ *   * **`unparsed`** — the mode is absent and nothing explains why, or the
+ *     column held something this build could not read. That is a classification
+ *     failure rather than an absence, so it goes to the one component that owns
+ *     the semantic scale. Fuchsia is `unparsed` and this IS unparsed; the
+ *     state's own colour is the correct one and no new token is introduced.
+ *
+ * Both used to render as **nothing**: `EXECUTION_MODE_LABELS[null]` is
+ * `undefined`, so `/work-items` drew an empty chip and said a planned row had a
+ * mode it could not name. A blank chip is a silent unknown, which this product
+ * does not permit.
+ *
+ * ## Why `planned` is a required prop and not the caller's `if`
+ *
+ * Two read paths reach this chip with the same row in different shapes. The
+ * listing passes the raw column, so a planned row arrives as `null`; the domain
+ * loaders pass a value that has already been through `fromExecutionMode`, so the
+ * same row arrives as `"unparsed"`. Left to the call sites, `/work-items` and
+ * `/work-items/<id>` would draw two different chips for one row — which is the
+ * inconsistency spec 5a's "one colour everywhere it appears" exists to forbid.
+ * So the rule lives here, once, and `planned` is **required** so that no caller
+ * can omit it and quietly get the other answer.
  */
-export function ExecutionModeChip({ mode }: { mode: StoredExecutionMode }) {
+export function ExecutionModeChip({
+  mode,
+  planned,
+}: {
+  mode: StoredExecutionMode | typeof EXECUTION_MODE_UNPARSED | null;
+  /** FR-87, decided from the raw column at load time by `isPlannedRow`. */
+  planned: boolean;
+}) {
+  if (planned) {
+    return (
+      <span
+        data-verify-unit="execution-mode"
+        data-verify-mode="none"
+        title="No execution mode is recorded. This row is planned work (FR-87) that no run has claimed, which is not the same as fleet work."
+        className="ident text-muted-foreground inline-flex shrink-0 items-center rounded-md border border-dotted px-1.5 py-0.5 text-xs leading-none whitespace-nowrap"
+      >
+        {EXECUTION_MODE_NONE}
+      </span>
+    );
+  }
+
+  if (mode === null || mode === EXECUTION_MODE_UNPARSED) {
+    return (
+      <span
+        data-verify-unit="execution-mode"
+        data-verify-mode="unparsed"
+        title={`${EXECUTION_MODE_UNREADABLE}: no execution mode was recorded and the row is not planned work, so nothing accounts for the absence.`}
+      >
+        <StateBadge state="unparsed" />
+      </span>
+    );
+  }
+
   return (
     <span
       data-verify-unit="execution-mode"

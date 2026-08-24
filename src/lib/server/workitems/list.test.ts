@@ -229,3 +229,42 @@ describe("§7a the list is built on clear columns", () => {
     ).rejects.toThrow(/not a sortable column/);
   });
 });
+
+describe("FR-87 / FR-91 — /work-items carries the planned signal and the timestamp", () => {
+  it("FR-87 marks a row with no execution mode and status pending as planned", async () => {
+    const fake = fixture([
+      item({ id: "planned", execution_mode: null, status: "pending" }),
+      item({ id: "fleet" }),
+    ]);
+    const listing = await listWorkItems(db(fake));
+    const byId = new Map(listing.items.map((one) => [one.id, one]));
+
+    expect(byId.get("planned")?.planned).toBe(true);
+    expect(byId.get("fleet")?.planned).toBe(false);
+  });
+
+  it("FR-87 does not call a NULL-mode row planned unless its status is pending", async () => {
+    const fake = fixture([
+      item({ id: "a", execution_mode: null, status: "in_flight" }),
+      item({ id: "b", execution_mode: null, status: "unparsed" }),
+    ]);
+    const listing = await listWorkItems(db(fake));
+    expect(listing.items.every((one) => one.planned === false)).toBe(true);
+  });
+
+  it("FR-91 selects updated_at, so a planned row has a timestamp to age against", async () => {
+    // A projection assertion in disguise: this fake returns only the columns the
+    // query named, so a `COLUMNS` string that stops selecting `updated_at` fails
+    // here rather than shipping a screen on which nothing is ever STALE.
+    const fake = fixture([
+      item({
+        id: "planned",
+        execution_mode: null,
+        status: "pending",
+        updated_at: "2026-07-25T09:00:00Z",
+      }),
+    ]);
+    const listing = await listWorkItems(db(fake));
+    expect(listing.items[0].updatedAt).toBe("2026-07-25T09:00:00Z");
+  });
+});

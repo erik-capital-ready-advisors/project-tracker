@@ -132,7 +132,7 @@ function maybeUnit(unit: string): HTMLElement | null {
 function mount(detail: RequirementDetail) {
   render(
     <StrictMode>
-      <RequirementView detail={detail} />
+      <RequirementView detail={detail} asOf={"2026-08-24"} />
     </StrictMode>,
   );
 }
@@ -211,6 +211,8 @@ describe("FR-82 — the four relationships are shown together", () => {
             ref: ref(),
             unit: "u4",
             status: "done",
+            planned: false,
+            updatedAt: "2026-08-20T09:00:00Z",
             executor: "ui-designer",
             executorKind: "agent",
           },
@@ -400,6 +402,8 @@ describe("FR-83 — a reference to nothing is never a link", () => {
             ref: ref(),
             unit: "u4",
             status: "done",
+            planned: false,
+            updatedAt: "2026-08-20T09:00:00Z",
             executor: null,
             executorKind: "agent",
           },

@@ -1,4 +1,5 @@
 import { Absent } from "@/components/answer-chips";
+import { PlannedChip } from "@/components/planned-chip";
 import { EntityRef } from "@/components/entity-ref";
 import {
   Table,
@@ -87,7 +88,14 @@ const STORED_SCOPE: Record<string, StoredEvidenceScope> = {
   "not-verified": "not_verified",
 };
 
-export function RunWorkUnitTable({ units }: { units: readonly RunWorkUnit[] }) {
+export function RunWorkUnitTable({
+  units,
+  asOf,
+}: {
+  units: readonly RunWorkUnit[];
+  /** `YYYY-MM-DD`. FR-91 reference date, read once at the page. */
+  asOf: string;
+}) {
   return (
     <div className="border-border overflow-x-auto border-t">
       <Table
@@ -142,8 +150,17 @@ export function RunWorkUnitTable({ units }: { units: readonly RunWorkUnit[] }) {
                   )}
                 </TableCell>
 
+                {/* FR-87 and FR-91 together: a unit a run never claimed sits in
+                    that run's own table, and it must not read as work the run
+                    did. The mode cell carries both the absence and its age. */}
                 <TableCell>
-                  <ExecutionModeChip mode={unit.executionMode} />
+                  <div className="flex flex-col items-start gap-1">
+                    <ExecutionModeChip
+                      mode={unit.executionMode}
+                      planned={unit.planned}
+                    />
+                    <PlannedChip item={unit} asOf={asOf} />
+                  </div>
                 </TableCell>
 
                 <TableCell>

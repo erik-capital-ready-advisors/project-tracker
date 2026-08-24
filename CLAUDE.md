@@ -274,3 +274,22 @@ Behavioral rules earned on this project. Append one line per lesson, in the mome
   count the rows — settles whether it is real in twenty minutes. A menu of options is not a
   substitute for a red test, and asking Erik to adjudicate a claim you own the means to verify
   makes him the bottleneck this product exists to remove.
+- Read `run-audit.sh`'s `ok` lines, not only its `FAIL` lines. On run `d4000f` the WRITEBACK-MISSING
+  check printed `ok ... no spec/prod.md at <repo> (spec dir: `spec — writeback correctly skipped`
+  while `spec/prod.md` existed at 259 KB and had just been written back in commit `6f91fa2`. The
+  path lookup broke (note the unterminated backtick), and the check treats "no prod.md found" as
+  "writeback correctly skipped" — so it emits `ok` whether the writeback happened or not, and is
+  structurally incapable of catching the thing it is named for. Confirm a writeback with
+  `git log -1 -- spec/prod.md` plus a `grep -c <run-id> spec/prod.md`, never with the audit's verdict.
+- A mutation that survives may be surviving because the FIXTURE cannot tell the two branches
+  apart, not because the test is missing — so when one survives, check whether the fixture
+  satisfies both halves of the guard for the same reason before writing a new test. Mutating
+  `if (task.status === "unparsed" || task.title === null)` down to the second clause alone survived
+  on run d4000f, because the only unparsed fixture was a malformed heading whose title was *also*
+  null. The discriminating case existed (i2 marks a task unparsed for a duplicate `**Plan-id:**`
+  while its title parses fine) and nothing pointed at it but the survivor.
+- Never let a persistence result type `extend` the mapping it was built from. `PlanIngestResult
+  extends PlanDocumentMapping` silently carried `inputs`, and those hold the §7a `sensitive`
+  plaintext `description` — the result object is exactly what ends up in a log line. Pick the
+  count fields with `Omit<…, "inputs">` and destructure the prose out at the call site; u2 made
+  the same call in leaving `description` off `PlannedWorkRecord`.

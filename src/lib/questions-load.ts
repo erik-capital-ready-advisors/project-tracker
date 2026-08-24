@@ -105,6 +105,16 @@ export interface OpenQuestionListing {
 export interface OpenQuestionFilters {
   /** Default: only open questions. Mirrors `/waits`' `includeResolved`. */
   includeAnswered?: boolean;
+  /**
+   * FR-96 — narrow to one engagement, by **id** rather than by slug.
+   *
+   * An id because the slug has already been resolved by the caller
+   * (`@/lib/engagement-resolve`), and re-resolving it here would give this
+   * module a second opinion about whether an engagement exists. It has none:
+   * `null` is the cross-engagement default FR-96 keeps, and a caller that could
+   * not resolve its slug does not call this at all.
+   */
+  engagementId?: string | null;
   limit?: number;
 }
 
@@ -165,6 +175,13 @@ export async function listOpenQuestions(
 
   if (filters.includeAnswered !== true) {
     query = query.eq("status", "open");
+  }
+
+  // FR-96. `engagement_id` is a clear column, so this filter costs no
+  // decryption -- §7a's point about `client_name` and the slug staying
+  // unencrypted is exactly what makes an engagement filter cheap here.
+  if (filters.engagementId != null) {
+    query = query.eq("engagement_id", filters.engagementId);
   }
 
   const { data, error } = await query;

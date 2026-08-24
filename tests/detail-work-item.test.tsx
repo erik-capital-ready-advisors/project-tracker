@@ -87,6 +87,8 @@ function base(): WorkItemDetail {
     notVerifiedCount: 0,
     startedAt: "2026-08-20T10:00:00Z",
     endedAt: null,
+    planned: false,
+    updatedAt: "2026-08-20T10:00:00Z",
     run: {
       id: "run-1",
       runId: "eb2490",
@@ -185,7 +187,7 @@ describe("the page keeps 404 and 500 apart", () => {
 
 describe("FR-83 — a reference to nothing is never a link", () => {
   it("draws a dangling reference with the treatment and outside any anchor", () => {
-    const { container } = render(<WorkItemDetailView detail={base()} />);
+    const { container } = render(<WorkItemDetailView detail={base()} asOf={"2026-08-24"} />);
     const token = q(
       container,
       `[data-verify-unit='entity-ref'][data-verify-ref='${DANGLING_REQUIREMENT}']`,
@@ -200,7 +202,7 @@ describe("FR-83 — a reference to nothing is never a link", () => {
   it("makes a resolved reference navigable to the row id, not to the label", () => {
     // Passing `u1` instead of the uuid builds `/work-items/u1`, a broken link —
     // which is the failure FR-83 exists to prevent.
-    const { container } = render(<WorkItemDetailView detail={base()} />);
+    const { container } = render(<WorkItemDetailView detail={base()} asOf={"2026-08-24"} />);
     const token = q(
       container,
       "[data-verify-unit='entity-ref'][data-verify-ref='u1']",
@@ -215,7 +217,7 @@ describe("FR-83 — a reference to nothing is never a link", () => {
     // `ENTITY_KINDS` is asserted to equal exactly FR-81's eight, so an
     // `<EntityRef kind="engagement">` would turn a passing gate red. FR-80 is
     // met by linking `/registry/<slug>`, which already exists.
-    const { container } = render(<WorkItemDetailView detail={base()} />);
+    const { container } = render(<WorkItemDetailView detail={base()} asOf={"2026-08-24"} />);
     const link = q(container, "[data-verify-unit='detail-engagement']");
     expect(link).toHaveAttribute("href", "/registry/acme");
     expect(link).toHaveAttribute("data-verify-slug", "acme");
@@ -245,7 +247,7 @@ describe("Prose renders four states and never collapses them", () => {
     detail.description = { text: null, state: "unreadable" };
     detail.rawStatus = { text: null, state: "absent" };
 
-    const { container } = render(<WorkItemDetailView detail={detail} />);
+    const { container } = render(<WorkItemDetailView detail={detail} asOf={"2026-08-24"} />);
     const unreadable = proseFor(container, "description");
     const absent = proseFor(container, "raw_status");
 
@@ -261,7 +263,7 @@ describe("Prose renders four states and never collapses them", () => {
     detail.description = { text: null, state: "not-requested" };
     detail.rawStatus = { text: null, state: "absent" };
 
-    const { container } = render(<WorkItemDetailView detail={detail} />);
+    const { container } = render(<WorkItemDetailView detail={detail} asOf={"2026-08-24"} />);
     const notRequested = proseFor(container, "description");
 
     expect(notRequested).toHaveAttribute(
@@ -275,14 +277,14 @@ describe("Prose renders four states and never collapses them", () => {
   });
 
   it("shows decrypted prose when it is present", () => {
-    const { container } = render(<WorkItemDetailView detail={base()} />);
+    const { container } = render(<WorkItemDetailView detail={base()} asOf={"2026-08-24"} />);
     const present = proseFor(container, "description");
     expect(present).toHaveAttribute("data-verify-state", "present");
     expect(present?.textContent).toContain("Build the three detail routes.");
   });
 
   it("puts no decrypted text into any data-verify attribute — §7a", () => {
-    const { container } = render(<WorkItemDetailView detail={base()} />);
+    const { container } = render(<WorkItemDetailView detail={base()} asOf={"2026-08-24"} />);
     for (const el of all(container, "*")) {
       for (const attr of [...el.attributes]) {
         if (!attr.name.startsWith("data-verify-")) continue;
@@ -304,7 +306,7 @@ describe("an absent value is drawn as absent, never as a value", () => {
     detail.executionMode = "hand";
     detail.executorKind = "erik";
 
-    const { container } = render(<WorkItemDetailView detail={detail} />);
+    const { container } = render(<WorkItemDetailView detail={detail} asOf={"2026-08-24"} />);
     expect(container.textContent).toContain("work item 0f3c1d2e");
   });
 
@@ -314,7 +316,7 @@ describe("an absent value is drawn as absent, never as a value", () => {
     const detail = base();
     detail.evidenceScope = null;
 
-    const { container } = render(<WorkItemDetailView detail={detail} />);
+    const { container } = render(<WorkItemDetailView detail={detail} asOf={"2026-08-24"} />);
     expect(q(container, "[data-verify-unit='evidence-scope']")).toHaveAttribute(
       "data-verify-scope",
       "not-recorded",
@@ -328,7 +330,7 @@ describe("an absent value is drawn as absent, never as a value", () => {
     const detail = base();
     detail.evidenceScope = "observed-elsewhere";
 
-    const { container } = render(<WorkItemDetailView detail={detail} />);
+    const { container } = render(<WorkItemDetailView detail={detail} asOf={"2026-08-24"} />);
     expect(q(container, "[data-verify-unit='evidence-scope']")).toHaveAttribute(
       "data-verify-scope",
       "observed_elsewhere",
@@ -338,7 +340,7 @@ describe("an absent value is drawn as absent, never as a value", () => {
   it("reports a not-verified count of zero as a measurement", () => {
     // `notVerifiedCount` is non-nullable in i1's type, so `0` here is something
     // that was counted rather than something unknown rendered as zero.
-    const { container } = render(<WorkItemDetailView detail={base()} />);
+    const { container } = render(<WorkItemDetailView detail={base()} asOf={"2026-08-24"} />);
     expect(
       q(container, "[data-verify-unit='work-item-not-verified']"),
     ).toHaveAttribute("data-verify-count", "0");
@@ -349,7 +351,7 @@ describe("an absent value is drawn as absent, never as a value", () => {
     detail.run = null;
     detail.stack = null;
 
-    const { container } = render(<WorkItemDetailView detail={detail} />);
+    const { container } = render(<WorkItemDetailView detail={detail} asOf={"2026-08-24"} />);
     const context = q(container, "[data-verify-unit='work-item-context']");
     expect(context?.textContent).not.toContain("eb2490");
   });
@@ -362,13 +364,13 @@ describe("the view is stable under StrictMode's double invocation", () => {
     // `reactStrictMode: true` double-invokes. Nothing in this unit fetches in
     // an effect, so this is a guard against one being added later rather than a
     // reproduction of a known failure — but a bare render could not see it.
-    const plain = render(<WorkItemDetailView detail={base()} />);
+    const plain = render(<WorkItemDetailView detail={base()} asOf={"2026-08-24"} />);
     const plainHtml = plain.container.innerHTML;
     cleanup();
 
     const strict = render(
       <StrictMode>
-        <WorkItemDetailView detail={base()} />
+        <WorkItemDetailView detail={base()} asOf={"2026-08-24"} />
       </StrictMode>,
     );
     expect(strict.container.innerHTML).toBe(plainHtml);

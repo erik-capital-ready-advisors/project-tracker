@@ -14,6 +14,7 @@ import {
   fromReasonClass,
   fromWorkStatus,
 } from "@/lib/server/answers/from-db";
+import { isPlannedRow } from "@/lib/server/workitems/planned";
 
 import { labelEntities, refFromId, resolveRefs, resolvedId } from "./refs";
 import type { RefQuery } from "./refs";
@@ -91,6 +92,14 @@ export interface WorkItemDetail {
   notVerifiedCount: number;
   startedAt: string | null;
   endedAt: string | null;
+  /**
+   * FR-87 — planned work: `execution_mode IS NULL` and `status = 'pending'`.
+   * Read from the raw column before `fromExecutionMode` turns the NULL into
+   * `"fleet"` and the signal disappears.
+   */
+  planned: boolean;
+  /** `work_item.updated_at`. FR-91's staleness timestamp. */
+  updatedAt: string | null;
 
   /** Not an FR-81 kind — a named fact, never rendered as a reference. */
   run: WorkItemRun | null;
@@ -116,7 +125,7 @@ const COLUMNS =
   "id, engagement_id, fleet_run_id, unit, execution_mode, work_type, phase, " +
   "description, executor, executor_kind, status, unautomated_reason, disposition, " +
   "evidence_scope, not_verified_count, stack_id, blocker_id, external_wait_id, " +
-  "raw_status, started_at, ended_at";
+  "raw_status, started_at, ended_at, updated_at";
 
 export async function loadWorkItemDetail(
   db: DetailDb,
@@ -206,6 +215,11 @@ export async function loadWorkItemDetail(
     notVerifiedCount: num(row.not_verified_count) ?? 0,
     startedAt: text(row.started_at),
     endedAt: text(row.ended_at),
+    planned: isPlannedRow({
+      execution_mode: row.execution_mode,
+      status: row.status,
+    }),
+    updatedAt: text(row.updated_at),
 
     run:
       runRow === null || runId === null

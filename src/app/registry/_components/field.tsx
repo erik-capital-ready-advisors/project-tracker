@@ -73,7 +73,16 @@ function Shell({
       <label htmlFor={name} className="text-xs font-medium">
         {label}
         {required ? (
-          <span className="text-muted-foreground ml-1 font-normal">required</span>
+          // `aria-hidden` because a label's text nodes concatenate into the
+          // accessible name with no separator: without it every required field
+          // in this product announces as "Client<no space>required". Observed
+          // on the running app by u2 on run d4000f. Nothing is lost — every
+          // call site that renders this word also passes `required` through to
+          // the control, and the DOM `required` attribute is what assistive
+          // technology reads the requirement from.
+          <span aria-hidden className="text-muted-foreground ml-1 font-normal">
+            required
+          </span>
         ) : null}
       </label>
       {children}

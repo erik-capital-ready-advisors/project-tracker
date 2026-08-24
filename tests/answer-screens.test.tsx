@@ -107,7 +107,7 @@ describe("Blocked (FR-52)", () => {
 
 describe("Next (FR-53)", () => {
   it("publishes the ordering it actually computed", () => {
-    const { container } = render(<NextTable answer={NEXT} refs={REFS} />);
+    const { container } = render(<NextTable answer={NEXT} refs={REFS} asOf={"2026-08-24"} />);
     expect(q(container, "[data-verify-unit='next-table']")).toHaveAttribute(
       "data-verify-ordering",
       "milestone-due-date",
@@ -117,14 +117,14 @@ describe("Next (FR-53)", () => {
   it("drops the ordering marker when the ordering is a fallback", () => {
     // A sort arrow on a column the list is not sorted by is a small lie the
     // reader would act on.
-    const ordered = render(<NextTable answer={NEXT} refs={REFS} />);
+    const ordered = render(<NextTable answer={NEXT} refs={REFS} asOf={"2026-08-24"} />);
     const orderedHeader = [...ordered.container.querySelectorAll("th")].find(
       (th) => th.textContent?.includes("nearest milestone"),
     );
     expect(orderedHeader?.getAttribute("aria-sort")).toBe("ascending");
     cleanup();
 
-    const degraded = render(<NextTable answer={NEXT_DEGRADED} refs={REFS} />);
+    const degraded = render(<NextTable answer={NEXT_DEGRADED} refs={REFS} asOf={"2026-08-24"} />);
     const degradedHeader = [...degraded.container.querySelectorAll("th")].find(
       (th) => th.textContent?.includes("nearest milestone"),
     );
@@ -132,7 +132,7 @@ describe("Next (FR-53)", () => {
   });
 
   it("distinguishes an undated milestone from no milestone at all", () => {
-    const { container } = render(<NextTable answer={NEXT} refs={REFS} />);
+    const { container } = render(<NextTable answer={NEXT} refs={REFS} asOf={"2026-08-24"} />);
     const rows = all(container, "[data-verify-unit='next-item']");
     // Row 2 serves an undated milestone; row 3 serves none.
     expect(rows[1]).toHaveAttribute("data-verify-milestone", "m-2");
@@ -460,7 +460,7 @@ describe("Bottleneck (FR-56)", () => {
   it("prints the direct dependent count beside the transitive one", () => {
     // A ranking figure the reader cannot check is one they trust blindly or
     // ignore.
-    const { container } = render(<BottleneckTable answer={BOTTLENECK} />);
+    const { container } = render(<BottleneckTable answer={BOTTLENECK} asOf={"2026-08-24"} />);
     const row = q(container, "[data-verify-unit='bottleneck-item']");
     expect(row).toHaveAttribute("data-verify-unblocks", "12");
     expect(row).toHaveAttribute("data-verify-direct", "2");
@@ -472,7 +472,7 @@ describe("Bottleneck (FR-56)", () => {
     // rank position survived the assertion above, because the attribute still
     // read 12 while the number on screen read 2. FR-56 ranks by the transitive
     // count, so the transitive count is what has to be painted.
-    const { container } = render(<BottleneckTable answer={BOTTLENECK} />);
+    const { container } = render(<BottleneckTable answer={BOTTLENECK} asOf={"2026-08-24"} />);
     const rank = q(container, "[data-verify-unit='unblocks-figure']");
     const direct = q(container, "[data-verify-unit='direct-figure']");
     expect(rank?.textContent?.trim()).toBe("12");
@@ -480,7 +480,7 @@ describe("Bottleneck (FR-56)", () => {
   });
 
   it("distinguishes erik from erik_gate (FR-40)", () => {
-    const { container } = render(<BottleneckTable answer={BOTTLENECK} />);
+    const { container } = render(<BottleneckTable answer={BOTTLENECK} asOf={"2026-08-24"} />);
     const kinds = all(container, "[data-verify-unit='bottleneck-item']").map(
       (r) => r.getAttribute("data-verify-executor-kind"),
     );
@@ -488,7 +488,7 @@ describe("Bottleneck (FR-56)", () => {
   });
 
   it("marks an item that a blocker or wait also holds", () => {
-    const { container } = render(<BottleneckTable answer={BOTTLENECK} />);
+    const { container } = render(<BottleneckTable answer={BOTTLENECK} asOf={"2026-08-24"} />);
     const rows = all(container, "[data-verify-unit='bottleneck-item']");
     expect(rows[0]).toHaveAttribute("data-verify-also-held", "false");
     expect(rows[1]).toHaveAttribute("data-verify-also-held", "true");
@@ -496,7 +496,7 @@ describe("Bottleneck (FR-56)", () => {
   });
 
   it("publishes the ranking it actually computed", () => {
-    const { container } = render(<BottleneckTable answer={BOTTLENECK} />);
+    const { container } = render(<BottleneckTable answer={BOTTLENECK} asOf={"2026-08-24"} />);
     expect(q(container, "[data-verify-unit='bottleneck-table']")).toHaveAttribute(
       "data-verify-ranking",
       "unblocks-then-milestone",

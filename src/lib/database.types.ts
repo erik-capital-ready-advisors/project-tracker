@@ -47,6 +47,25 @@
 // Read them through the `decrypt_field` RPC with the service-role client, which
 // is the only role granted EXECUTE on it. `agent_token.token_hash` is different
 // again: it is a bcrypt hash, not ciphertext, and nothing ever reads it back.
+//
+// UPDATED 2026-08-24 for migration 20260824110601_i1_planned_work_schema (M2.9,
+// run d4000f, work-unit i1). Six changes, all on `work_item`, and all confirmed
+// against a full `generate_typescript_types` run rather than hand-guessed:
+// `execution_mode` becomes nullable (FR-87 planned work has no mode yet), and
+// `created_at`, `updated_at` (FR-91), `plan_ref` and `plan_reconciliation`
+// (FR-90) are added, along with the `plan_reconciliation` enum. Applied as a
+// targeted edit rather than a whole-file overwrite because i1, i2 and u1 are
+// building in parallel worktrees — the same reason i5 gave above, and the same
+// obligation follows: the next full regeneration should reproduce these
+// identically, and if it does not, the finding is the migration, not the types.
+//
+// `work_item.execution_mode` being `| null` is load-bearing rather than
+// incidental. NULL means FR-87 planned work — nobody has been assigned yet.
+// FR-91 requires that state to be visibly distinct from in-flight work, so a
+// consumer that coalesces this null into a mode has produced the exact misread
+// the requirement forbids. `fromExecutionMode()` in
+// src/lib/server/answers/from-db.ts currently returns "fleet" for null; see
+// work-unit i1's report.
 
 export type Json =
   | string
@@ -780,12 +799,13 @@ export type Database = {
       work_item: {
         Row: {
           blocker_id: string | null
+          created_at: string
           description: string | null
           disposition: Database["public"]["Enums"]["work_disposition"] | null
           ended_at: string | null
           engagement_id: string
           evidence_scope: Database["public"]["Enums"]["evidence_scope"] | null
-          execution_mode: Database["public"]["Enums"]["execution_mode"]
+          execution_mode: Database["public"]["Enums"]["execution_mode"] | null
           executor: string | null
           executor_kind: Database["public"]["Enums"]["executor_kind"]
           external_wait_id: string | null
@@ -793,6 +813,8 @@ export type Database = {
           id: string
           not_verified_count: number
           phase: number | null
+          plan_reconciliation: Database["public"]["Enums"]["plan_reconciliation"]
+          plan_ref: string | null
           raw_status: string | null
           stack_id: string | null
           started_at: string | null
@@ -801,16 +823,18 @@ export type Database = {
             | Database["public"]["Enums"]["unautomated_reason"]
             | null
           unit: string | null
+          updated_at: string
           work_type: string | null
         }
         Insert: {
           blocker_id?: string | null
+          created_at?: string
           description?: string | null
           disposition?: Database["public"]["Enums"]["work_disposition"] | null
           ended_at?: string | null
           engagement_id: string
           evidence_scope?: Database["public"]["Enums"]["evidence_scope"] | null
-          execution_mode: Database["public"]["Enums"]["execution_mode"]
+          execution_mode?: Database["public"]["Enums"]["execution_mode"] | null
           executor?: string | null
           executor_kind?: Database["public"]["Enums"]["executor_kind"]
           external_wait_id?: string | null
@@ -818,6 +842,8 @@ export type Database = {
           id?: string
           not_verified_count?: number
           phase?: number | null
+          plan_reconciliation?: Database["public"]["Enums"]["plan_reconciliation"]
+          plan_ref?: string | null
           raw_status?: string | null
           stack_id?: string | null
           started_at?: string | null
@@ -826,16 +852,18 @@ export type Database = {
             | Database["public"]["Enums"]["unautomated_reason"]
             | null
           unit?: string | null
+          updated_at?: string
           work_type?: string | null
         }
         Update: {
           blocker_id?: string | null
+          created_at?: string
           description?: string | null
           disposition?: Database["public"]["Enums"]["work_disposition"] | null
           ended_at?: string | null
           engagement_id?: string
           evidence_scope?: Database["public"]["Enums"]["evidence_scope"] | null
-          execution_mode?: Database["public"]["Enums"]["execution_mode"]
+          execution_mode?: Database["public"]["Enums"]["execution_mode"] | null
           executor?: string | null
           executor_kind?: Database["public"]["Enums"]["executor_kind"]
           external_wait_id?: string | null
@@ -843,6 +871,8 @@ export type Database = {
           id?: string
           not_verified_count?: number
           phase?: number | null
+          plan_reconciliation?: Database["public"]["Enums"]["plan_reconciliation"]
+          plan_ref?: string | null
           raw_status?: string | null
           stack_id?: string | null
           started_at?: string | null
@@ -851,6 +881,7 @@ export type Database = {
             | Database["public"]["Enums"]["unautomated_reason"]
             | null
           unit?: string | null
+          updated_at?: string
           work_type?: string | null
         }
         Relationships: [
@@ -1062,6 +1093,7 @@ export type Database = {
         | "client"
         | "vendor"
         | "unassigned"
+      plan_reconciliation: "unreconciled" | "keyed" | "collision"
       question_confidence: "low" | "med" | "high"
       question_status: "open" | "answered"
       release_source: "declared" | "ingested"
@@ -1231,6 +1263,7 @@ export const Constants = {
         "vendor",
         "unassigned",
       ],
+      plan_reconciliation: ["unreconciled", "keyed", "collision"],
       question_confidence: ["low", "med", "high"],
       question_status: ["open", "answered"],
       release_source: ["declared", "ingested"],

@@ -27,6 +27,7 @@ import { apiError } from "@/lib/api";
 import type { ServiceClient } from "@/lib/supabase/service";
 
 import { decryptField } from "./field-crypto";
+import { isPlannedRow } from "./planned";
 import { WORK_ITEM_SORT_COLUMNS } from "./rules";
 import type {
   StoredDisposition,
@@ -65,7 +66,18 @@ export interface ListedWorkItem {
   engagementId: string;
   engagementSlug: string | null;
   unit: string | null;
-  executionMode: StoredExecutionMode;
+  /**
+   * Null on an FR-87 planned row: `work_item.execution_mode` is nullable and
+   * this is the raw column, passed through.
+   *
+   * **The `| null` is the fix, not a decoration.** It was declared
+   * non-nullable while the column underneath it was not, which is the shape of
+   * defect D-1: a hand-written row interface that does not derive from the
+   * generated `Tables<"work_item">`, so i1's correctly widened database type
+   * reached nothing and `tsc` stayed silent while a planned row's NULL flowed
+   * to `EXECUTION_MODE_LABELS[…]`, came back `undefined` and drew a blank chip.
+   */
+  executionMode: StoredExecutionMode | null;
   executorKind: StoredExecutorKind;
   executor: string | null;
   status: StoredWorkStatus;
@@ -82,6 +94,13 @@ export interface ListedWorkItem {
   endedAt: string | null;
   /** Null unless `includeDescription` was asked for. */
   description: string | null;
+  /**
+   * FR-87 — planned work: `execution_mode IS NULL` and `status = 'pending'`.
+   * Read from the raw column, which is the only place the signal survives.
+   */
+  planned: boolean;
+  /** `work_item.updated_at`. FR-91's staleness timestamp. */
+  updatedAt: string | null;
 }
 
 export interface WorkItemListing {
@@ -119,7 +138,8 @@ interface WorkItemRow {
   id: string;
   engagement_id: string;
   unit: string | null;
-  execution_mode: StoredExecutionMode;
+  /** Nullable in Postgres — an FR-87 planned row has no mode yet. */
+  execution_mode: StoredExecutionMode | null;
   executor_kind: StoredExecutorKind;
   executor: string | null;
   status: StoredWorkStatus;
@@ -133,6 +153,7 @@ interface WorkItemRow {
   external_wait_id: string | null;
   started_at: string | null;
   ended_at: string | null;
+  updated_at: string | null;
   description: string | null;
   engagement: { slug: string } | { slug: string }[] | null;
   stack: { name: string } | { name: string }[] | null;
@@ -142,7 +163,7 @@ const COLUMNS =
   "id, engagement_id, unit, execution_mode, executor_kind, executor, status, " +
   "work_type, phase, disposition, unautomated_reason, evidence_scope, " +
   "not_verified_count, blocker_id, external_wait_id, started_at, ended_at, " +
-  "description, engagement:engagement_id (slug), stack:stack_id (name)";
+  "updated_at, description, engagement:engagement_id (slug), stack:stack_id (name)";
 
 function one<T>(value: T | T[] | null): T | null {
   return Array.isArray(value) ? (value[0] ?? null) : value;
@@ -232,6 +253,8 @@ export async function listWorkItems(
         filters.includeDescription === true
           ? await decryptField(db, row.description)
           : null,
+      planned: isPlannedRow(row),
+      updatedAt: row.updated_at,
     })),
   );
 

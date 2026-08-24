@@ -4,6 +4,7 @@ import { OperatorLoadNotice } from "@/components/operator-load-notice";
 import { Screen } from "@/components/screen";
 import { readRequirementDetail } from "@/lib/detail-load";
 import { loadForOperator } from "@/lib/operator-load";
+import { isoToday } from "@/lib/today";
 
 import { RequirementView } from "../_components/requirement-view";
 
@@ -98,5 +99,5 @@ export default async function RequirementDetailPage({
   // product does not collapse them.
   if (result.data === null) notFound();
 
-  return <RequirementView detail={result.data} />;
+  return <RequirementView detail={result.data} asOf={isoToday()} />;
 }

@@ -53,6 +53,22 @@ describe("FR-52 blocked filters", () => {
     expect(query.engagement).toBeNull();
     expect(query.rejected).toHaveLength(1);
   });
+
+  it("caps the engagement at the slug's own 128, not at free text's 200 (FR-96)", () => {
+    // M2.9 u3. `MAX.slug` in the registry's validator is 128, so a longer value
+    // cannot name a row that exists; accepting it here only postponed the same
+    // answer by one round trip. `owner` is free text and keeps the 200 cap,
+    // which is the distinction this pair of assertions exists to hold.
+    expect(parseBlockedQuery({ engagement: "x".repeat(128) }).engagement).toBe(
+      "x".repeat(128),
+    );
+
+    const tooLong = parseBlockedQuery({ engagement: "x".repeat(129) });
+    expect(tooLong.engagement).toBeNull();
+    expect(tooLong.rejected).toHaveLength(1);
+
+    expect(parseBlockedQuery({ owner: "y".repeat(129) }).rejected).toEqual([]);
+  });
 });
 
 describe("FR-53 / FR-56 limits", () => {

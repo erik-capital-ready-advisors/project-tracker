@@ -16,6 +16,7 @@ import {
   EntityDetail,
 } from "@/components/entity-detail";
 import { EntityRef, EntityRefList } from "@/components/entity-ref";
+import { PlannedChip } from "@/components/planned-chip";
 import { ProseValue } from "@/components/prose-value";
 import { StateBadge } from "@/components/state-badge";
 import { Button } from "@/components/ui/button";
@@ -105,7 +106,14 @@ import { cn } from "@/lib/utils";
  * Counts and statuses only. No decrypted text, no defect description and no
  * milestone amount is published into a `data-verify-*` attribute.
  */
-export function RequirementView({ detail }: { detail: RequirementDetail }) {
+export function RequirementView({
+  detail,
+  asOf,
+}: {
+  detail: RequirementDetail;
+  /** `YYYY-MM-DD`. FR-91 reference date, read once at the page. */
+  asOf: string;
+}) {
   const engagement = detail.engagement;
 
   return (
@@ -234,8 +242,15 @@ export function RequirementView({ detail }: { detail: RequirementDetail }) {
                         <Absent title="No unit key was recorded. A `hand` or `external` work item carries none." />
                       )}
                     </TableCell>
+                    {/* FR-91. "What implements this requirement" is a coverage
+                        claim, and a planned row is an *intention* to cover it
+                        rather than work under way — a distinction this column
+                        would otherwise flatten into the word `pending`. */}
                     <TableCell className="ident text-muted-foreground text-xs whitespace-nowrap">
-                      {item.status}
+                      <span className="flex flex-wrap items-center gap-1">
+                        {item.status}
+                        <PlannedChip item={item} asOf={asOf} />
+                      </span>
                     </TableCell>
                     <TableCell>
                       <ExecutorChip

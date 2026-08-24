@@ -1,10 +1,19 @@
 import Link from "next/link";
 
+import { EngagementScopeNotice } from "@/components/engagement-scope-notice";
 import { EmptyState, Screen } from "@/components/screen";
 import { OperatorLoadNotice } from "@/components/operator-load-notice";
 import { Button } from "@/components/ui/button";
 import { readRefResolution } from "@/lib/detail-load";
 import type { RefQuery, RefResolution } from "@/lib/detail-load";
+import { engagementFilterFrom } from "@/lib/engagement-filter";
+import type { SearchParamRecord } from "@/lib/engagement-filter";
+import {
+  engagementScopeBlocksRows,
+  engagementScopeSlug,
+  resolveEngagementFilter,
+} from "@/lib/engagement-resolve";
+import { withListFlag } from "@/lib/list-toggle-link";
 import { OPERATOR_ROUTES } from "@/lib/nav";
 import { loadForOperator } from "@/lib/operator-load";
 
@@ -36,24 +45,49 @@ export const metadata = { title: `${NAV.label} — Delivery Ledger` };
  * away rather than gone: a resolved wait still carries who resolved it and when,
  * which is the record FR-36 exists to produce, and hiding it permanently would
  * make that record unreadable.
+ *
+ * ## FR-96 -- the filter narrows the list and deliberately not the form
+ *
+ * `?engagement=` scopes the *record*: which waits are listed. It does not touch
+ * the declare-a-wait dialog's engagement options, and that is a decision rather
+ * than an omission. FR-32's form is a write, not a view -- narrowing its picker
+ * to the engagement currently being read would mean a filtered screen could only
+ * declare a wait against one client, and the operator would have to clear a
+ * filter to record something. A filter that changes what can be *created* is a
+ * mode, and CR-005 §3.3 keeps this one to what is *shown*.
+ *
+ * An unresolvable slug renders FR-96c's explicit state with no rows, and
+ * `withListFlag` keeps the "include resolved" toggle from dropping the filter on
+ * the way past.
  */
 export default async function WaitsPage({
   searchParams,
 }: {
-  searchParams: Promise<Record<string, string | string[] | undefined>>;
+  searchParams: Promise<SearchParamRecord>;
 }) {
   const params = await searchParams;
   const rawResolved = Array.isArray(params.resolved)
     ? params.resolved[0]
     : params.resolved;
   const includeResolved = rawResolved === "1";
+  const filter = engagementFilterFrom(params);
 
   const [waits, engagements] = await Promise.all([
-    loadForOperator(() => readWaits(includeResolved)),
+    // Resolved inside the load wrapper so a gated visitor gets one refusal.
+    loadForOperator(async () => {
+      const scope = await resolveEngagementFilter(filter);
+      return {
+        scope,
+        listing: engagementScopeBlocksRows(scope)
+          ? null
+          : await readWaits(includeResolved, engagementScopeSlug(scope)),
+      };
+    }),
     loadForOperator(() => readEngagements()),
   ]);
 
-  const listing = waits.ok ? waits.data : null;
+  const scope = waits.ok ? waits.data.scope : null;
+  const listing = waits.ok ? waits.data.listing : null;
 
   // FR-80 — every unit key every wait blocks, resolved in ONE round trip for
   // the whole screen rather than one per row. `readRefResolution` decrypts
@@ -141,7 +175,12 @@ export default async function WaitsPage({
         <div className="flex items-center gap-2">
           <Button asChild variant="ghost" size="sm">
             <Link
-              href={includeResolved ? "/waits" : "/waits?resolved=1"}
+              href={withListFlag(
+                "/waits",
+                params,
+                "resolved",
+                !includeResolved,
+              )}
               data-verify-unit="toggle-resolved"
               data-verify-including-resolved={includeResolved ? "true" : "false"}
             >
@@ -189,12 +228,26 @@ export default async function WaitsPage({
         </p>
       ) : null}
 
+      {/* FR-96c. Guarded by the same `engagementScopeBlocksRows` that nulled
+          the listing above, so the notice never sits over a list of rows. */}
+      {scope === null ? null : <EngagementScopeNotice resolution={scope} />}
+
       {listing === null ? null : listing.waits.length === 0 ? (
         <EmptyState
           headline={
-            includeResolved
-              ? "No external waits have been recorded."
-              : "Nothing is waiting on anyone outside the studio."
+            // Scoped and unscoped are different claims -- see `/questions` for
+            // the same note. A filtered screen must not report the ledger.
+            // The scope qualifier leads in the open-only line. Trailing it —
+            // "waiting on anyone outside the studio for acme" — attaches to
+            // "the studio" and reads as a claim about acme's studio. Same
+            // sentence shape as `/questions`, deliberately.
+            scope?.kind === "resolved"
+              ? includeResolved
+                ? `No external waits have been recorded for ${scope.slug}.`
+                : `Nothing for ${scope.slug} is waiting on anyone outside the studio.`
+              : includeResolved
+                ? "No external waits have been recorded."
+                : "Nothing is waiting on anyone outside the studio."
           }
           detail="Waits on people outside the studio appear here with the date they started, the date they are expected to clear, and the work items they hold."
         />

@@ -658,3 +658,43 @@ describe("a failed read is reported, never rendered as an empty relationship", (
     ).rejects.toThrow(/work_item/);
   });
 });
+
+describe("FR-87 / FR-91 — the work-item detail carries planned and its timestamp", () => {
+  function withPlanned(): Record<string, FakeRow[]> {
+    return {
+      work_item: [
+        ...extras().work_item,
+        {
+          id: "wp1",
+          engagement_id: ENGAGEMENT_ID,
+          execution_mode: null,
+          executor_kind: "unassigned",
+          status: "pending",
+          updated_at: "2026-07-25T09:00:00Z",
+        },
+      ],
+    };
+  }
+
+  it("FR-87 marks the planned row planned and leaves an ingested one alone", async () => {
+    const planned = await loadWorkItemDetail(db(withPlanned()), "wp1");
+    expect(planned?.planned).toBe(true);
+
+    const ingested = await loadWorkItemDetail(db(), "w1");
+    expect(ingested?.planned).toBe(false);
+  });
+
+  it("FR-91 carries updated_at, and the projection names it", async () => {
+    const client = fake(withPlanned());
+    const detail = await loadWorkItemDetail(client as unknown as DetailDb, "wp1");
+    expect(detail?.updatedAt).toBe("2026-07-25T09:00:00Z");
+
+    // The fake records the projection rather than applying it, so the value
+    // above would survive the column being dropped from the select. This does
+    // not.
+    const projections = client.projections
+      .filter((one) => one.table === "work_item")
+      .map((one) => one.columns);
+    expect(projections.some((columns) => columns.includes("updated_at"))).toBe(true);
+  });
+});

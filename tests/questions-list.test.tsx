@@ -111,14 +111,36 @@ describe("the read succeeded with nothing to show", () => {
     expect(empty.textContent).toContain("Nothing is waiting on an answer");
   });
 
+  /**
+   * Rewritten by d4000f's c1, and deliberately made STRONGER rather than
+   * re-pointed at new wording.
+   *
+   * It used to assert the literal string "No open questions have been
+   * recorded", which pinned a claim NARROWER than the request that produced
+   * it: `answered=1` searches open and answered alike, so a headline that
+   * reports only on open ones leaves the reader believing answered rows may be
+   * hidden behind an empty screen. `/questions`' own scoped branch never made
+   * that mistake — "No questions have been recorded for <slug>." — so the two
+   * halves of one condition disagreed, which is what marks this as an
+   * oversight rather than a decision.
+   *
+   * So the assertion is now the rule instead of a string: the two toggle
+   * states must say different things, and the one that searched both must not
+   * restrict its claim to open questions. Both survive any later rewording;
+   * neither can be satisfied by the copy this test was failing against.
+   */
   it("states a different headline once answered questions are included", async () => {
     mocks.readOpenQuestions.mockResolvedValue(listing());
 
-    await mount({ answered: "1" });
+    await mount();
+    const openOnly = byUnit("empty-state").textContent ?? "";
+    cleanup();
 
-    expect(byUnit("empty-state").textContent).toContain(
-      "No open questions have been recorded",
-    );
+    await mount({ answered: "1" });
+    const withAnswered = byUnit("empty-state").textContent ?? "";
+
+    expect(withAnswered).not.toBe(openOnly);
+    expect(withAnswered).not.toMatch(/\bopen\b/i);
   });
 });
 

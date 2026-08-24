@@ -23,6 +23,7 @@ import {
 import { readRefResolution } from "@/lib/detail-load";
 import { ANSWER_ROUTES } from "@/lib/nav";
 import { loadForOperator } from "@/lib/operator-load";
+import { isoToday } from "@/lib/today";
 import { listEngagements } from "@/lib/server/registry/engagements";
 import { readUnparsedCensus } from "@/lib/unparsed-census";
 
@@ -132,7 +133,7 @@ export default async function NextPage({
               detail="Work whose dependencies are all done and which no open blocker or wait holds appears here, nearest dated milestone first. The counts below say what was set aside and why."
             />
           ) : (
-            <NextTable answer={loaded.answer} refs={loaded.refs} />
+            <NextTable answer={loaded.answer} refs={loaded.refs} asOf={isoToday()} />
           )}
 
           {/* Rendered even when the list is empty: an empty Next list with 11

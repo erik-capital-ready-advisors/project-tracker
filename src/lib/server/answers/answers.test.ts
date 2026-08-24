@@ -4,6 +4,8 @@ import { beforeEach, describe, expect, it } from "vitest";
 
 import { agentScopedDb } from "@/lib/api";
 import { parseTestTags } from "@/lib/ingest/testTags";
+import { plannedStaleness, selectPlanned } from "@/lib/server/workitems/planned";
+import type { PlannedItem } from "@/lib/server/workitems/planned";
 
 import { createFakeAnswerDb, resetFakeAnswerIds } from "./__fixtures__/fake-answer-db";
 import type { FakeAnswerDb, FakeRow } from "./__fixtures__/fake-answer-db";
@@ -25,6 +27,7 @@ import {
   handleCommitted,
   handleUntested,
 } from "./handlers";
+import { loadEngagements, loadWorkItems } from "./load";
 import { nextAnswer } from "./next";
 import { unparsedCensus } from "./unparsed";
 import { untestedAnswer } from "./untested";
@@ -1171,5 +1174,94 @@ describe("the three screens that ask what a work item is now say so", () => {
     await expect(
       blockedAnswer(db({}, { decrypt: () => null }), blockedFilters, { today: TODAY }),
     ).rejects.toThrow(/could not be decrypted/);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// FR-87 / FR-91 — the answers carry the planned signal and its timestamp
+// ---------------------------------------------------------------------------
+
+describe("FR-87 the answer loader records planned work before the signal is lost", () => {
+  const PLANNED_ROWS: FakeRow[] = [
+    {
+      id: "p1",
+      engagement_id: "eng-acme",
+      execution_mode: null,
+      executor_kind: "unassigned",
+      status: "pending",
+      updated_at: "2026-07-25T09:00:00Z",
+    },
+    {
+      id: "p2",
+      engagement_id: "eng-acme",
+      execution_mode: "fleet",
+      executor_kind: "agent",
+      status: "pending",
+      updated_at: "2026-08-19T09:00:00Z",
+    },
+    {
+      id: "p3",
+      engagement_id: "eng-acme",
+      execution_mode: null,
+      executor_kind: "unassigned",
+      status: "done",
+      updated_at: "2026-07-01T09:00:00Z",
+    },
+  ];
+
+  async function loaded() {
+    const client = db({ work_item: PLANNED_ROWS });
+    const engagements = await loadEngagements(client, null);
+    const items = await loadWorkItems(client, engagements);
+    return new Map(items.map((one) => [one.id, one]));
+  }
+
+  it("FR-87 marks only the NULL-mode pending row as planned", async () => {
+    const items = await loaded();
+    expect(items.get("p1")?.planned).toBe(true);
+    // A real fleet row, and a NULL-mode row that is no longer pending.
+    expect(items.get("p2")?.planned).toBe(false);
+    expect(items.get("p3")?.planned).toBe(false);
+  });
+
+  it("FR-91 carries updated_at through, so a screen has a date to age against", async () => {
+    const items = await loaded();
+    expect(items.get("p1")?.updatedAt).toBe("2026-07-25T09:00:00Z");
+  });
+
+  it("FR-91 selects updated_at in the work_item projection", async () => {
+    // This fake records the projection rather than applying it, so the values
+    // above would still arrive if the column were dropped from the select. The
+    // assertion that catches that is here.
+    const client = fake({ work_item: PLANNED_ROWS });
+    const engagements = await loadEngagements(client as unknown as AnswerDb, null);
+    await loadWorkItems(client as unknown as AnswerDb, engagements);
+
+    const projections = client.projections
+      .filter((one) => one.table === "work_item")
+      .map((one) => one.columns);
+    expect(projections.length).toBeGreaterThan(0);
+    for (const columns of projections) {
+      expect(columns).toContain("updated_at");
+      expect(columns).toContain("execution_mode");
+    }
+  });
+
+  it("selectPlanned returns the planned rows and nothing else", async () => {
+    const items = await loaded();
+    expect(selectPlanned([...items.values()]).map((one) => one.id)).toEqual(["p1"]);
+  });
+
+  it("FR-91 derives STALE from the loaded row and a date passed in", async () => {
+    const items = await loaded();
+    const p1 = items.get("p1");
+    expect(p1).toBeDefined();
+
+    // 2026-07-25 → 2026-08-23 is 29 days; → 2026-08-24 is 30, the boundary.
+    expect(plannedStaleness(p1 as PlannedItem, "2026-08-23").state).toBe("fresh");
+    expect(plannedStaleness(p1 as PlannedItem, "2026-08-24")).toEqual({
+      state: "stale",
+      daysUntouched: 30,
+    });
   });
 });

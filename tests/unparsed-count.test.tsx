@@ -7,6 +7,7 @@ import {
   unparsedShortLabel,
   unparsedState,
   unparsedVerifyCount,
+  unparsedVerifyScope,
 } from "@/lib/unparsed-display";
 
 /**
@@ -64,6 +65,68 @@ describe("unparsed display semantics (FR-58)", () => {
 
     expect(unparsedVerifyCount(0)).toBe(0);
     expect(unparsedVerifyCount(null)).toBeNull();
+  });
+});
+
+/**
+ * FR-96a — the count stays ledger-wide under an engagement filter and labels
+ * itself as such.
+ *
+ * The failure it prevents is on the record: M2.8 logged a run's own unparsed
+ * count disagreeing with the global badge (badge 0, run `b0952e` 1). A filtered
+ * list under an unlabelled global count is that same disagreement one layer up.
+ *
+ * Whether a filter IS active is `EngagementScope`'s question, tested in
+ * `tests/engagement-scope.test.tsx`. This describes only what the label does
+ * once it is told.
+ */
+describe("FR-96a the ledger-wide count says so under a filter", () => {
+  it("FR-96a appends the scope to a counted label at both widths", () => {
+    expect(unparsedLabel(3, "whole-ledger")).toBe("3 unparsed (whole ledger)");
+    // Zero needs it most: "0 unparsed" over a filtered list reads as "this
+    // engagement is clean", which is a claim about a scope nothing counted.
+    expect(unparsedLabel(0, "whole-ledger")).toBe("0 unparsed (whole ledger)");
+    // The compact form carries it too. Dropping it below `sm` would leave the
+    // narrow viewport with exactly the misreading this requirement exists to
+    // stop, which is not a width the failure gets a pass at.
+    expect(unparsedShortLabel(3, "whole-ledger")).toBe(
+      "3 unparsed (whole ledger)",
+    );
+  });
+
+  it("FR-96a leaves every unfiltered label byte-identical", () => {
+    // The default is the whole of FR-58's existing behaviour, unchanged. If
+    // this drifts, every surface's wording changed for a filter nobody set.
+    expect(unparsedLabel(3, "none")).toBe(unparsedLabel(3));
+    expect(unparsedLabel(0, "none")).toBe(unparsedLabel(0));
+    expect(unparsedShortLabel(null, "none")).toBe(unparsedShortLabel(null));
+  });
+
+  it("FR-96a attaches no scope to a count that does not exist", () => {
+    // "unparsed count unavailable (whole ledger)" scopes a missing number.
+    // There is nothing here to be misread as scoped, and B12's three states
+    // stay three.
+    expect(unparsedLabel(null, "whole-ledger")).toBe(
+      "unparsed count unavailable",
+    );
+    expect(unparsedShortLabel(null, "whole-ledger")).toBe(
+      unparsedShortLabel(null),
+    );
+    expect(unparsedVerifyScope(null, "whole-ledger")).toBe("none");
+    expect(unparsedVerifyScope(3, "whole-ledger")).toBe("whole-ledger");
+    expect(unparsedVerifyScope(3, "none")).toBe("none");
+  });
+
+  it("FR-96a never changes the number, only what the label says about it", () => {
+    render(<UnparsedCount count={3} scope="whole-ledger" />);
+    const el = screen.getByRole("status");
+
+    // The count is ledger-wide with or without the label. Scoping it to the
+    // filter is the move this requirement explicitly forbids.
+    expect(el).toHaveAttribute("data-verify-count", "3");
+    expect(el).toHaveAttribute("data-verify-state", "nonzero");
+    expect(el).toHaveAttribute("data-verify-scope", "whole-ledger");
+    expect(el).toHaveTextContent("3 unparsed (whole ledger)");
   });
 });
 

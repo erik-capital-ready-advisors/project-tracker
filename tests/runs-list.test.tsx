@@ -168,8 +168,14 @@ function allUnits(unit: string): HTMLElement[] {
   return [...document.querySelectorAll<HTMLElement>(`[data-verify-unit='${unit}']`)];
 }
 
-async function mount() {
-  render(<StrictMode>{await RunsPage()}</StrictMode>);
+async function mount(
+  searchParams: Record<string, string | string[] | undefined> = {},
+) {
+  render(
+    <StrictMode>
+      {await RunsPage({ searchParams: Promise.resolve(searchParams) })}
+    </StrictMode>,
+  );
 }
 
 beforeEach(() => {

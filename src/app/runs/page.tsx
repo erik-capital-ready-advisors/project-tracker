@@ -1,5 +1,13 @@
+import { EngagementScopeNotice } from "@/components/engagement-scope-notice";
 import { EmptyState, Screen } from "@/components/screen";
 import { OperatorLoadNotice } from "@/components/operator-load-notice";
+import { engagementFilterFrom } from "@/lib/engagement-filter";
+import type { SearchParamRecord } from "@/lib/engagement-filter";
+import {
+  engagementScopeBlocksRows,
+  engagementScopeId,
+  resolveEngagementFilter,
+} from "@/lib/engagement-resolve";
 import { OPERATOR_ROUTES } from "@/lib/nav";
 import { loadForOperator } from "@/lib/operator-load";
 import { readRuns } from "@/lib/runs-load";
@@ -39,11 +47,22 @@ export const metadata = { title: `${NAV.label} — Delivery Ledger` };
  * listing that ends it -- every ingested run, across every engagement, newest
  * first, each row stating what that run claimed about itself.
  *
- * Cross-engagement by construction. Q16 was resolved at CR-005's approval from
- * FR-92's own wording, and FR-96 -- which would add an engagement filter -- is
- * **DRAFT and not approved**, so there is deliberately no filter here however
- * natural one feels on a cross-engagement list. A question is queued rather than
- * a control built.
+ * Cross-engagement **by default**, which is Q16's ruling from FR-92's own
+ * wording and is unchanged. What changed on 2026-08-24 is that FR-96 was
+ * approved, so the note that used to stand here -- "FR-96 is DRAFT and not
+ * approved, so there is deliberately no filter here however natural one feels" --
+ * has been overtaken. The filter is now honoured, it is optional, and the
+ * unfiltered list remains what this screen renders when nothing asks otherwise.
+ *
+ * This is the **first** `searchParams` this screen has read. It was one of the
+ * two of eleven that read none (`/registry` was the other), against the resolved
+ * spec's claim that all eleven already did -- measured by r1 rather than assumed.
+ * The type comes from `@/lib/engagement-filter` rather than being restated,
+ * because a fourth spelling of the same `Record` is how the eleven drift.
+ *
+ * The picker itself is NOT here: FR-96b puts one in the app shell so it is built
+ * once rather than eleven times. This screen owns honouring the URL and nothing
+ * else about the control.
  *
  * ## Three outcomes, not two
  *
@@ -79,11 +98,31 @@ export const metadata = { title: `${NAV.label} — Delivery Ledger` };
  *                                         data-verify-unparsed-available
  *   data-verify-unit="dispatch-producer-note"
  *   data-verify-unit="run-order-note"
+ *   data-verify-unit="unknown-engagement"            (FR-96c, no rows beneath it)
+ *   data-verify-unit="engagement-scope-unavailable"  (the filter could not be resolved)
  *   plus the table's own contracts, documented in `_components/run-table.tsx`.
  */
-export default async function RunsPage() {
-  const result = await loadForOperator(() => readRuns());
-  const listing = result.ok ? result.data : null;
+export default async function RunsPage({
+  searchParams,
+}: {
+  searchParams: Promise<SearchParamRecord>;
+}) {
+  const filter = engagementFilterFrom(await searchParams);
+
+  // Resolved inside the load wrapper so a gated visitor gets one refusal, from
+  // the machinery that owns the gate. See `@/lib/engagement-resolve`.
+  const result = await loadForOperator(async () => {
+    const scope = await resolveEngagementFilter(filter);
+    return {
+      scope,
+      listing: engagementScopeBlocksRows(scope)
+        ? null
+        : await readRuns(engagementScopeId(scope)),
+    };
+  });
+
+  const scope = result.ok ? result.data.scope : null;
+  const listing = result.ok ? result.data.listing : null;
 
   const everyDispatchUnknown =
     listing !== null &&
@@ -151,9 +190,22 @@ export default async function RunsPage() {
         />
       )}
 
+      {/* FR-96c. The same `engagementScopeBlocksRows` that nulled the listing
+          above is what guarantees no run rows render beneath this. */}
+      {scope === null ? null : <EngagementScopeNotice resolution={scope} />}
+
       {listing === null ? null : listing.runs.length === 0 ? (
         <EmptyState
-          headline="No fleet run has been ingested yet."
+          headline={
+            // Two different facts, and only one of them is about the ledger.
+            // "No fleet run has been ingested yet" under a filter would report
+            // an empty ledger on a request that only looked at one engagement.
+            scope?.kind === "resolved"
+              ? // Same claim, narrowed, and "yet" is dropped with the ledger:
+                // "yet" is a statement about the product's whole lifetime.
+                `No fleet run has been ingested for ${scope.slug}.`
+              : "No fleet run has been ingested yet."
+          }
           detail="A run appears here once its manifest and checkpoint have been read. Each row states what that run claimed about itself — the verdict it recorded, how long it took, and what nothing could classify."
         />
       ) : (
