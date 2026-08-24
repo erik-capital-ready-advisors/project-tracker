@@ -102,7 +102,7 @@ const TRIGGER_CHIP: Record<TriggerPresentation, string> = {
     "border-state-carried/60 bg-state-carried/15 text-state-carried ring-1 ring-state-carried/40 font-semibold",
   settled: "border-foreground/25 text-foreground bg-muted",
   undetermined:
-    "border-border/60 text-muted-foreground/80 bg-transparent border-dashed",
+    "border-border/60 text-muted-foreground/85 bg-transparent border-dashed",
 };
 
 const CHIP_BASE =
@@ -110,7 +110,7 @@ const CHIP_BASE =
 
 function NotRecorded({ title }: { title: string }) {
   return (
-    <span className="ident text-muted-foreground/70 text-xs" title={title}>
+    <span className="ident text-muted-foreground/85 text-xs" title={title}>
       {NOT_RECORDED}
     </span>
   );
@@ -198,7 +198,7 @@ export function StackTable({
                     className="flex items-center gap-2"
                   >
                     {stack.agentCovering === null ? (
-                      <span className="text-muted-foreground/70 text-xs italic">
+                      <span className="text-muted-foreground/85 text-xs italic">
                         {NO_AGENT_RECORDED}
                       </span>
                     ) : (

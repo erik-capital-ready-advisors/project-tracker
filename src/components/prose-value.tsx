@@ -137,7 +137,7 @@ export function ProseValue({
       case "not-requested":
         return (
           <span
-            className="text-muted-foreground/70 text-xs italic"
+            className="text-muted-foreground/85 text-xs italic"
             title={
               notRequested ??
               "This view did not ask for this field to be decrypted, so nothing here is a statement about what it holds."

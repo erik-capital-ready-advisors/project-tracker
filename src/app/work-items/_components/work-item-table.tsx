@@ -130,7 +130,7 @@ function SortableHead({
 
 function Absent({ title }: { title: string }) {
   return (
-    <span className="text-muted-foreground/50" title={title}>
+    <span className="text-muted-foreground/85" title={title}>
       &mdash;
     </span>
   );
@@ -189,7 +189,7 @@ export function WorkItemTable({
                 <TableCell className="font-medium whitespace-nowrap">
                   <EntityRef {...toRef("work_item", item.id, item.unit)} />
                   {item.phase === null ? null : (
-                    <span className="text-muted-foreground/70 ml-1.5 text-xs">
+                    <span className="text-muted-foreground/85 ml-1.5 text-xs">
                       p{item.phase}
                     </span>
                   )}
@@ -213,7 +213,7 @@ export function WorkItemTable({
                 <TableCell className="text-muted-foreground whitespace-nowrap">
                   {item.workType ?? <Absent title="No work type was recorded." />}
                   {item.stackName === null ? null : (
-                    <span className="ident text-muted-foreground/70 ml-1.5 text-xs">
+                    <span className="ident text-muted-foreground/85 ml-1.5 text-xs">
                       {item.stackName}
                     </span>
                   )}
@@ -239,7 +239,7 @@ export function WorkItemTable({
                         automated is what makes an `erik_gate` legible rather
                         than mysterious, so it rides with the executor. */}
                     {item.unautomatedReason === null ? null : (
-                      <span className="text-muted-foreground/70 text-xs">
+                      <span className="text-muted-foreground/85 text-xs">
                         {UNAUTOMATED_REASON_LABELS[item.unautomatedReason]}
                       </span>
                     )}
@@ -285,7 +285,7 @@ export function WorkItemTable({
 
                 <TableCell className="ident text-right tabular-nums">
                   {item.notVerifiedCount === 0 ? (
-                    <span className="text-muted-foreground/60">0</span>
+                    <span className="text-muted-foreground/85">0</span>
                   ) : (
                     <span className="text-state-not-verified font-medium">
                       {item.notVerifiedCount}

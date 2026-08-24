@@ -56,7 +56,7 @@ import { cn } from "@/lib/utils";
  */
 const RUNG = {
   /** Absent, not-yet, or deliberately quiet. */
-  faint: "border-border/60 text-muted-foreground/80 bg-transparent border-dashed",
+  faint: "border-border/60 text-muted-foreground/85 bg-transparent border-dashed",
   /** Present and unremarkable. */
   quiet: "border-border text-muted-foreground bg-transparent",
   /** Present and worth reading. */
@@ -71,7 +71,7 @@ const CHIP =
 /** A value that was never recorded. Drawn as absent, never as a value. */
 export function Absent({ title }: { title: string }) {
   return (
-    <span className="text-muted-foreground/50" title={title}>
+    <span className="text-muted-foreground/85" title={title}>
       &mdash;
     </span>
   );
@@ -363,7 +363,7 @@ export function ExecutorChip({
     >
       {kind}
       {executor === null || mine ? null : (
-        <span className="text-muted-foreground/70">{executor}</span>
+        <span className="text-muted-foreground/85">{executor}</span>
       )}
     </span>
   );

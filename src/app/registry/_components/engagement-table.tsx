@@ -36,7 +36,7 @@ function Identifier({ value }: { value: string | null }) {
     <span
       className={cn(
         "ident text-xs",
-        recorded ? "text-foreground" : "text-muted-foreground/70 italic",
+        recorded ? "text-foreground" : "text-muted-foreground/85 italic",
       )}
     >
       {text}
@@ -93,7 +93,7 @@ export function EngagementTable({
               </TableCell>
               <TableCell className="py-2 align-top">
                 {engagement.stacks.length === 0 ? (
-                  <span className="text-muted-foreground/70 text-xs italic">
+                  <span className="text-muted-foreground/85 text-xs italic">
                     not recorded
                   </span>
                 ) : (
@@ -111,13 +111,13 @@ export function EngagementTable({
               </TableCell>
               <TableCell className="py-2 align-top">
                 <Identifier value={engagement.dbProjectRef} />
-                <div className="text-muted-foreground/70 ident text-[0.7rem]">
+                <div className="text-muted-foreground/85 ident text-[0.7rem]">
                   {formatIdentifier(engagement.dbOrg).text}
                 </div>
               </TableCell>
               <TableCell className="py-2 align-top">
                 <Identifier value={engagement.hostingProject} />
-                <div className="text-muted-foreground/70 ident text-[0.7rem]">
+                <div className="text-muted-foreground/85 ident text-[0.7rem]">
                   {formatIdentifier(engagement.hostingTeam).text}
                 </div>
               </TableCell>

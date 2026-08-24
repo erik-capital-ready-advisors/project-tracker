@@ -188,7 +188,7 @@ export function CommittedTable({
                     >
                       {milestone.engagement}
                     </Link>
-                    <span className="text-muted-foreground/70">
+                    <span className="text-muted-foreground/85">
                       {" · "}
                       {milestone.clientName}
                     </span>
@@ -267,7 +267,7 @@ export function CommittedTable({
                     <span
                       className={
                         milestone.submitted === null
-                          ? "text-muted-foreground/50"
+                          ? "text-muted-foreground/85"
                           : "text-muted-foreground"
                       }
                     >
@@ -276,7 +276,7 @@ export function CommittedTable({
                     <span
                       className={
                         milestone.paid === null
-                          ? "text-muted-foreground/50"
+                          ? "text-muted-foreground/85"
                           : "text-state-verified"
                       }
                     >

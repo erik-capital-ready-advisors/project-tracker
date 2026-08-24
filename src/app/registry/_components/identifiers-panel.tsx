@@ -84,7 +84,7 @@ export function IdentifiersPanel({
                 "ident min-w-0 text-xs break-all",
                 value.recorded
                   ? "text-foreground"
-                  : "text-muted-foreground/70 italic",
+                  : "text-muted-foreground/85 italic",
               )}
             >
               {value.text}

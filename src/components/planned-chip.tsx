@@ -152,7 +152,7 @@ export function PlannedChip({
       className={cn(CHIP_BASE, CHIP_CLASS[staleness.state], className)}
     >
       {CHIP_TEXT[staleness.state]}
-      <span className="tabular-nums opacity-80">{ageLabel(staleness)}</span>
+      <span className="tabular-nums opacity-85">{ageLabel(staleness)}</span>
     </span>
   );
 }

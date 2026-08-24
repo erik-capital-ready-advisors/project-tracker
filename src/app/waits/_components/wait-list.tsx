@@ -125,7 +125,7 @@ function WaitRow({
             </Link>
           )}
           {wait.ownerType === null ? null : (
-            <span className="ident text-muted-foreground/70 text-xs">
+            <span className="ident text-muted-foreground/85 text-xs">
               {wait.ownerType}
             </span>
           )}

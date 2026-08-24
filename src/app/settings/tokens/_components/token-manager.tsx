@@ -82,7 +82,7 @@ const CAPABILITY_HINT: Record<WireCapability, string> = {
 const STATUS_CLASS: Record<TokenStatus, string> = {
   active: "border-foreground/40 bg-foreground/10 text-foreground font-medium",
   expired: "border-border text-muted-foreground border-dashed",
-  revoked: "border-border text-muted-foreground/80 line-through",
+  revoked: "border-border text-muted-foreground/85 line-through",
 };
 
 function TokenStatusChip({ status }: { status: TokenStatus }) {
@@ -405,7 +405,7 @@ export function TokenManager({
                   <TableCell className="ident text-muted-foreground whitespace-nowrap">
                     {isoMinute(token.lastUsedAt) ?? (
                       <span
-                        className="text-muted-foreground/60"
+                        className="text-muted-foreground/85"
                         title="This token has never authenticated a request."
                       >
                         never
@@ -417,7 +417,7 @@ export function TokenManager({
                   </TableCell>
                   <TableCell className="text-right whitespace-nowrap">
                     {revoked ? (
-                      <span className="text-muted-foreground/60 text-xs">
+                      <span className="text-muted-foreground/85 text-xs">
                         kept for audit
                       </span>
                     ) : (

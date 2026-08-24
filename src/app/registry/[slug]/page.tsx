@@ -250,7 +250,7 @@ export default async function EngagementPage({
                       className={
                         shown.recorded
                           ? "ident min-w-0 text-xs break-all"
-                          : "ident text-muted-foreground/70 min-w-0 text-xs italic"
+                          : "ident text-muted-foreground/85 min-w-0 text-xs italic"
                       }
                     >
                       {shown.text}
@@ -262,7 +262,7 @@ export default async function EngagementPage({
                 <dt className="text-muted-foreground text-xs">Stacks</dt>
                 <dd className="flex min-w-0 flex-wrap gap-1">
                   {engagement.stacks.length === 0 ? (
-                    <span className="text-muted-foreground/70 text-xs italic">
+                    <span className="text-muted-foreground/85 text-xs italic">
                       not recorded
                     </span>
                   ) : (

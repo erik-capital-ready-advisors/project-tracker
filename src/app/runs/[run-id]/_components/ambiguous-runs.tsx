@@ -110,7 +110,7 @@ export function AmbiguousRuns({
                       <span className="text-foreground">
                         {match.engagement.clientName}
                       </span>
-                      <span className="ident text-muted-foreground/70 text-xs">
+                      <span className="ident text-muted-foreground/85 text-xs">
                         {match.engagement.slug}
                       </span>
                     </Link>
@@ -125,7 +125,7 @@ export function AmbiguousRuns({
                   {match.mode ?? <Absent title="No mode was recorded." />}
                 </TableCell>
 
-                <TableCell className="ident text-muted-foreground/70 text-xs break-all">
+                <TableCell className="ident text-muted-foreground/85 text-xs break-all">
                   {match.id}
                 </TableCell>
               </TableRow>

@@ -171,7 +171,7 @@ export function QuestionTable({
                       className="hover:text-foreground underline-offset-2 hover:underline"
                     >
                       {question.engagementClientName ?? question.engagementSlug}{" "}
-                      <span className="ident text-muted-foreground/70 text-xs">
+                      <span className="ident text-muted-foreground/85 text-xs">
                         {question.engagementSlug}
                       </span>
                     </Link>

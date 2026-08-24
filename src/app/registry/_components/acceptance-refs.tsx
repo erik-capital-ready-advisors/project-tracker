@@ -97,7 +97,7 @@ export function AcceptanceRefs({
 
   if (refs.length === 0) {
     return (
-      <span className="text-muted-foreground/70 text-xs italic">
+      <span className="text-muted-foreground/85 text-xs italic">
         no acceptance stated
       </span>
     );

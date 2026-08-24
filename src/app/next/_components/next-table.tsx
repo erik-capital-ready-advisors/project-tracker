@@ -132,7 +132,7 @@ export function NextTable({
                   <EntityRef kind="work_item" label={item.unit} id={item.id} />
                 )}
                 {item.phase === null ? null : (
-                  <span className="text-muted-foreground/70 ml-1.5 text-xs">
+                  <span className="text-muted-foreground/85 ml-1.5 text-xs">
                     p{item.phase}
                   </span>
                 )}
@@ -230,7 +230,7 @@ export function NextTable({
                   className={cn(
                     item.unblocks > 0
                       ? "text-foreground font-medium"
-                      : "text-muted-foreground/60",
+                      : "text-muted-foreground/85",
                   )}
                   title="How many other work items depend directly on this one."
                 >

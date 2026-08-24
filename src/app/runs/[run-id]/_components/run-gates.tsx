@@ -61,7 +61,7 @@ import { Gap } from "./gap";
 const OUTCOME_CLASS: Record<string, string> = {
   PASS: "border-foreground/40 bg-foreground/10 text-foreground font-medium",
   FAIL: "border-state-blocked/50 bg-state-blocked/10 text-state-blocked font-semibold",
-  NOT_RUN: "border-border/60 text-muted-foreground/80 border-dashed",
+  NOT_RUN: "border-border/60 text-muted-foreground/85 border-dashed",
 };
 
 const UNRECOGNISED_CLASS =

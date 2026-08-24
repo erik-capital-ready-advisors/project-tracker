@@ -1,5 +1,5 @@
 // @vitest-environment node
-import { readFileSync } from "node:fs";
+import { globSync, readFileSync } from "node:fs";
 
 import { describe, expect, it } from "vitest";
 
@@ -197,21 +197,21 @@ describe("semantic state scale", () => {
  *
  * Dropping the modifier takes the same token to 7.41:1 and 7.76:1.
  *
- * ## Why the file list is not every file
+ * ## The file list became a glob, 2026-08-24 (B63)
  *
- * The `/70` modifier is pre-existing in 24 files across the product, and QA
- * measured 96 offending nodes on `/questions` alone. That debt is real and is
- * NOT this test's business - widening the list to the whole tree would fail the
- * suite for work nobody authorised. The list below is exactly the surfaces run
- * `d4000f` created or touched, which is the scope B54 was raised for.
+ * This test used to name two files - the surfaces run `d4000f` created - and
+ * said so: the `/70` debt across the rest of the tree was real, was not this
+ * test's business, and widening the list would have failed the suite for work
+ * nobody had authorised. It left an instruction for whoever cleaned it up:
+ * *"When the list reaches every file that renders muted text, replace it with a
+ * glob and delete this paragraph."*
  *
- * Add a file here when a run cleans it. When the list reaches every file that
- * renders muted text, replace it with a glob and delete this paragraph.
+ * That happened. B63 measured **164 failing nodes across 7 authenticated
+ * routes** and Erik authorised the cleanup, so the scope is now every file that
+ * renders muted text, found by glob rather than by list. A file cannot regress
+ * by being left off an array any more.
  */
-const AA_GUARDED_FILES = [
-  "src/components/planned-chip.tsx",
-  "src/app/work-items/_components/chips.tsx",
-];
+const AA_GUARDED_FILES = globSync("src/**/*.{ts,tsx}", { cwd: process.cwd() });
 
 /** `bg` shows through `fg` at `alpha`, which is what an opacity modifier does. */
 function blend(fg: string, bg: string, alpha: number): string {
