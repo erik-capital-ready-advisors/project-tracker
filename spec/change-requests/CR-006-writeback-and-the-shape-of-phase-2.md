@@ -1,7 +1,7 @@
 # CR-006 — Writeback, and what Phase 2 actually is
 
 **Date drafted:** 2026-08-24
-**Status:** **DRAFT — NOT APPROVED. Erik approves or rejects; nothing here is built until he does.**
+**Status:** **Q21, Q22 and Q23 RULED by Erik 2026-08-24** (he took the drafter's recommendation on all three). **§3 itself is still NOT APPROVED**, and **Q24 is NOT ruled** — a recommendation is recorded in §9 and needs his word. Nothing here is built until §3 is approved.
 **Amends:** `spec-approved.md` §4.3 (promotes one bullet out of Deferred), §12 Assumption 2. Adds
 FR-97 through FR-103. Adds Q21 through Q24.
 **Depends on:** nothing. M1.10 is Complete as of 2026-08-24 and gates nothing here.
@@ -211,7 +211,75 @@ philosophy for a new document type, which is the same class of decision as an ag
 
 - [ ] §3 (M2.6 Writeback, FR-97 to FR-103) approved — date, Erik
 - [ ] §4's dispositions accepted, tracker updated to `Deferred` — date, Erik
-- [ ] Q21 ruled — date
-- [ ] Q22 ruled — date
-- [ ] Q23 ruled — date
-- [ ] Q24 ruled — date (unblocks M2.2, independent of everything above)
+- [x] **Q21 RULED 2026-08-24 — whole-block refusal.** A writeback block that does not parse is refused
+      entire and nothing from it is written; FR-101's prose parse still runs, so the run still ingests.
+      FR-100 still counts the refusal as `unparsed`. Erik took the drafter's recommendation.
+- [x] **Q22 RULED 2026-08-24 — its own artifact file.** Not the manifest (written at dispatch, so it
+      cannot carry gate outcomes or a QA verdict) and not the checkpoint (unvalidatable when a run dies
+      before writing it). The cost is accepted explicitly: one more file the emitter must be trusted to
+      write, and FR-101 is what makes its absence harmless.
+- [x] **Q23 RULED 2026-08-24 — data only.** A block-vs-prose disagreement is surfaced on
+      `/runs/[run-id]` (FR-103) and carries no further consequence. It does NOT become a `defect` row
+      and does NOT become a `blocker`. Reason recorded: a disagreement between two records is normal in
+      this product, and promoting every one to a defect would make Broken unreadable.
+- [ ] **Q24 — NOT RULED.** Recommendation recorded in §9 below, with the measurement that changed it.
+
+---
+
+## 9. Q24 — the coverage register, and the measurement that changes the answer
+
+Erik asked for a best recommendation rather than ruling this himself. Recording the recommendation
+here **with the evidence behind it**, because one measurement taken while drafting inverts the
+obvious answer.
+
+### The measurement
+
+The register's input **is empty**. Read from the live project on 2026-08-24:
+
+| Table | Rows |
+|---|---|
+| `stack` | **0** |
+| `work_session` | **0** |
+| `work_item` with `execution_mode = 'hand'` | **0** |
+
+This corrects a claim made earlier the same day — that FR-31 "has been accumulating stack
+attribution since M1.5 shipped." **It has not.** B4 was resolved and the allowlist was built, but
+nothing has been captured. Both live engagements also carry `stacks = '{}'`.
+
+### Why that inverts the question
+
+A trigger rule is the cheap half. Written against zero rows, **a coverage register would answer "no
+stack has earned a specialist" forever, and be indistinguishable from a register working correctly
+in a quiet month.** That is precisely the wrong-`done` this product exists to refuse, aimed at the
+one screen whose entire job is to notice a gap.
+
+So the recommendation is not primarily a trigger rule.
+
+### Recommendation, in build order
+
+1. **Seed `stack` from live engagements, per the spec's own §10 Q6 answer** — *"seed from live
+   engagements and let mode-2 capture add the rest."* Today that is the fleet stack and nothing else:
+   `next.js`, `supabase`, `vercel`, `typescript`. **Deliberately not a portfolio list invented by an
+   agent** — the studio's other stacks arrive as capture observes them, which is the mechanism FR-31
+   exists to provide.
+
+2. **Make M2.2's first acceptance criterion a capture check, not a register screen.** Before any
+   register is built, `work_session` must hold rows from real sessions with a resolved `stack_id`,
+   observed rather than assumed. If capture is not live, that is the milestone — the register is a
+   view over it and cannot precede it.
+
+3. **Adopt the spec's own trigger verbatim**, because it was written at intake against the practice
+   rather than reverse-engineered from an empty table: *"two or more engagements and eight or more of
+   Erik's own hours, or one engagement where the missing agent blocks a dated contract milestone."*
+   The second limb matters more than the first: it is the case where the register earns its keep, and
+   it does not need any hour count to fire.
+
+4. **The register reports its own blindness.** Where the count is zero because nothing was captured,
+   it must say so — not render an empty table that reads as "no gaps". Same rule as FR-58's badge and
+   B28's fourth counter, both of which exist because a correct-but-empty answer read as an absence.
+
+### What Erik still has to say
+
+Only one thing, and it is the seed list. If the four stacks in (1) are wrong — if he wants his actual
+portfolio seeded rather than grown from capture — that is his call and it changes step 1 only. Steps
+2 to 4 hold either way.
