@@ -1,6 +1,6 @@
 # Checkpoint 9b85cd
 
-phase_complete: 2-specialists-done
+phase_complete: final
 spec_path: /Users/erikmeltzer/Projects/project-tracker/spec
 resolved_spec: /Users/erikmeltzer/Projects/project-tracker/.fleet/resolved-spec-9b85cd.md
 branch: agent-build/2026-08-24-9b85cd
@@ -61,3 +61,30 @@ manual pass are final-stage dispatches, not phase=2 work-units, so **this run do
    **Erik's call if he wants it to own a ramp.**
 7. **u1** — no `maxLength` on the agent-name input; a paste is refused with a message naming the
    real limit rather than silently truncated.
+
+
+---
+
+## FINAL — run complete 2026-08-24
+
+status: SUCCESS WITH ISSUES (0 critical)
+milestone: M2.2 COMPLETE
+branch_tip: b477c3a
+dispatches_used: 4 of 20
+migrations: 0
+pushed: NO · deployed: NO
+
+| Gate | Verdict |
+|---|---|
+| `fleet-preflight.sh` | PASS, 0 WARN, launch cwd verified |
+| `security-gate.sh` (resolved spec) | PASS — 18 rows, 18/18 entities |
+| `report-gate.sh` × 4 | PASS × 4, run id matched each time |
+| `manual-gate.sh` | **PASS 32/32 all observed** (re-run by project-lead) |
+| `pnpm test` | 1987 passed / 6 skipped (baseline 1853) |
+| typecheck / lint / build | 0 / 0 / 0 |
+| `qa-reviewer` | ISSUES — 0 critical, 1 important, 5 minor |
+
+writeback: spec/prod.md UPDATED (b477c3a), M2.2 Complete, B7 resolved, B62/B63/B64 filed
+learnings: 5 routed, 1 held back as duplicate — .fleet/learnings-9b85cd.md
+questions: 13 queued, none blocking — .fleet/questions-9b85cd.jsonl
+observed: /stacks rendered signed-in; FR-109 write exercised through the UI and reverted
