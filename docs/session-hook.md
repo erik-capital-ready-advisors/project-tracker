@@ -236,11 +236,62 @@ a broken fake cannot make the refusals pass for the wrong reason. Three mutation
 script and each went red: neutering the fail-closed guard, replacing boundary matching with a bare
 prefix, and dropping symlink resolution.
 
-### Still unverified
+### Verified end to end, 2026-08-24
 
-**No post has ever succeeded against a live deployment**, because nothing is deployed. The allowlist
-is verified; the round trip is not. Settled by deploying, issuing an `ingest:write` token, setting
-the variables, ending a session, and finding the row.
+**This section used to say no post had ever succeeded against a live deployment. That is no longer
+true.** The round trip was closed on 2026-08-24, once M2.9 shipped and there was something to post
+to.
+
+Observed, in this order:
+
+- **Positive:** the hook fired from an allowlisted directory and **one `work_session` row landed** -
+  the first ever - carrying `source: session-hook` and the real working directory. Read back off
+  `/work-items/unassigned` under a live `aal2` session, not just out of the database.
+- **Negative control:** fired from `/tmp`, **no row**. Total 1, from `/tmp` 0.
+- **Both invocations exited `0`**, which is why the row count is the evidence and the exit code
+  cannot be. The script exits `0` on every path by design.
+
+The first row also exposed **B61**: it landed under `unassigned` with a **NULL stack**, and there was
+no way to set a stack after the fact. That is what `.delivery-ledger` below fixes.
+
+## Per-project attribution: `.delivery-ledger`
+
+The hook is installed **globally**, but which engagement and which stack a session belongs to are
+**per-repository** facts. A single global `DELIVERY_LEDGER_STACK` cannot be right for more than one
+repository, and `attributeSession()` sets only the engagement - so before this, every row had
+`stack_id` NULL and FR-31's stack-hours rollup could never fill.
+
+Put a `.delivery-ledger` file at the root of a repository whose sessions you want attributed:
+
+```
+# Only these two keys are read.
+engagement=delivery-ledger
+stack=nextjs-supabase
+```
+
+- **It is found by walking up** from the session's `cwd`, so it works from any subdirectory.
+- **The walk stops at the allowlisted root.** A config file outside studio scope has no business
+  naming a client engagement.
+- **The repository's statement wins** over the global env var, which stays a fallback default.
+- **A repository with no such file behaves exactly as before** - unassigned, no stack. That is not a
+  degradation to fix silently; it is the honest state, and the unassigned queue exists for it.
+- **`stack` rows are created on demand** by `upsertStack`. There is nothing to seed.
+
+### Why it is parsed and never sourced
+
+`.delivery-ledger` lives inside the repository being captured. That repository may be a client's, or
+a clone of something you do not control, and this hook runs with an `ingest:write` token in its
+environment.
+
+- **Sourcing it would be arbitrary code execution with a live credential in scope.** It is parsed
+  with `sed`, one key at a time, and the value is only ever carried as a string.
+- **It can set exactly two keys.** A file able to set `DELIVERY_LEDGER_URL` would redirect your token
+  to a host of its choosing.
+
+`tests/session-hook-project-config.test.ts` pins both with a hostile fixture that tries to set the
+URL and the token, and a fixture whose values are `$(touch ...)` command substitutions. **Both
+properties were mutation-tested**: making the script `source` the file turns exactly those two tests
+red and nothing else.
 
 ---
 

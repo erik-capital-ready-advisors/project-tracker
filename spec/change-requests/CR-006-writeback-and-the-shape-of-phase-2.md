@@ -257,7 +257,15 @@ So the recommendation is not primarily a trigger rule.
 
 ### Recommendation, in build order
 
-1. **Seed `stack` from live engagements, per the spec's own §10 Q6 answer** — *"seed from live
+1. ~~**Seed `stack` from live engagements**~~ — **WITHDRAWN 2026-08-24, before it was acted on.**
+   Erik agreed to this step and then the code was read: `record.ts:288` calls
+   `upsertStack(db, input.stackName, nowIso)`, so **a stack row is created on demand the first time a
+   session declares that stack.** Seeding four rows by hand would have been speculative work the
+   system already does for itself, and the spec's own Q6 answer — *"let mode-2 capture add the
+   rest"* — turns out to be what the code implements rather than an aspiration. **No seed migration
+   was written and none is needed.** The original step read as follows, and its reasoning about not
+   inventing a portfolio list still holds:
+   ~~Seed from live engagements, per the spec's own §10 Q6 answer~~ — *"seed from live
    engagements and let mode-2 capture add the rest."* Today that is the fleet stack and nothing else:
    `next.js`, `supabase`, `vercel`, `typescript`. **Deliberately not a portfolio list invented by an
    agent** — the studio's other stacks arrive as capture observes them, which is the mechanism FR-31

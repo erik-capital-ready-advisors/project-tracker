@@ -105,6 +105,7 @@ RESOLVED="$(cd "$WORKING_DIRECTORY" 2>/dev/null && pwd -P)" || RESOLVED=""
 [ -n "$RESOLVED" ] || RESOLVED="$WORKING_DIRECTORY"
 
 allowed=0
+MATCHED_ROOT=""
 saved_ifs="$IFS"
 IFS=":"
 for root in $DELIVERY_LEDGER_ALLOWLIST; do
@@ -112,7 +113,7 @@ for root in $DELIVERY_LEDGER_ALLOWLIST; do
   root_resolved="$(cd "$root" 2>/dev/null && pwd -P)" || root_resolved=""
   [ -n "$root_resolved" ] || root_resolved="$root"
   case "${RESOLVED%/}/" in
-    "${root_resolved%/}/"*) allowed=1; break ;;
+    "${root_resolved%/}/"*) allowed=1; MATCHED_ROOT="${root_resolved%/}"; break ;;
   esac
 done
 IFS="$saved_ifs"
@@ -139,10 +140,59 @@ if git -C "$WORKING_DIRECTORY" rev-parse --git-dir >/dev/null 2>&1; then
   COMMITS="$(git -C "$WORKING_DIRECTORY" log --oneline --since="$STARTED_AT" 2>/dev/null | wc -l | tr -d ' ')"
 fi
 
-# The stack, if the session declared one. NOT inferred from the file tree: a
-# guess here becomes an hours figure attributed to the wrong stack, and FR-31
-# feeds those hours to the decision about which stack earns its own fleet agent.
-STACK="${DELIVERY_LEDGER_STACK:-}"
+# ---------------------------------------------------------------------------
+# B61 - per-project attribution, read from the repository being captured.
+#
+# The hook is installed GLOBALLY (B4), but which engagement and which stack a
+# session belongs to are per-repository facts. A single global env var cannot be
+# right for more than one repository, and `attributeSession()` can set only the
+# engagement afterwards - so before this, `work_session.stack_id` was NULL on
+# every row and FR-31's stack-hours rollup could never fill.
+#
+# ## This file is PARSED, never SOURCED, and that is not a style preference
+#
+# `.delivery-ledger` lives inside the repository being captured. That repository
+# may be a client's or a clone of something nobody here controls, and this script
+# runs with an `ingest:write` token in its environment. Sourcing it would be
+# arbitrary code execution with a live credential in scope.
+#
+# It can also set exactly two keys. A file able to set `DELIVERY_LEDGER_URL`
+# would redirect the token to a host of its choosing, which turns per-project
+# convenience into credential exfiltration. `tests/session-hook-project-config.ts`
+# pins both properties with a hostile fixture and a command-substitution fixture.
+# ---------------------------------------------------------------------------
+
+config_value() {
+  # One key, from a bare `key=value` line. No expansion and no substitution: the
+  # value is only ever carried as a string into `json_string` below.
+  sed -n -e "s/^[[:space:]]*$1[[:space:]]*=[[:space:]]*\(.*\)$/\1/p" "$2" |
+    head -n 1 |
+    sed -e 's/[[:space:]]*$//'
+}
+
+PROJECT_ENGAGEMENT=""
+PROJECT_STACK=""
+config_dir="$RESOLVED"
+while [ -n "$config_dir" ]; do
+  if [ -f "$config_dir/.delivery-ledger" ]; then
+    PROJECT_ENGAGEMENT="$(config_value engagement "$config_dir/.delivery-ledger")"
+    PROJECT_STACK="$(config_value stack "$config_dir/.delivery-ledger")"
+    break
+  fi
+  # Never walk above the allowlisted root that admitted this session. A config
+  # file outside studio scope has no business naming a client engagement.
+  [ "$config_dir" = "$MATCHED_ROOT" ] && break
+  config_parent="$(dirname "$config_dir")"
+  [ "$config_parent" = "$config_dir" ] && break
+  config_dir="$config_parent"
+done
+
+# The stack. NOT inferred from the file tree: a guess here becomes an hours
+# figure attributed to the wrong stack, and FR-31 feeds those hours to the
+# decision about which stack earns its own fleet agent. The repository's own
+# statement wins over the global default, because it is the more specific fact.
+STACK="${PROJECT_STACK:-${DELIVERY_LEDGER_STACK:-}}"
+ENGAGEMENT="${PROJECT_ENGAGEMENT:-${DELIVERY_LEDGER_ENGAGEMENT:-}}"
 
 # The one-line summary the session writes (FR-24). Absent unless the session
 # set it, and absent is honest — an invented summary would be prose this
@@ -166,8 +216,8 @@ BODY="$BODY,\"commits\":$COMMITS"
 BODY="$BODY,\"source\":\"session-hook\""
 [ -n "$STACK" ] && BODY="$BODY,\"stack\":\"$(json_string "$STACK")\""
 [ -n "$SUMMARY" ] && BODY="$BODY,\"summary\":\"$(json_string "$SUMMARY")\""
-[ -n "${DELIVERY_LEDGER_ENGAGEMENT:-}" ] &&
-  BODY="$BODY,\"engagement\":\"$(json_string "$DELIVERY_LEDGER_ENGAGEMENT")\""
+[ -n "$ENGAGEMENT" ] &&
+  BODY="$BODY,\"engagement\":\"$(json_string "$ENGAGEMENT")\""
 BODY="$BODY}"
 
 # The token goes in on stdin, never as an argument: an argument is visible in
