@@ -126,7 +126,9 @@ export default async function ContractMilestoneDetailPage({
   // would catch it and report a database failure instead.
   if (milestone === null) notFound();
 
-  const amount = formatAmount(milestone.amount, milestone.currency);
+  const amount = formatAmount(milestone.amount, milestone.currency, {
+    unreadable: milestone.amountUnreadable,
+  });
   const dangling = milestone.acceptance.filter((ref) => ref.id === null).length;
 
   return (

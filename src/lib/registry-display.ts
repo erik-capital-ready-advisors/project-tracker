@@ -77,9 +77,20 @@ const ZONELESS_TIMESTAMP = /^(\d{4}-\d{2}-\d{2})T[\d:.]+$/;
 export function formatAmount(
   amount: number | null,
   currency: string,
+  /**
+   * B62. `unreadable: false` says the caller CHECKED the ciphertext and there
+   * was none, so the amount was never recorded rather than unreadable. Omitting
+   * it keeps the old, safer word: a caller with no ciphertext knowledge must not
+   * claim the record is merely empty, because that is the direction that hides a
+   * real decryption fault behind a shrug.
+   */
+  source?: { unreadable: boolean },
 ): { text: string; readable: boolean } {
   if (amount === null || !Number.isFinite(amount)) {
-    return { text: UNREADABLE_AMOUNT, readable: false };
+    return {
+      text: source !== undefined && !source.unreadable ? NOT_RECORDED : UNREADABLE_AMOUNT,
+      readable: false,
+    };
   }
 
   try {

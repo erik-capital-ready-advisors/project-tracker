@@ -115,7 +115,9 @@ export function MilestoneTable({
         </TableHeader>
         <TableBody>
           {milestones.map((milestone) => {
-            const amount = formatAmount(milestone.amount, milestone.currency);
+            const amount = formatAmount(milestone.amount, milestone.currency, {
+              unreadable: milestone.amountUnreadable,
+            });
             return (
               <TableRow
                 key={milestone.id}

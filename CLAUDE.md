@@ -268,7 +268,14 @@ Behavioral rules earned on this project. Append one line per lesson, in the mome
   gate:m27:e2e` and only then conclude anything about the session. Same failure shape as keying an
   auth check on `h1`: the observation was real and the inference from it was not.
 - When a suspected defect is reproducible, reproduce it **before** escalating it — escalate the
-  measurement, not the claim. The `defect.source_key` overwrite found on 2026-08-24 was handed to
+  measurement, not the claim. **The same rule applies to reading it out of somebody else's report:
+  a run report's "What to review first" often describes what that run already FIXED, in the past
+  tense, and offering it to Erik as available work invents a task out of a changelog.** On
+  2026-08-24 the M2.2 report's third item — *"the guide was telling you nothing critical is open,
+  while a critical defect is"* — was `doc1` recording its own correction; the guide, the `/broken`
+  screen and the database already agreed (13 open, 1 critical, 3 of them `fixed`), and
+  `isUnresolved` treating `fixed` as unresolved is deliberate and documented. One query would have
+  settled it before the offer, and did afterwards. The `defect.source_key` overwrite found on 2026-08-24 was handed to
   Erik as a structural argument ("verified in code and schema, not executed") bundled with three
   options to choose between, when one test — plan two runs' QA reports into one engagement and
   count the rows — settles whether it is real in twenty minutes. A menu of options is not a

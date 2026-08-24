@@ -111,6 +111,13 @@ async function toRecords(
       // A stored amount that will not parse is reported as null rather than as
       // NaN or 0. A wrong number here is money.
       amount: parsed !== null && Number.isFinite(parsed) ? parsed : null,
+      // B62. Keyed on the CIPHERTEXT, not the plaintext, exactly as
+      // `detail/contract-milestone.ts` already did. A row that stored no amount
+      // and a row whose amount could not be read both arrive with a null
+      // plaintext, and only the second is a fault. Dropping this distinction
+      // here is why the registry table called an unpriced milestone
+      // "unreadable" while its own detail view called it "not recorded".
+      amountUnreadable: row.amount !== null && !(parsed !== null && Number.isFinite(parsed)),
       currency: row.currency,
       dueDate: row.due_date,
       submittedAt: row.submitted_at,
