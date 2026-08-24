@@ -90,7 +90,7 @@ in-run and the deviation is reported. Recorded here **before** `i1` was dispatch
 | ID | Type | Phase | Description | Dispatched-to | Depends-on | Status |
 |----|------|-------|-------------|---------------|-----------|--------|
 | i1 | integration | 1 | Stacks read layer: per-stack aggregation, FR-106 limb-one trigger evaluation, FR-108 blindness counts, FR-109 operator write path for `agent_covering`. Zero migrations expected. | api-integrator | — | **done** — `report-gate.sh` PASS (run id matched, 6/6 sections, 13 file lines, 3 questions on disk). Merged `4f19e14` (true fast-forward). **Zero migrations, as predicted.** 12 files, +2019 lines, 57 new tests. |
-| u1 | ui | 2 | `/stacks` screen titled "Stacks": FR-104 table, FR-106 rule stated on screen, FR-107 actionable state visually distinct, FR-108 blindness + no-data treatment, Q25 Mode-2 sentence, Q27 limb-two UNMET notice, FR-109 operator control. | ui-designer | i1 | pending |
+| u1 | ui | 2 | `/stacks` screen titled "Stacks": FR-104 table, FR-106 rule stated on screen, FR-107 actionable state visually distinct, FR-108 blindness + no-data treatment, Q25 Mode-2 sentence, Q27 limb-two UNMET notice, FR-109 operator control. | ui-designer | i1 | **done** — `report-gate.sh` PASS (run id matched, 6/6 sections, 17 file lines, 4 questions on disk). Merged `9f92f25` (true fast-forward). 14 files, +3135/-1. **Routes 31 → 32.** |
 | qa1 | qa | final | Independent review of the merged branch + trajectory grading | qa-reviewer | i1, u1 | pending |
 | doc1 | docs | final | `docs/user-guide.md` covers `/stacks` (routes 31 → 32); **all rows re-opened per B57, not copied forward** | docs-writer (mode: manual) | u1, qa1 PASS | pending |
 
@@ -155,3 +155,44 @@ taking it:
 
 **Therefore Phase 2 continues in-run**, and all three best guesses are carried into `u1`'s brief
 verbatim rather than left for it to rediscover.
+
+
+## Phase 2 fan-in — u1
+
+**Report gate:** PASS, run id `9b85cd` matched, 6/6 mandated sections, 17 file lines, 4 questions
+confirmed on disk.
+
+**Merge:** `7440081` → `9f92f25`, verified a true fast-forward before the ref moved. Worktree clean
+of untracked-but-intended files.
+
+**Questions collected:** 4, from `.fleet/questions-u1-9b85cd.jsonl`. **Per-unit line counts: i1 = 3,
+u1 = 4, run total = 7.** None blocking.
+
+### One inference of mine that was wrong, and the check that caught it
+
+`git diff --stat` showed `src/lib/nav.ts | 25 +`, and I read that as a **new** file — which would
+have meant `/stacks` was reachable only by typing the URL, since no navigation component appeared in
+the diff. **That was wrong.** `nav.ts` is pre-existing and imported by 15 pages plus
+`main-nav.tsx` and `command-palette.tsx`; u1 *appended* a 25-line entry to `OPERATOR_ROUTES`, so
+`/stacks` lands in both the navigation and the command palette without either file being edited.
+Confirmed by listing the importers rather than by re-reading the diff. This is the project's own
+standing lesson — confirm at the return site, never from a bare identifier or a stat line — and it
+cost one command.
+
+**A hazard u1 documented rather than tripped:** six pages read `OPERATOR_ROUTES` by **positional
+index** (`[0]`–`[5]`). Inserting `/stacks` anywhere but the end would have rendered screens under
+each other's titles — a wrong answer that does not crash. u1 appended at index `[7]` and read its own
+entry with `.find(...)`, which is B44's prescribed fix applied to the one call site it owned.
+
+### Verification I ran myself on the merged branch, not taken from the report
+
+| Check | Result |
+|---|---|
+| Served page routes | **32** (was 31) — counted on the filesystem AND present as `ƒ /stacks` in `next build`'s own route table |
+| `pnpm test` | **1987 passed / 6 skipped / 1993**, 131 files — matches u1's claim exactly |
+| `pnpm typecheck` | exit 0 |
+| `pnpm lint` | exit 0 |
+| `pnpm build` | exit 0 |
+
+Baseline before the run was **1853 passed / 6 skipped**, measured by me at Phase 0 and independently
+by i1. Net new this run: **+134 tests** (i1 57, u1 77).
