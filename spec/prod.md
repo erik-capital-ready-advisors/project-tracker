@@ -27,6 +27,61 @@ This file is the **build log**. It tracks the live state of development: what's 
 
 ## Next session pointer
 
+> ### Read this first — resume note for 2026-08-25 (end of 2026-08-24: THE SPEC IS FULLY BUILT)
+>
+> **Every approved requirement is built. FR-1 through FR-109, all of them.** There is no unbuilt
+> requirement anywhere in the approved scope, and that sentence is the most useful thing on this
+> page. Do not go looking for the next thing to do in the blocker list — see the Lessons entry in
+> `CLAUDE.md` about why that produced a day of circular work.
+>
+> **Everything is merged and deployed. Master `6de38aa`, no open PRs, working tree clean.**
+>
+> **Erik is now TESTING, not building.** He is waiting on a client (Jaime) to sign, expected later
+> in the week of 2026-08-24, and has said that project is when the product gets put through its
+> paces. Until then he is clicking around to get familiar. **Do not propose build work in the
+> meantime**; wait for what testing surfaces, because his list will be better than a generated one.
+>
+> **The ledger now holds real data**, which it did not this morning. Six runs were ingested on
+> 2026-08-24: **7 fleet runs, 61 work items, 104 requirements, 56 blockers, 52 defects, 213
+> questions**, and **14 work items honestly `unparsed`**. Before that it held one run from
+> 2026-08-19 and nothing since.
+>
+> **Three things that read "Complete" but had never actually run, now have:** M1.10's destruction
+> path is observed, Mode 2 capture writes rows, and the accessibility gate can go red.
+>
+> ---
+>
+> ### What is left to build, and the honest status of each
+>
+> **Nothing is dispatchable today.** Every remaining item needs a decision from Erik before any
+> agent can build it, and none of them is blocking his use of the product.
+>
+> | Item | What it needs before it can be built |
+> |---|---|
+> | **M2.6 Writeback** | **CR-006 is drafted and Q21–Q23 are RULED.** §3 is **not approved** and **Q24 is unruled**. This is the only item that is one decision from dispatchable. |
+> | **M2.2 follow-on** | Nothing. Complete. |
+> | **M2.1 Probes** | Zero FRs **and** per-vendor credentials. A CR *and* a credential decision. |
+> | **M2.3 Estimate vs actual** | Zero FRs, and it fails **both limbs** of CR-005 §2's bar, which Erik adopted under Q20. Recommendation on file: leave deferred unless he amends the bar deliberately. |
+> | **M2.4 Critical path** | Zero FRs, and nothing defines the "Erik's serial time" input the name assumes. Needs a definition before a CR. |
+> | **M2.5 Harness evidence** | Zero FRs, and it names harnesses this studio does not run. The evidence would be unobservable. |
+> | **B65 follow-on / 19 open blockers** | Mostly recorded observations. None is degrading use. |
+>
+> **Two things only Erik can do, both small:**
+>
+> 1. **The Phase 1 milestone has no amount**, so Committed can only ever total `$0.00`. No agent may
+>    guess at contracted money.
+> 2. **Declare the Jaime wait** on `/waits` — it is a textbook Mode 3 external wait and would seed
+>    Blocked with something of his own rather than six runs of agent work.
+>
+> **When the client project starts**, the sequence is: register the engagement in the Registry, then
+> drop a `.delivery-ledger` file (`engagement=`, `stack=`) in its repo so sessions attribute
+> themselves from the first one. **If that repo lives outside `$HOME/Projects` the session hook
+> captures nothing, silently and by design** — the allowlist fails closed. Add the root first.
+>
+> ---
+>
+> ### Previously — the mid-day pointer, before the afternoon's work
+>
 > ### Read this first — resume note for 2026-08-25 (run `9b85cd` COMPLETE; M2.2 shipped)
 >
 > **M2.2 is Complete and `/stacks` is observed.** CR-007 §3, FR-104–FR-109, on
@@ -1394,6 +1449,10 @@ M27_STORAGE_STATE=.playwright-auth/operator.json pnpm gate:m27:e2e` → **10 pas
 | 2026-08-24 | **Fleet run `9b85cd` (`full`): 4 units done, 0 failed, build PASS — M2.2 COMPLETE** | CR-007 §3, **FR-104–FR-109**, built as `/stacks` in **4 of 20 dispatches** with **zero migrations**, exactly as CR-007 §2 predicted. `i1` the read layer, `u1` the screen, plus QA and the `docs-writer` manual pass; **all four cleared `report-gate.sh`**. Measured on the merged tree, never taken on report: typecheck 0, lint 0, `pnpm test` **1987/6** (from 1853), build 0, routes **31 → 32**, `manual-gate.sh` **PASS 32/32** re-run independently. **`/stacks` OBSERVED signed-in** with a negative control that had to pass first — the first discriminator was wrong and reported no gate on a screen that is gated, which is why the control exists. **FR-109's write exercised through the product's own UI and reverted.** **FR-108's nine figures match the database exactly.** QA **0 critical / 1 important / 5 minor**; trajectory **i1 SOUND 5/5, u1 UNSOUND 1 of 5**. Three corrections outlived the code: a false positional-nav claim that reached the manifest (**B64**), an a11y gate that measures sign-in pages (**B63**), and a guide claiming no critical defect was open while one was — caught only by B57's re-observation, **12 of 32 rows changed, 18 claims corrected**. 13 questions queued, none blocking (**B62**) |
 | 2026-08-24 | **Fleet run `9d4658` (`full`): 1 unit done, 0 failed, build PASS — no milestone advanced** | Phase 0 found that **no unbuilt requirement remains**: FR-1–FR-96 all belong to Complete or code-complete milestones, and M2.1–M2.6 carry **zero FRs**. Nothing was decomposed from §4.3 prose. One `research` unit ran (barred from proposing a schema or writing code) and measured the Mode-1 parsers against the real corpus; it surfaced **B58** and **B59**, both reproduced independently by `project-lead`. `manual-gate.sh` re-run **PASS 31/31**; `gate:m27:e2e` **10/10** (the `aal2` session is alive); `pnpm test` **1817 passed / 6 skipped** (+2 on `prod.md`'s 1815, from `tests/state-scale.test.ts` in `3eff490`); typecheck 0, lint 0, build exit 0, 31 routes. Next action is Erik's and it is a decision, not a build. |
 | 2026-08-24 | **Run `9d4658` BLOCKED — then B58/B59/B55/B44/B28 fixed and CR-006 drafted** | The finding first: **M2.1–M2.6 carry zero FRs**, verified independently. **B58 fixed** — two layers (bold label AND bold outcome word); corpus went from **0 gates / unparsed 0** to 3–5 gates each with unparsed 7/13/10/8, and `GATE_LABELS` was **not** widened. **B59 fixed** — `blocked.ts` emits an unparsed record, `prodMd.ts` counts unreadable rows; `prodMd.test.ts` moved 3 → 4 and the **fixture was not touched**. **B55** — only 1 of the 3 named files was wrong, its 7 `SortableHead` calls are axe's 7 nodes; observed `a[aria-sort]` 0 / `th[aria-sort]` 7. **B44** — six pages moved to `.find(href)`, guard test asserts the **property** not the indices; all six titles observed. **B28** — fourth counter; `/next` now reads **"20 not in a startable status"**. **CR-006 drafted, NOT approved.** `pnpm test` **1844/6**, tsc 0, oxlint 0, build clean, manual gate 31/31 |
+| 2026-08-24 | **Six runs INGESTED — the ledger stops being a five-day-old snapshot** | Mode 1 run against real artifacts for only the **second time ever**. `eb2490`, `9a320b`, `29b583`, `d4000f`, `9d4658`, `9b85cd` posted to production. **Before: 1 run, 23 work items, 79 requirements, 0 blockers. After: 7 / 61 / 104 / 56**, plus 52 defects and 213 questions, with **14 work items `unparsed`** and counted. **B58's fix is visible in production** — `fleet_run.gates` now holds real outcomes (`eb2490`: build/typecheck/lint PASS, accessibility NOT_RUN) where every run previously held only `build_after_phase1`. Two things recorded as the product WORKING: the first attempt was **refused** for using field names the endpoint does not accept and wrote nothing (the `/api/waits` defect, designed out), and one milestone came back `unparsed` because its status cell reads `**Done** — run b0952e` rather than `Done`. `9b85cd` did not land on the first pass and succeeded unchanged on retry; **the reason is unknown and is recorded as unknown** |
+| 2026-08-24 | **User guide rewritten for a non-developer; Word build current** | Erik said the guide presumed a software background and the TOC was cryptic. Added an **at-a-glance map** of what each screen is for, a **glossary of the 16 words the product uses exactly** (`unparsed` gets the longest entry), **purpose leads** on seven sections that opened with mechanism or with figures, and **a gloss on all 36 headings** so the contents page reads *Bottleneck — what is waiting on you personally*. `covered_in_guide` in the evidence file moved in lockstep — the gate matches section to route on that string. **The missing ingest procedure was written from doing it**, not from the code. `.docx` rebuilt and verified: valid zip, TOC field, word count checked inside the document. PRs #14, #15 |
+| 2026-08-24 | **B63 + B65 — 164 accessibility violations to 0, behind a gate that can fail** | The gate scanned **signed-out** pages against a route list stale since `b0952e`. A second, worse instance found while fixing it: `qa1-stacks-register.spec.ts` **read** its credentials and never **applied** them — 8 failed / 1 passed as committed, the one pass being the guard checking the vars are non-empty strings. **One token caused 95%**: `text-muted-foreground/70` at 3.55:1, 156 of 164 nodes, moved to `/85` across 51 sites in 25 files. B65's last 5 were a genuine conflict — darkening cleared AA and **broke FR-43** with new greyscale collisions — resolved with **ink tokens** so the identity token keeps its colour-blind duty. New authenticated gate **proven red-capable** (21 failed / 3 passed under a planted regression). PR #11 |
+| 2026-08-24 | **B62 — an unpriced milestone is not an unreadable one** | `/registry` said `unreadable` about a milestone nobody had ever priced, inventing a decryption fault. **The discriminator already existed twice and had been dropped once** — `contract-milestone.ts:147` keys it on the ciphertext, `committed.ts` carries the same flag; only `listMilestones()` collapsed it. `formatAmount` gained a third argument and **omitting it keeps the safer word**. The old test **could not tell the two cases apart** — its fixture had no field for it. **`/committed` needed no change and was correct all along**; the finding said two of three screens were false, it was one. **B66 filed**: an FR-109 dialog test fails ~1 run in 3, pre-existing. PR #12 |
 | 2026-08-24 | **M2.2 built, observed and MERGED (PR #10); FR-107's amber RATIFIED** | Fleet run `9b85cd`: `/stacks` Complete with **zero migrations**, routes **31 → 32**, tests **1853 → 1987**, QA 0 critical, audit **PASS**. FR-108 observed working — the register says *1 of 2 sessions name no stack at all* rather than rendering an empty table. **FR-107's borrowed `state-carried` amber RATIFIED by Erik 2026-08-24, no code change** — the run flagged it as touching an approved palette and it stands as built. **B63 reproduced independently before acceptance** and is the run's real finding: signed-out 0 violations everywhere, signed-in `/questions` **96**, `/broken` 27, `/work-items` 22, `/registry` 12, `/stacks` 2, all serious. Two leaked worktrees pruned safely, **1.5 GB reclaimed** |
 | 2026-08-24 | **B61 fixed and verified in production; probe session attributed; CR-007 drafted** | **B61 closed** by a per-project `.delivery-ledger` the script walks up to find, stopping at the allowlisted root. Verified live from a **nested** dir: `unassigned/NULL` → **`delivery-ledger`/`nextjs-supabase`**. `public.stack` gained its first row **from `upsertStack`, unseeded**. **The security half was mutation-tested** — making the script `source` the file turns exactly the two SECURITY tests red and nothing else, which matters because they passed *before* the feature existed. **FR-26's attribution control observed working** for the first time: the probe session was attributed through the UI and the queue went to 0. Recorded and NOT escalated: the first attribution attempt silently did nothing and could not be reproduced — timing differed, so it reads as a hydration race in the harness rather than a product defect. **CR-007 drafted, NOT approved.** `pnpm test` **1853/6** |
 | 2026-08-24 | **Mode 2 capture VERIFIED end to end — first `work_session` row in production** | `M1.5` read Complete since `b0952e` and had produced **zero** rows; the hook was not registered at all. Erik issued the token, everything else was prepared first. **Positive: 1 row from an allowlisted dir, read off `/work-items/unassigned` on screen. Negative control from `/tmp`: 0 rows.** Both exits `0`, so the count is the evidence. **B61 filed — `stack_id` has no attribution path at all**, which supersedes Q24 as M2.2's blocker. Global `DELIVERY_LEDGER_STACK` considered and rejected as a wrong-attribution hazard |
