@@ -47,7 +47,7 @@ only, per §3.1a), FR-91, and FR-96 with FR-96a, FR-96b, FR-96c.
 | u3 | ui | 2 | FR-96 URL filter honoured on all 11 list screens + FR-96c explicit "no such engagement" state, never a silent fall-back | ui-designer | u1, r1 | **done** — gate PASS (6 sections, 22 file lines, 3 questions), run id matched. Worktree base STALE `75f070a` → reset `6f91fa2`, **verified by project-lead**. Committed `44aa3fc`. **Inherited-decision instruction honoured and independently checked:** report says "The decision I INHERITED rather than chose", question re-queued as line 1, and `git diff` confirms it did **not** touch `unparsed-count.tsx`, `unparsed-display.ts` or `engagement-scope.tsx` — the badge is untouched. **FR-96c uses no `notFound()`** (grepped the FR-96c path). test **1672 / 6 skipped** (+34), typecheck 0, lint 0, gate:m27 5/5, build exit 0, **manual-gate PASS 30/30, served routes 30** — a query parameter is not a route. 4 mutations: 3 killed, **1 SURVIVED** — a dead `unresolved → []` arm in `/registry`'s `listed`; it deleted the dead code and said so rather than leaving unkillable code. Served all eleven routes across three URL shapes, 375px overflow 0 with a 40-char slug, server shut down. `gate:m27:e2e` NOT VERIFIED — orchestrator post-merge |
 | u4 | ui | 2 | FR-91 planned + STALE visual treatment everywhere a work item renders | ui-designer | u1, i4 | **done** — gate PASS (6 sections, 27 file lines, 5 questions), run id matched. Committed `897488e`, 40 files. Base `e3de4be`, **guard 2 fired and was overridden — same case as i3, verified valid** (B-P2). **D-1 FIXED, red-then-green both executed and read**: `tests/execution-mode-read.test.ts` went **4 failed / 7** (`expected 'fleet' to be 'unparsed'`) → **7/7**. The sentinel is **unwritable by construction** — absent from `EXECUTION_MODES`, so `validateWorkItem` refuses it and `toExecutionMode` answers null. **Found the second half of D-1 below the brief's map**: `workitems/list.ts` declared `execution_mode`/`executionMode` non-nullable over a nullable column — the hand-written-row problem in its purest form and the direct blank-chip cause; both now `| null`. **Closed a consistency bug the widening exposed**: the listing passed raw `null` while domain loaders passed `"unparsed"`, so `/work-items` and `/work-items/[id]` would have drawn **two different chips for one row**; `planned` is now a required prop and a test asserts both shapes render identical markup. Noted `ExecutionModeChip` had **no test of its own** — the B43/B46 shape, and why this shipped. FR-91 on all six surfaces, all four states incl. `unknown`; `/next` non-obvious because `READY_STATUSES` includes `pending`, so planned rows were **already** Next candidates. **No new accent, no 17th token, fuchsia untouched**: STALE borrows `--state-contested` (amber rejected — `carried` is amber and can share a row); a test asserts `ALL_WORK_STATES` is still exactly 16. test **1763 / 6** (+24, none deleted or weakened). Populated visual sweep NOT VERIFIED — a worktree has only committed content and `.env*.local` is gitignored, so every screen renders the sign-in gate; substituted a production serve on :3999 (5 routes all 200, no 500, **port confirmed dead** after) plus a real `WorkItemTable` mount in jsdom with a planned stale row |
 | c1 | copy | 2 | Microcopy: form labels and help, empty states, STALE wording, "no such engagement" state, the FR-96a badge scope label | copywriter | u1, u2, u3, u4 | **done** — gate PASS (6 sections, 14 file lines, 3 questions), run id matched. Committed `8f93275`. Base `e3de4be`, **guard 2 fired and overridden — third unit, same verified-valid reasoning** (B-P2). **All 11 marked slots filled, 0 `COPY:` markers remain** (verified by project-lead). 7 kept verbatim with reasoning written in, 4 changed. **Caught that the brief's own grep was BLIND** — the literal `grep ... app components` exits 2, those dirs do not exist at that path, and reporting it clean would have been a false negative; it re-ran correctly. **Three copy defects nothing had caught:** (1) `/questions` claimed *"No open questions have been recorded"* on a request that also searched answered ones, while u3's scoped sibling got it right — and it did **not** re-point the assertion at its own words, it replaced it with the RULE and **proved it red-capable against the old copy first**; (2) the FR-91 tooltip read *"untouched for 1 days"* and *"-2 days"* under the clock skew `daysUntouched` deliberately reports — 4 cases now, chip text and `plannedStaleness` untouched; (3) *"one click away by clearing the filter"* was false on a GET form. **Measured u1's truncation flag instead of guessing**: the option renders 216px into a 144px box and the slug alone is 108px — **no wording fits, so it is a LAYOUT finding, not a copy one**; kept precise wording, queued `w-36`. test **1814 / 6** unchanged, typecheck 0, lint 0, gate:m27 5/5, build exit 0, routes 31. Read on screen at 1280 and 375: no overflow, `sm` breakpoint switches correctly, **FR-96a suppression OBSERVED** (`data-verify-scope="none"`, no note). Empty states and picker sit behind `aal2` — **NOT VERIFIED on screen**. Port 3100 confirmed dead; removed the three `.playwright-mcp/` artifacts its session left in the shared checkout |
-| doc1 | docs | 2 | `docs/user-guide.md`: FR-96 filter section + `/work-items/new` section + observed evidence rows, taking the evidence file to 31 routes | docs-writer | u2, u3, u4, c1 | pending |
+| doc1 | docs | 2 | `docs/user-guide.md`: FR-96 filter section + `/work-items/new` section + observed evidence rows, taking the evidence file to 31 routes | docs-writer | u2, u3, u4, c1 | **done** — gate PASS (mode manual recognised, 5 sections, 5 file lines, 4 questions), run id matched. Committed `b08c83a` from `df34f44`. **`manual-gate.sh` PASS — re-run independently by project-lead**: guide 8,268 words, `manual-evidence-d4000f.json` 31 rows, 31 of 31 served routes covered, all observed. **Falsified two claims in the SHIPPED guide** (below). **Re-opened all 30 inherited rows rather than copying; 15 changed.** Ran WITHOUT worktree isolation by project-lead's decision — it must observe signed-in screens and a worktree has no `.env*.local`. Nothing on the deny-list clicked: **the sweep contained no `click()` call at all**, navigation and DOM reads only, chosen because of 29b583. Port 3000 free at start, **dead at finish**. `CLAUDE.md`, the `.docx` and `new-desktop.png` untouched. typecheck 0, lint 0, test 1814/6, gate:m27 5/5, build exit 0, routes 31 — nothing moved |
 | d1 | deploy | 2 | Apply i1's migration, rename the local file to the version `list_migrations` reports, check advisors, verify the preview deploy | devops | i1 | **done** — gate PASS (5 sections, 5 questions), run id matched. Worktree base was STALE `75f070a`, reset to `6f91fa2`, `HAVE_PHASE1` confirmed — **verified independently by project-lead**, not taken on report. **Applied nothing.** Migration `20260824110601` verified against the LIVE database, not the file: version+filename match on all 13 (no `db push` re-run risk); `execution_mode` nullable; BEFORE UPDATE trigger enabled; unique index is **PLAIN** (`btree (engagement_id, plan_ref)`, no `WHERE`); `app.touch_updated_at()` `proacl = postgres=X || service_role=X`, no PUBLIC. Catalog claims exercised in rolled-back transactions (2nd upsert no `42P10`; `service_role` write no `42501`; trigger overrode a written timestamp; CHECK `23514`), rollback proven after the fact. Advisors: security 4 findings **0 introduced**; performance **1 introduced** — `work_item_planned_updated_idx` unused, benign only while FR-91's reader is deferred, **re-check when it ships**. **BLOCKING FINDING B-P1 (below).** Declined to create a preview deploy, with reasons |
 | qa1 | qa | synth | Final independent review of the merged branch, incl. trajectory grading | qa-reviewer | all | pending |
 | man1 | docs | synth | End-user manual pass, `mode: manual`. **Gated on qa1 PASS** | docs-writer | qa1 | pending |
@@ -477,3 +477,66 @@ The honest statement is: **a worktree's base is unpredictable and may be any rec
 one that is not an ancestor of the run branch.** That last case is the dangerous one, because it is
 the only one where `reset --hard` could destroy something — and it is precisely the case the second
 guard catches. The guard earned its place this run.
+
+---
+
+## B-P3 — a §7a exposure in the repository itself. Found by doc1, verified by project-lead. PRE-EXISTING.
+
+`.gitignore` line 36 reads `.fleet/manual-traces/*.png` — **PNGs only.** The `.txt` transcripts
+beside them are **not** ignored, and **34 of them are committed and pushed to `origin/master`**
+(~110 KB). They are full rendered page text captured from a **populated** instance.
+
+**Verified structurally by project-lead without echoing any of it, and with a control so the scan
+is not blind:**
+
+| Probe | Files matching (of 34) |
+|---|---|
+| `blocked` | 34 |
+| `unparsed` | 33 |
+| `work item` | 33 |
+| `engagement` | 28 |
+| nonsense control term | **0** — the scan discriminates |
+
+Under §7a, `work_item.description`, `blocker.description`, `open_question.question`,
+`defect.description` and `work_session.summary` are all **`sensitive`** and pgcrypto-encrypted at
+rest. **A rendered page shows them decrypted.** `engagement.client_name` is `personal` and
+deliberately clear. So the repository is carrying, in plaintext and pushed to a remote, exactly the
+classes §7a encrypts in the database — the control is applied at rest and defeated by the artifact.
+
+**Not caused by this run, and not fixed by this run.** doc1's own transcripts went to the
+scratchpad and its evidence file cites only gitignored PNGs, so nothing was added. **Two reasons
+project-lead did not act:** adding the ignore rule stops new leaks but does **not** remove the 34
+already in history, and purging history means a rewrite plus force-push to `origin/master` — a
+destructive, outward-facing operation that is Erik's decision, not an agent's.
+
+**Recommended, in order:** (1) extend the ignore rule to the whole directory; (2) decide on a
+history purge; (3) treat anything in those transcripts as disclosed until it is.
+
+## B-P4 — the manual gate can pass on stale evidence, and did not this time only because doc1 refused to copy
+
+doc1's sharpest finding, and it is about the gate rather than the guide. **Two claims in the
+already-shipped `docs/user-guide.md` were falsified by this milestone:**
+
+- *"There is no engagement filter, and that is deliberate rather than missing."* FR-96 is approved
+  by CR-005 and built; the picker renders on `/runs`.
+- *"You cannot fill Next from inside the product."* Now half wrong — hand entry creates a `pending`
+  row and `READY_STATUSES` carries `pending`. doc1 confirmed this at `src/lib/server/answers/next.ts:52`
+  **and at the return site line 168**, not from a comment — the repo's own "check the return site,
+  not a bare grep" rule applied unprompted.
+
+**`manual-gate.sh` would have returned PASS with all 30 rows copied verbatim, `/runs` included.**
+It checks that every served route carries a row with an observation; **it cannot tell a fresh
+observation from a stale one.** This is the gate-fails-by-passing shape, confirmed again. doc1
+queued a proposed fix: a per-row `observed_at_commit` field the gate can compare against HEAD.
+
+## Three FR-91 surfaces that could not be observed, and why — declared, not discovered
+
+**The ledger contains no planned row.** All 20 `work_item` rows report
+`data-verify-planned="false"`, and `?status=pending` returns none while the unfiltered page returns
+20 — a control proving the query is not blind. So FR-91's planned and STALE markers, FR-96's
+roster-unavailable notice, and the form's submit path **were never on screen this run**. Creating
+one would have meant writing a real row into the live ledger, which doc1 correctly declined.
+
+doc1 marked all three **in the guide body**, not only in its report — a reader is told what was not
+verified. Its question 3 asks whether a seeded instance should exist so these can be checked.
+**This is the highest-value open question in the run.**
